@@ -50,7 +50,7 @@ CONTEXT.md            # 领域术语表
 
 - `docs/game-knowledge.md` — 给 AI 的游戏信息大纲（规则书 + prompt 模板）
 - `docs/data-schema.md` — 数据源字段清单（StarRailRes / TurnBasedGameData）
-- `docs/adr/` — 架构决策（自研引擎 / 输入层解耦 / 红A数据来源 / 机制范围）
+- `docs/adr/` — 架构决策（自研引擎 / 输入层解耦 / 红A数据来源 / 机制范围）；**0006 = v2 地基重构蓝图（五层架构 + 数据溯源 + Effects 模型 + 对账体系）**
 - `CONTEXT.md` — 领域术语表
 
 ## 已知限制（v1）
