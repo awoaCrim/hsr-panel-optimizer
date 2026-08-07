@@ -1,0 +1,60 @@
+{
+  "id": "1306",
+  "name": "花火",
+  "element": "Quantum",
+  "path": "Shaman",
+  "note": "数值来自 AvatarSkillConfig（L10）+ StarRailRes desc 参数位解读；能量 110 来自 AvatarConfig.SPNeed；80级白值 = P0基础 + step×127（2026-08 wiki 核对修正）",
+  "base_stats": {
+    "hp": 1397.1,
+    "atk": 523.9,
+    "defense": 485.1,
+    "speed": 101.0,
+    "crit_rate": 0.05,
+    "crit_dmg": 0.5,
+    "break_effect": 0.0,
+    "energy_regen": 1.0
+  },
+  "max_energy": 110.0,
+  "skills": {
+    "basic": {
+      "mult": 1.4,
+      "sp": 1,
+      "energy": 20,
+      "toughness": 10,
+      "note": "独角戏"
+    },
+    "skill": {
+      "mult": 0.0,
+      "sp": -1,
+      "energy": 30,
+      "toughness": 0,
+      "advance_pct": 0.5,
+      "note": "梦游鱼：拉条 50%（目标=行动主目标）"
+    },
+    "ult": {
+      "mult": 0.0,
+      "energy_cost": 110.0,
+      "energy": 5,
+      "sp_bonus": 4,
+      "note": "一人千役：回 4 SP；谜诡增伤 v1 不做"
+    },
+    "talent": {
+      "mult": 0.0,
+      "note": "叙述性诡计：SP 上限 +2；每耗 1 SP 全队增伤 6%（L10）叠 3 层"
+    }
+  },
+  "talent_extra": {
+    "sp_cap_bonus": 2,
+    "skill_effects": {
+      "skill": {
+        "buff": {
+          "stat": "crit_dmg",
+          "value": 0.93,
+          "target": "advance_target",
+          "duration": 1
+        },
+        "note": "目标暴伤 +24%花火爆伤+45%（L10，按花火 200% 暴伤折算 0.93）"
+      }
+    }
+  }
+}

@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# 日志（LLM 迭代细节）
+logs/
+
+# 克隆的研究用参考仓库（不属于本项目）
+HSR-Optimal-Rotation-Calculator/
+HSR-Theoriser/
+HSRActionSequence/
+Honkai-Star-Rail-Simulator/
+Honkai-Star-Rail-Tactical-Turn-Optimization-Development-Engine/
+SCcalculator/
+
+# 环境变量 / 凭据
+.env
+*.env

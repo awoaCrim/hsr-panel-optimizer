@@ -1,0 +1,68 @@
+{
+  "id": "8007",
+  "name": "记忆主",
+  "element": "Ice",
+  "path": "Memory",
+  "note": "数值来自 AvatarSkillConfig（L10）+ StarRailRes desc 参数位解读；能量 160 来自 AvatarConfig.SPNeed；迷迷行动倍率/攻击继承为手填待验证；80级白值 = P0基础 + step×127（2026-08 wiki 核对修正）",
+  "base_stats": {
+    "hp": 1047.8,
+    "atk": 543.3,
+    "defense": 630.6,
+    "speed": 103.0,
+    "crit_rate": 0.05,
+    "crit_dmg": 0.5,
+    "break_effect": 0.0,
+    "energy_regen": 1.0
+  },
+  "max_energy": 160.0,
+  "skills": {
+    "basic": {
+      "mult": 1.4,
+      "sp": 1,
+      "energy": 20,
+      "toughness": 10,
+      "note": "包在我身上！"
+    },
+    "skill": {
+      "mult": 0.0,
+      "sp": -1,
+      "energy": 30,
+      "toughness": 0,
+      "note": "就决定是你了！：迷迷回血 60%（L10）+ 充能 10%"
+    },
+    "ult": {
+      "mult": 0.0,
+      "energy_cost": 160.0,
+      "energy": 5,
+      "toughness": 0,
+      "note": "一起上吧，迷迷！：迷迷充能 40% + 迷迷全体伤害（迷迷攻击 × 240% L10）"
+    },
+    "talent": {
+      "mult": 0.0,
+      "note": "无所不能的伙伴：迷迷速度 130、HP=主人 80%+640（L10）、真伤光环"
+    }
+  },
+  "talent_extra": {
+    "summon": true,
+    "memosprite": {
+      "speed": 130.0,
+      "atk_inherit": 1.0,
+      "act_mult": 1.0,
+      "enhanced_mult": 1.6,
+      "note": "迷迷攻击=记忆主攻击 100%、行动倍率 100%/强化 160%，均为手填待验证"
+    },
+    "skill_effects": {
+      "skill": {
+        "mem_charge": 0.1
+      },
+      "ult": {
+        "mem_charge": 0.4,
+        "mem_dmg": 2.4
+      },
+      "talent": {
+        "true_dmg_aura": 0.1,
+        "note": "迷迷在场全队真伤 +10%（手填待验证）"
+      }
+    }
+  }
+}

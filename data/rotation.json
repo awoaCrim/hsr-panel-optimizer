@@ -1,0 +1,22 @@
+{
+  "note": "红A队策略 v3：决策规则形态（ADR-0005）。模拟器按策略实时决策，程序可枚举参数空间搜索最优（policy_search.py）。chain_max=红A回路连打上限；skill_budget=整场战技预算（SP 分配）；ult=on_full 能量满即时释放",
+  "policy": {
+    "1015": {
+      "ult": "on_full",
+      "chain_max": 5
+    },
+    "1306": {
+      "ult": "on_full",
+      "skill_budget": 2,
+      "pull_target": "1015"
+    },
+    "1309": {
+      "ult": "on_full",
+      "skill_budget": 1
+    },
+    "8007": {
+      "ult": "on_full",
+      "skill_budget": 1
+    }
+  }
+}

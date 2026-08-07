@@ -1,0 +1,70 @@
+{
+  "id": "1309",
+  "name": "知更鸟",
+  "element": "Physical",
+  "path": "Shaman",
+  "note": "数值来自 AvatarSkillConfig（L10）+ StarRailRes desc 参数位解读；能量 160 来自 AvatarConfig.SPNeed；80级白值 = P0基础 + step×127（2026-08 wiki 核对修正）",
+  "base_stats": {
+    "hp": 1280.7,
+    "atk": 640.3,
+    "defense": 485.1,
+    "speed": 102.0,
+    "crit_rate": 0.05,
+    "crit_dmg": 0.5,
+    "break_effect": 0.0,
+    "energy_regen": 1.0
+  },
+  "max_energy": 160.0,
+  "skills": {
+    "basic": {
+      "mult": 1.4,
+      "sp": 1,
+      "energy": 20,
+      "toughness": 10,
+      "note": "扑翼白声"
+    },
+    "skill": {
+      "mult": 0.0,
+      "sp": -1,
+      "energy": 30,
+      "toughness": 0,
+      "note": "翎之咏叹调：全队增伤 50%（L10）持续 3 回合"
+    },
+    "ult": {
+      "mult": 0.0,
+      "energy_cost": 160.0,
+      "energy": 5,
+      "toughness": 0,
+      "note": "千音迭奏：全队（除自身）立即行动 + 协奏 2 回合 + 附加伤害"
+    },
+    "talent": {
+      "mult": 0.0,
+      "note": "调性合颂：全队暴伤 +20%（L10）常驻；队友攻击后自身回 2 能量"
+    }
+  },
+  "talent_extra": {
+    "energy_on_ally_attack": 2,
+    "skill_effects": {
+      "skill": {
+        "buff": {
+          "stat": "dmg_bonus",
+          "value": 0.5,
+          "duration": 3
+        },
+        "note": "全队增伤 50%（L10）持续 3 回合"
+      },
+      "ult": {
+        "advance_all": 1.0,
+        "concert": 2,
+        "additional_mult": 1.2,
+        "buff": {
+          "stat": "concert_atk",
+          "value": 0.228,
+          "duration": 2
+        },
+        "atk_flat": 200,
+        "note": "全队立即行动 + 协奏 2 回合（附加伤害 120% L10，固定双暴 100%/150%）+ 全队攻击 +22.8%+200"
+      }
+    }
+  }
+}

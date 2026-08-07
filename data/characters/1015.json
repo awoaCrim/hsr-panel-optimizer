@@ -1,0 +1,68 @@
+{
+  "id": "1015",
+  "name": "红A",
+  "element": "Quantum",
+  "path": "Rogue",
+  "note": "倍率/削韧/能量经 biligame wiki 交叉核对（2026-08）：能量上限 220 确认；倍率修正为 L10（战技 360%/大招 1000%，此前误用数据表 L15）；能量/削韧为 wiki 值待 TurnBasedGameData 回填（ADR-0003）；80级白值 = P0基础 + step×127（2026-08 wiki 核对修正）",
+  "base_stats": {
+    "hp": 1164.2,
+    "atk": 620.9,
+    "defense": 485.1,
+    "speed": 105.0,
+    "crit_rate": 0.05,
+    "crit_dmg": 0.5,
+    "break_effect": 0.0,
+    "energy_regen": 1.0
+  },
+  "max_energy": 220.0,
+  "skills": {
+    "basic": {
+      "mult": 1.3,
+      "sp": 1,
+      "energy": 20,
+      "toughness": 10,
+      "note": "干将•莫邪（L9 数据表最高）"
+    },
+    "skill": {
+      "mult": 3.6,
+      "sp": -1,
+      "energy": 30,
+      "toughness": 20,
+      "extra_action": true,
+      "note": "伪•螺旋剑：回路连接（L10 360%），战技后不结束回合，削韧 20（wiki）"
+    },
+    "ult": {
+      "mult": 10.0,
+      "energy_cost": 220.0,
+      "energy": 5,
+      "toughness": 30,
+      "note": "无限剑制（L10 1000%）：能量 220 与削韧 30 均经 wiki 确认"
+    },
+    "talent": {
+      "mult": 2.0,
+      "energy": 5,
+      "toughness": 10,
+      "note": "心眼（真）（L10 200%）：队友攻击后消耗 1 充能追击 + 回 1 SP + 回 5 能量（wiki）"
+    }
+  },
+  "talent_extra": {
+    "followup_on_ally_attack": true,
+    "followup_energy": 5,
+    "skill_effects": {
+      "skill": {
+        "buff": {
+          "stat": "dmg_bonus",
+          "value": 1.0,
+          "cap": 2.0,
+          "duration": 0
+        },
+        "extra_action_max": 5,
+        "note": "回路连接：战技伤害 +100%/层（L10）叠 2 层常驻；战技后不结束回合，主动施放 5 次后退出回路（wiki）"
+      },
+      "ult": {
+        "fate_charge": 2,
+        "note": "大招 +2 充能，上限 4"
+      }
+    }
+  }
+}

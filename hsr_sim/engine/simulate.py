@@ -1,0 +1,514 @@
+"""前向模拟器：执行循环 → 输出 2T 内的伤害/SP/能量/行动记录。
+
+机制覆盖（v1 全量，见 docs/adr/0004）：
+- 多单位行动队列（角色/忆灵/敌人）
+- 拉条：花火战技 50%、知更鸟大招全队 100%
+- 忆灵：迷迷独立行动条 + 充能强化
+- 真实伤害（记忆主）与附加伤害（知更鸟协奏）
+- 击破：削韧 → 击破伤害 + 行动延后 25%
+- 红A：战技【回路连接】额外行动、天赋追击（消耗充能立即攻击+回 SP）
+- 花火：SP 上限 +2、每耗 1 SP 全队增伤
+"""
+from __future__ import annotations
+
+from dataclasses import dataclass, field, replace
+from typing import Dict, List, Optional, Tuple
+
+from ..model import Action, CharacterData, CharacterPolicy, Enemy, Rotation, Stats
+from .av_queue import ActionQueue
+from .buffs import BuffManager
+from .damage import Multipliers, break_damage, expected_damage, flat_damage
+
+
+DEFAULT_TARGET_AV = 250.0  # 2T = 首轮 150 + 次轮 100
+BREAK_POSTPONE_PCT = 0.25
+
+
+@dataclass
+class DamageEvent:
+    t: float
+    source: str
+    target: str
+    amount: float
+    kind: str  # normal / followup / additional / break
+
+
+@dataclass
+class ActionLog:
+    t: float
+    unit_id: str
+    action: str
+    detail: str = ""
+
+
+@dataclass
+class SimResult:
+    t_end: float
+    total_damage: float = 0.0
+    damage_by_source: Dict[str, float] = field(default_factory=dict)
+    damage_by_kind: Dict[str, float] = field(default_factory=dict)
+    sp_timeline: List[Tuple[float, float]] = field(default_factory=list)
+    sp_min: float = 0.0
+    energy_shortfalls: List[Tuple[float, str, float, float]] = field(default_factory=list)
+    actions: List[ActionLog] = field(default_factory=list)
+    breaks: List[Tuple[float, str]] = field(default_factory=list)
+    enemy_hp_left: Dict[str, float] = field(default_factory=dict)
+    ult_count: Dict[str, int] = field(default_factory=dict)
+    action_count: Dict[str, int] = field(default_factory=dict)
+
+    @property
+    def enemies_killed(self) -> int:
+        return sum(1 for hp in self.enemy_hp_left.values() if hp <= 0.0)
+
+
+class Simulator:
+    def __init__(
+        self,
+        characters: Dict[str, CharacterData],
+        char_stats: Dict[str, Stats],
+        enemies: Dict[str, Enemy],
+        rotation: Rotation,
+        target_av: float = DEFAULT_TARGET_AV,
+        attacker_level: int = 90,
+        memosprite_speed: float = 130.0,
+    ) -> None:
+        self.chars = characters
+        self.stats = char_stats
+        self.enemies = enemies
+        self.rotation = rotation
+        self.target_av = target_av
+        self.attacker_level = attacker_level
+        self.memosprite_speed = memosprite_speed
+
+        self.queue = ActionQueue()
+        for cid in characters:
+            self.queue.add(cid, char_stats[cid].speed)
+        for eid, e in enemies.items():
+            self.queue.add(eid, e.speed)
+
+        # 运行时状态
+        self.t = 0.0
+        self._steps = 0
+        self.sp = 4.0
+        self.sp_max = 5.0
+        for cid, c in characters.items():
+            self.sp_max += c.talent_extra.get("sp_cap_bonus", 0)
+        self.energy: Dict[str, float] = {cid: 0.0 for cid in characters}
+        self.toughness: Dict[str, float] = {eid: e.toughness for eid, e in enemies.items()}
+        self.enemy_hp: Dict[str, float] = {eid: e.hp for eid, e in enemies.items()}
+        self.buffs = BuffManager()
+        self.damage_events: List[DamageEvent] = []
+        self.sp_timeline: List[Tuple[float, float]] = [(0.0, self.sp)]
+        self.shortfalls: List[Tuple[float, str, float, float]] = []
+        self.log: List[ActionLog] = []
+        self.breaks: List[Tuple[float, str]] = []
+        self.ult_count: Dict[str, int] = {cid: 0 for cid in characters}
+        self.action_count: Dict[str, int] = {cid: 0 for cid in characters}
+
+        # 天赋运行时
+        self.fate_charge: Dict[str, float] = {}          # 红A充能
+        self.skill_used: Dict[str, int] = {cid: 0 for cid in characters}  # 战技使用计数（策略 skill_budget）
+        self.burst_chain: Dict[str, int] = {}            # 额外行动链计数（红A 回路）
+        self.sp_spent_count: int = 0                     # 花火天赋层数
+        self.concert_rounds: int = 0                     # 知更鸟协奏剩余回合
+        self.memosprite: Optional[dict] = None           # {charge, alive}
+        self.memosprite_owner: str = ""
+
+    # ---------- 主循环 ----------
+    def run(self) -> SimResult:
+        if self.memosprite_speed and any(
+            c.talent_extra.get("summon") for c in self.chars.values()
+        ):
+            # 记忆主开局召唤迷迷
+            owner = next(cid for cid, c in self.chars.items() if c.talent_extra.get("summon"))
+            self.memosprite_owner = owner
+            self.memosprite = {"charge": 0.0, "alive": True}
+            self.queue.add("MEM", self.memosprite_speed)
+
+        while True:
+            nxt = self.queue.next()
+            if nxt is None:
+                break
+            unit_id, dt = nxt
+            if self.t + dt > self.target_av:
+                break
+            self._steps += 1
+            if self._steps > 50000:
+                raise RuntimeError(
+                    f"模拟超过 {self._steps} 步未结束：t={self.t:.1f} 单位={unit_id} dt={dt:.3f} "
+                    f"队列={self.queue.snapshot()} SP={self.sp:.0f}"
+                )
+            self.t += dt
+            self.queue.advance_time(dt)
+
+            if unit_id == "MEM":
+                self._memosprite_act()
+            elif unit_id in self.enemies:
+                self._enemy_act(unit_id)
+            elif unit_id in self.chars:
+                self._character_act(unit_id)
+            else:
+                self.queue.reset_after_action(unit_id)
+
+            # 终结技不占行动条：行动结算后检查能量，够则立即释放（星铁真实规则）
+            self._try_immediate_ults()
+
+        return self._result()
+
+    # ---------- 角色行动 ----------
+    def _policy_decide(self, cid: str, pol: CharacterPolicy) -> Action:
+        """策略模式决策：连打状态/战技预算/SP 阈值 → 动作。
+
+        决策点（可被程序策略搜索优化）：
+        - 回路连打中（burst_chain）→ 继续战技（SP 不足由主流程降级打断）
+        - 战技预算用尽 → 普攻
+        - SP 不足 → fallback 动作
+        - 否则 → 战技（拉条目标取策略 pull_target）
+        """
+        if cid in self.burst_chain:
+            return Action(unit_id=cid, action="skill")
+        skill = self.chars[cid].skills.get("skill")
+        if skill is None:
+            return Action(unit_id=cid, action="basic")
+        if self.skill_used.get(cid, 0) >= pol.skill_budget:
+            return Action(unit_id=cid, action="basic")
+        if skill.sp < 0 and self.sp < -skill.sp:
+            return Action(unit_id=cid, action=pol.fallback)
+        return Action(unit_id=cid, action="skill", target=pol.pull_target)
+
+    def _character_act(self, cid: str) -> None:
+        pol = self.rotation.policy.get(cid)
+        if pol is not None:
+            action = self._policy_decide(cid, pol)
+        else:
+            # 序列模式（v2 兼容）：消费写死的行动序列
+            action = self.rotation.next_action(cid)
+            if action is None:
+                action = Action(unit_id=cid, action="basic")
+        skill = self.chars[cid].skills.get(action.action)
+        if skill is None:
+            skill = self.chars[cid].skills["basic"]
+            action = Action(unit_id=cid, action="basic")
+
+        # 大招能量检查：能量不足则跳过该动作（保持行动链，继续打战技攒能），不降级普攻
+        if action.action == "ult":
+            # 终结技由即时释放机制负责（_try_immediate_ults）：轮到该槽时能量必然不足，跳过
+            self.log.append(ActionLog(self.t, cid, "ult", detail="能量不足，跳过（攒能后即时释放）"))
+            self.rotation.advance(cid)
+            return
+
+        # SP 检查：战技（sp<0）需足够 SP，不足则降级为普攻（游戏规则：SP 不足不能施放战技）
+        if skill.sp < 0 and self.sp < -skill.sp:
+            self.log.append(ActionLog(self.t, cid, "basic", detail="SP不足，战技降级为普攻"))
+            action = Action(unit_id=cid, action="basic")
+            skill = self.chars[cid].skills["basic"]
+        elif action.action == "skill":
+            self.skill_used[cid] = self.skill_used.get(cid, 0) + 1
+
+        self.buffs.tick_owner(cid)
+        # 目标解析：伤害目标（敌人）与友方目标（拉条/buff 对象，如花火拉红A）分离
+        dmg_target = self._resolve_target(action.target, skill)
+        ally_target = action.target if action.target in self.chars else (skill.advance_target or "")
+
+        # 伤害结算
+        if skill.mult > 0.0 and dmg_target:
+            dmg = self._deal_damage(cid, dmg_target, skill.mult, kind="normal")
+            self._on_ally_attack(cid, dmg_target)
+
+        # 技能特效（天赋钩子：拉条/充能/协奏/真伤等，配置见各角色 JSON talent_extra.skill_effects）
+        self._apply_skill_effects(cid, action.action, ally_target)
+
+        # SP
+        sp_delta = skill.sp + getattr(skill, "sp_bonus", 0)
+        if skill.sp < 0:
+            self.sp_spent_count += 1  # 花火天赋：每耗 1 SP 全队增伤
+        self.sp = min(self.sp_max, self.sp + sp_delta)
+        self.sp_timeline.append((self.t, self.sp))
+
+        # 能量（回能 × 充能效率；大招消耗不乘）
+        regen = self.stats[cid].energy_regen
+        self.energy[cid] += skill.energy * regen
+        if action.action == "ult":
+            self.energy[cid] -= skill.energy_cost
+            self.ult_count[cid] = self.ult_count.get(cid, 0) + 1
+
+        # 削韧
+        if dmg_target and skill.toughness > 0.0:
+            self._apply_toughness(cid, dmg_target, skill)
+
+        # 拉条：目标 = 友方目标（rotation target）或技能配置，否则自身
+        if skill.advance_pct > 0.0:
+            adv_target = ally_target or cid
+            self.queue.advance(adv_target, skill.advance_pct)
+
+        # 行动日志与队列推进
+        self.action_count[cid] = self.action_count.get(cid, 0) + 1
+        self.log.append(ActionLog(self.t, cid, action.action))
+        self.rotation.advance(cid)
+
+        if skill.extra_action:
+            # 额外行动链（红A 回路连接）：链内战技次数达上限后强制结束回合
+            self.burst_chain[cid] = self.burst_chain.get(cid, 0) + 1
+            default_max = self.chars[cid].talent_extra.get("skill_effects", {}).get("skill", {}).get("extra_action_max", 0)
+            max_chain = pol.chain_max if (pol is not None and pol.chain_max > 0) else default_max
+            if max_chain and self.burst_chain[cid] >= max_chain:
+                self.burst_chain.pop(cid, None)
+                self.queue.reset_after_action(cid)
+            else:
+                self.queue.keep_acting(cid)
+        else:
+            self.burst_chain.pop(cid, None)
+            self.queue.reset_after_action(cid)
+
+    # ---------- 终结技即时释放（不占行动条） ----------
+    def _try_immediate_ults(self) -> None:
+        """能量满足即释放大招：策略 ult=on_full 或序列含 ult 的角色启用。"""
+        for cid in list(self.chars):
+            pol = self.rotation.policy.get(cid)
+            if pol is not None:
+                enabled = pol.ult == "on_full"
+            else:
+                seq = self.rotation.actions.get(cid)
+                enabled = bool(seq) and any(a.action == "ult" for a in seq)
+            if not enabled:
+                continue
+            skill = self.chars[cid].skills["ult"]
+            while self.energy[cid] >= skill.energy_cost:
+                self._execute_ult(cid, skill)
+
+    def _execute_ult(self, cid: str, skill) -> None:
+        """执行大招：伤害/特效/能量扣除/SP，不占用行动条（不 reset、不推进时间）。"""
+        dmg_target = self._resolve_target("", skill)
+        ally_target = ""
+        if skill.mult > 0.0 and dmg_target:
+            self._deal_damage(cid, dmg_target, skill.mult, kind="normal")
+            self._on_ally_attack(cid, dmg_target)
+        self._apply_skill_effects(cid, "ult", ally_target)
+        sp_delta = skill.sp + getattr(skill, "sp_bonus", 0)
+        if skill.sp < 0:
+            self.sp_spent_count += 1
+        self.sp = min(self.sp_max, self.sp + sp_delta)
+        self.sp_timeline.append((self.t, self.sp))
+        self.energy[cid] += skill.energy * self.stats[cid].energy_regen
+        self.energy[cid] -= skill.energy_cost
+        self.ult_count[cid] = self.ult_count.get(cid, 0) + 1
+        self.action_count[cid] = self.action_count.get(cid, 0) + 1
+        self.log.append(ActionLog(self.t, cid, "ult", detail="即时释放"))
+        if dmg_target and skill.toughness > 0.0:
+            self._apply_toughness(cid, dmg_target, skill)
+
+    def _apply_skill_effects(self, cid: str, action_name: str, target: Optional[str]) -> None:
+        """技能特效钩子：全队拉条 / 协奏 / 红A充能 / 迷迷充能与伤害 / buff 施加。"""
+        effects = self.chars[cid].talent_extra.get("skill_effects", {}).get(action_name, {})
+        # 全队拉条（知更鸟大招：除自身外立即行动）
+        if effects.get("advance_all"):
+            for other in self.chars:
+                if other != cid:
+                    self.queue.advance(other, effects["advance_all"])
+        # 红A 充能（大招 +2，上限 4）
+        if effects.get("fate_charge"):
+            self.fate_charge[cid] = min(4.0, self.fate_charge.get(cid, 0.0) + effects["fate_charge"])
+        # 知更鸟协奏：附加伤害倍率 + 持续轮数
+        if effects.get("concert"):
+            self.concert_rounds = effects["concert"]
+            self._concert_additional_mult = effects.get("additional_mult", 0.72)
+        if self.concert_rounds > 0:
+            self.concert_rounds -= 1
+        # 迷迷充能 / 迷迷全体伤害（记忆主）
+        if self.memosprite is not None:
+            if effects.get("mem_charge"):
+                self.memosprite["charge"] = min(100.0, self.memosprite["charge"] + effects["mem_charge"] * 100.0)
+            if effects.get("mem_dmg"):
+                self._mem_damage_all(effects["mem_dmg"])
+        # 通用 buff 施加（增伤/暴伤/真伤）
+        for key in ("buff",):
+            b = effects.get(key)
+            if b:
+                buff_target = ""
+                if b.get("target") == "advance_target":
+                    buff_target = target or ""
+                elif b.get("target"):
+                    buff_target = b["target"]
+                self.buffs.add(
+                    b["stat"], b["value"], cid,
+                    b.get("duration", 1), target=buff_target, cap=b.get("cap", 0.0),
+                )
+        # 真伤常驻光环（记忆主：迷迷在场全队真伤）
+        if effects.get("true_dmg_aura"):
+            self.buffs.add("true_dmg", effects["true_dmg_aura"], cid, 0)
+        # 固定攻击加成（知更鸟协奏 +200）
+        if effects.get("atk_flat"):
+            self.buffs.add("atk_flat", effects["atk_flat"], cid, effects.get("buff", {}).get("duration", 2))
+
+    def _mem_damage_all(self, mult: float) -> None:
+        owner = self.chars[self.memosprite_owner]
+        owner_stats = self._effective_stats(self.memosprite_owner)
+        mem_atk = owner_stats.atk
+        for eid, hp in list(self.enemy_hp.items()):
+            if hp > 0.0:
+                dmg = expected_damage(
+                    mult, mem_atk, owner_stats, self._current_multipliers(),
+                    self.enemies[eid].defense,
+                    self.enemies[eid].resistances.get("Ice", 0.0),
+                    self.attacker_level,
+                )
+                self._record_damage("MEM", eid, dmg, "normal")
+
+    def _resolve_target(self, target_id: str, skill) -> Optional[str]:
+        if target_id and target_id in self.enemy_hp:
+            return target_id
+        alive = [eid for eid, hp in self.enemy_hp.items() if hp > 0.0]
+        return alive[0] if alive else None
+
+    def _deal_damage(self, cid: str, target: str, mult: float, kind: str = "normal") -> float:
+        stats = self._effective_stats(cid)
+        enemy = self.enemies[target]
+        res = enemy.resistances.get(self.chars[cid].element, 0.0)
+        m = self._current_multipliers()
+        dmg = expected_damage(mult, stats.atk, stats, m, enemy.defense, res, self.attacker_level)
+        self._record_damage(cid, target, dmg, kind)
+        return dmg
+
+    def _effective_stats(self, cid: str) -> Stats:
+        s = replace(self.stats[cid])
+        s.crit_dmg += self.buffs.sum_for("crit_dmg", cid)
+        s.atk = s.atk * (1.0 + self.buffs.sum_for("atk_pct", cid)) + self.buffs.sum_for("atk_flat", cid)
+        return s
+
+    def _current_multipliers(self) -> Multipliers:
+        m = Multipliers()
+        m.dmg_bonus = self.buffs.sum_for("dmg_bonus")
+        # 花火天赋：每耗 1 SP 全队增伤 3%（叠 3 层）
+        m.dmg_bonus += 0.03 * min(self.sp_spent_count, 3)
+        m.true_dmg = self.buffs.sum_for("true_dmg")
+        m.extra_atk_pct = self.buffs.sum_for("concert_atk")
+        return m
+
+    # ---------- 天赋触发 ----------
+    def _on_ally_attack(self, cid: str, target: str) -> None:
+        """队友攻击后触发：红A 追击 / 知更鸟回能。"""
+        for other_id in self.chars:
+            if other_id == cid:
+                continue
+            talent = self.chars[other_id].talent_extra
+            if talent.get("followup_on_ally_attack"):
+                self._archer_followup(other_id, target)
+            if talent.get("energy_on_ally_attack"):
+                self.energy[other_id] += talent["energy_on_ally_attack"] * self.stats[other_id].energy_regen
+        # 知更鸟协奏附加伤害：任何我方攻击后
+        if self.concert_rounds > 0:
+            robin = next(
+                (c for c in self.chars.values() if c.talent_extra.get("skill_effects", {}).get("ult", {}).get("concert")),
+                None,
+            )
+            if robin:
+                self._additional_damage(robin, target)
+
+    def _archer_followup(self, cid: str, target: str) -> None:
+        charge = self.fate_charge.get(cid, 0.0)
+        if charge < 1.0:
+            return
+        self.fate_charge[cid] = charge - 1.0
+        mult = self.chars[cid].skills["talent"].mult
+        self._deal_damage(cid, target, mult, kind="followup")
+        # 追击恢复 1 个战技点 + 天赋回能（wiki：心眼真 回 5 能量，× 充能效率）
+        self.sp = min(self.sp_max, self.sp + 1.0)
+        self.sp_timeline.append((self.t, self.sp))
+        self.energy[cid] += self.chars[cid].talent_extra.get("followup_energy", 0.0) * self.stats[cid].energy_regen
+
+    def _additional_damage(self, robin: CharacterData, target: str) -> None:
+        """知更鸟协奏附加伤害：固定双暴（100%/150%）。"""
+        enemy = self.enemies[target]
+        robin_stats = self._effective_stats(robin.id)
+        m = self._current_multipliers()
+        dmg = flat_damage(
+            getattr(self, "_concert_additional_mult", 0.72),
+            robin_stats.atk,
+            m.dmg_bonus,
+            self._def_m(target),
+            self._res_m(target, robin.element),
+        )
+        self._record_damage(robin.id, target, dmg, "additional")
+
+    def _def_m(self, target: str) -> float:
+        from .damage import defense_multiplier
+        return defense_multiplier(self.attacker_level, self.enemies[target].defense)
+
+    def _res_m(self, target: str, element: str) -> float:
+        from .damage import resistance_multiplier
+        return resistance_multiplier(self.enemies[target].resistances.get(element, 0.0))
+
+    # ---------- 削韧 / 击破 ----------
+    def _apply_toughness(self, cid: str, target: str, skill) -> None:
+        elem = self.chars[cid].element
+        enemy = self.enemies[target]
+        if elem not in enemy.weaknesses:
+            return
+        if self.toughness[target] <= 0.0:
+            return
+        self.toughness[target] = max(0.0, self.toughness[target] - skill.toughness)
+        if self.toughness[target] <= 0.0:
+            self._on_break(cid, target)
+
+    def _on_break(self, cid: str, target: str) -> None:
+        self.breaks.append((self.t, target))
+        self.queue.postpone(target, BREAK_POSTPONE_PCT)
+        if not self.enemies[target].break_immune:
+            stats = self._effective_stats(cid)
+            dmg = break_damage(
+                self.attacker_level, self.chars[cid].element, stats.break_effect,
+                self.enemies[target].toughness,
+            )
+            self._record_damage(cid, target, dmg, "break")
+
+    # ---------- 忆灵 / 敌人 ----------
+    def _memosprite_act(self) -> None:
+        if self.memosprite is None or not self.memosprite["alive"]:
+            self.queue.remove("MEM")
+            return
+        owner = self.chars[self.memosprite_owner]
+        owner_stats = self._effective_stats(self.memosprite_owner)
+        mem_atk = owner_stats.atk  # v1：迷迷攻击 = 记忆主攻击（待验证）
+        enhanced = self.memosprite["charge"] >= 100.0
+        mult = 1.0 if not enhanced else 1.6  # 迷迷行动倍率（待验证）；强化 ×1.6（待验证）
+        for eid, hp in list(self.enemy_hp.items()):
+            if hp > 0.0:
+                dmg = expected_damage(
+                    mult, mem_atk, owner_stats, self._current_multipliers(),
+                    self.enemies[eid].defense,
+                    self.enemies[eid].resistances.get("Ice", 0.0),
+                    self.attacker_level,
+                )
+                self._record_damage("MEM", eid, dmg, "normal")
+        if enhanced:
+            self.memosprite["charge"] = 0.0
+        self.queue.reset_after_action("MEM")
+        self.log.append(ActionLog(self.t, "MEM", "memosprite_skill"))
+
+    def _enemy_act(self, eid: str) -> None:
+        # v1：敌人行动仅恢复韧性（破韧后），不结算对角色伤害
+        if self.toughness[eid] <= 0.0:
+            self.toughness[eid] = self.enemies[eid].toughness
+        self.queue.reset_after_action(eid)
+        self.log.append(ActionLog(self.t, eid, "enemy_action"))
+
+    # ---------- 记录与结果 ----------
+    def _record_damage(self, source: str, target: str, amount: float, kind: str) -> None:
+        self.damage_events.append(DamageEvent(self.t, source, target, amount, kind))
+        self.enemy_hp[target] = max(0.0, self.enemy_hp[target] - amount)
+
+    def _result(self) -> SimResult:
+        r = SimResult(t_end=self.t)
+        r.total_damage = sum(e.amount for e in self.damage_events)
+        for e in self.damage_events:
+            r.damage_by_source[e.source] = r.damage_by_source.get(e.source, 0.0) + e.amount
+            r.damage_by_kind[e.kind] = r.damage_by_kind.get(e.kind, 0.0) + e.amount
+        r.sp_timeline = self.sp_timeline
+        r.sp_min = min(sp for _, sp in self.sp_timeline)
+        r.energy_shortfalls = self.shortfalls
+        r.actions = self.log
+        r.breaks = self.breaks
+        r.enemy_hp_left = dict(self.enemy_hp)
+        r.ult_count = self.ult_count
+        r.action_count = self.action_count
+        return r

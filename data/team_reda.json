@@ -1,0 +1,66 @@
+{
+  "note": "红A队初始面板方案（LLM 迭代对象）。v2 形态：LLM 输出主词条+副词条分配，程序按词条价值装配面板并审计预算（30 有效词条）",
+  "substat_budget": 30,
+  "speed_targets": {
+    "1015": 134.0,
+    "1306": 160.0,
+    "1309": 120.0,
+    "8007": 145.0
+  },
+  "builds": {
+    "1015": {
+      "main_stats": {
+        "body": "crit_dmg",
+        "feet": "speed",
+        "sphere": "quantum_dmg",
+        "rope": "atk_pct"
+      },
+      "substats": {
+        "speed": 2,
+        "crit_rate": 16,
+        "crit_dmg": 5,
+        "atk_pct": 7
+      }
+    },
+    "1306": {
+      "main_stats": {
+        "body": "crit_dmg",
+        "feet": "speed",
+        "sphere": "quantum_dmg",
+        "rope": "energy_regen"
+      },
+      "substats": {
+        "speed": 15,
+        "energy_regen": 5,
+        "break_effect": 5,
+        "atk_pct": 5
+      }
+    },
+    "1309": {
+      "main_stats": {
+        "body": "atk_pct",
+        "feet": "speed",
+        "sphere": "physical_dmg",
+        "rope": "energy_regen"
+      },
+      "substats": {
+        "atk_pct": 20,
+        "energy_regen": 10
+      }
+    },
+    "8007": {
+      "main_stats": {
+        "body": "atk_pct",
+        "feet": "speed",
+        "sphere": "ice_dmg",
+        "rope": "energy_regen"
+      },
+      "substats": {
+        "speed": 8,
+        "atk_pct": 13,
+        "energy_regen": 5,
+        "break_effect": 4
+      }
+    }
+  }
+}

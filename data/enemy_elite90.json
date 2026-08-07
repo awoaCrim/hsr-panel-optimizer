@@ -1,0 +1,21 @@
+{
+  "note": "90 级双精英靶场（v1 手填模板，可随时更换；防御/HP 为模板值）",
+  "level": 90,
+  "target_av": 250,
+  "enemies": {
+    "elite_a": {
+      "id": "elite_a", "name": "精英·甲", "element": "Quantum",
+      "hp": 600000, "atk": 1000, "defense": 1000, "speed": 100.0,
+      "toughness": 480,
+      "weaknesses": ["Quantum", "Physical", "Ice"],
+      "resistances": {"Thunder": 0.2, "Wind": 0.2, "Fire": 0.2, "Imaginary": 0.2}
+    },
+    "elite_b": {
+      "id": "elite_b", "name": "精英·乙", "element": "Physical",
+      "hp": 500000, "atk": 1000, "defense": 900, "speed": 110.0,
+      "toughness": 360,
+      "weaknesses": ["Quantum", "Physical", "Ice"],
+      "resistances": {"Thunder": 0.2, "Wind": 0.2, "Fire": 0.2, "Imaginary": 0.2}
+    }
+  }
+}
