@@ -1,0 +1,176 @@
+# Mechanics Spec —— 公式定值与事件语义（P0-2 交付物）
+
+> 依据：ADR-0006 6.1（公式审计清单）+ 5.3（事件语义）+ ADR-0007（可回退/LLM 指挥约束）。
+> 状态：**公式已定值项 = 有权威来源（fribbels 源码 / HoYoLAB wiki），T3/T4 最终锁定；
+> UNKNOWN 项 = 已入 T4 实测清单，禁止在代码中拍脑袋定值。**
+>
+> 参考实现（T3 交叉对账对象）：fribbels/hsr-optimizer
+> `src/lib/optimization/engine/damage/damageCalculator.ts` @ `67b8356812e02f3eef32aa0273f283528b224c60`（2026-08-07）
+
+---
+
+## 一、伤害公式（已定值）
+
+### 1.1 通用伤害（普通/追击/附加/忆灵）
+
+```
+damage = broken_mult              # 韧性未破 0.9，击破后 1.0（官方：未破有 10% 减伤）
+       × def_mult
+       × res_mult
+       × vuln_mult                # 1 + 易伤
+       × final_dmg_mult           # 1 + 最终增伤（独立乘区，如花火谜诡/部分光锥）
+       × dmg_bonus_mult           # 1 + 增伤(属性/全伤/技能类型，加算)
+       × initial_dmg              # 倍率 × 攻击力（可含 HP/防御倍率，本项目角色暂用攻击）
+       × crit_mult                # 1 + min(暴击率, 1) × 暴伤
+       × (1 + true_dmg)           # 真实伤害（追加乘区，记忆主）
+```
+
+来源：fribbels `CritDamageFunction`（damageCalculator.ts L100-200）。
+与现有代码差异：
+- **Broken 乘区缺失**（现有无 0.9）→ 新增
+- **final_dmg_mult 缺失**（现有无独立最终增伤区）→ 新增（当前红A队无此乘区来源，先实现后置 0）
+- 其余乘区形态与现有一致 ✓
+
+### 1.2 防御乘区（已定值）
+
+```
+def_mult = (200 + 10 × L_attacker) / (Def_enemy × (1 - 无视防御) + 200 + 10 × L_attacker)
+```
+
+- **L_attacker = 80**（星铁角色等级上限；现有代码默认 90 → 修正）
+- 敌人防御：90 级敌人 = 200 + 10×90 = 1100（fribbels 形式 `100/((eLv+20)(1-defPen)+100)` 即 80 级攻方 + 敌防=10×(eLv+20) 的等价写法）
+- 来源：fribbels `defMulti`（L169）；与现有 `defense_multiplier()` 公式形态一致，仅等级默认值错误
+
+### 1.3 抗性乘区（已定值）
+
+```
+res_mult = 1 - (目标抗性 - 抗性穿透)
+```
+
+- **无负抗减半**（现有 `1 - res/2` 是原神规则 → 删除；评审指正 + fribbels L170 实锤）
+- 抗性可穿透为负，负值直接加收益（无 50% 折损）
+
+### 1.4 暴击期望（已定值，与现有一致）
+
+```
+crit_mult = 1 + min(cr, 1.0) × cd        # fribbels: cr×(1+cd)+(1-cr)，等价
+```
+
+### 1.5 击破伤害（已定值）
+
+```
+break_damage = broken_mult(击破瞬间=1.0)
+             × def_mult × res_mult × vuln_mult × final_dmg_mult
+             × dmg_bonus_mult(仅 hit 级增伤，不吃行动级属性增伤)
+             × 3767.5533                    # 击破基础伤害，80 级角色（Lv1~80 = 54~3767）
+             × 属性倍率                      # 物理/火 2.0，风 1.5，冰/雷 1.0，量子/虚数 0.5
+             × (0.5 + 最大韧性 / 120)        # Max Toughness Multiplier（基于最大韧性）
+             × (1 + 击破特攻)
+             × (1 + true_dmg)
+```
+
+来源：fribbels `BreakDamageFunction`（L320-345）+ HoYoLAB（[1.2 DoT 机制](https://www.hoyolab.com/article/20585850)、[击破拆解](https://www.hoyolab.com/article/28947572)）。
+与现有代码差异：
+- **3767.5533 是 80 级值**，现有标"90 级 3767.5"错误（且 80: 2704.0 不在正确档位）→ 修正
+- **韧性乘区 = 0.5 + 最大韧性/120**（基于最大韧性，非"当前/最大"）→ 修正；`break_damage()` 未使用的 `enemy_toughness_max` 参数正是为此
+- **缺 def/res/vuln/final_dmg/true_dmg 乘区**（现有只乘 1+BE）→ 补齐
+- 属性倍率表与现有 `BREAK_ELEMENT_MULT` 一致 ✓
+- 击破延后 25% ✓（现有正确）
+
+### 1.6 附加伤害（知更鸟协奏，已定值）
+
+固定双暴（暴击率 100% / 暴伤 150%），不吃攻击者自身双暴。乘区同 1.1。现有 `flat_damage()` 形态正确，待 T4 锁倍率参数。
+
+### 1.7 超击破（记录，暂不实现）
+
+```
+super_break = (3767.5533 / 10) × 有效削韧 × (1 + BE) × (1 + 超击破倍率) × def × res × vuln ...
+```
+来源：fribbels `SuperBreakDamageFunction`（L400+）。红A队无超击破，P0 不实现，文档留档。
+
+### 1.8 行动值 / 轮次（已定值）
+
+- AV = 10000 / 速度；拉条 = 剩余距离×(1-pct)；推条 = ×(1+pct) ✓（现有 av_queue 正确）
+- 轮次：首轮 150 AV，后续每轮 +100 ✓
+
+### 1.9 UNKNOWN（入 T4 实测清单，代码禁止猜测）
+
+| 项 | 现状 | 处置 |
+|---|---|---|
+| 迷迷（忆灵）行动倍率 1.0/1.6 | wiki/手填 D | T4 实测（记忆主固定场景） |
+| 迷迷攻击 = 记忆主攻击 | 假设 | T4 实测 |
+| 真伤比例（记忆主 10%） | wiki C | T4 实测 |
+| 击破效果数值（纠缠/减速等） | 未实现 | T4 实测后实现 |
+| 回能参数位（AvatarSkillConfig ParamList / EnergyBarConfig） | 未锁 | 解包核对（P0-2 后续） |
+| SP 语义（SPMultipleRatio/BPNeed/BPAdd） | 未锁 | 解包核对 |
+| DelayRatio 语义（basic 显示 1.0） | 未锁 | 解包核对 |
+| buff 持续时间时钟（行动次数 vs 回合） | 行动次数（现有） | T3 对账 |
+| 敌人 AI 行动模式（行动序列/延时/伤害） | 未实现 | P1 真实敌人时实现 |
+
+---
+
+## 二、事件语义（P0-3 执行器设计约束）
+
+> 每条 = 决策 + 依据。UNKNOWN 项不得在代码里编造，标记后进 T4 清单。
+
+### E1 Action lifecycle（行动结算次序）
+行动 = 出队 → **结算链**：伤害 → 触发链（on_ally_attack）→ 技能特效（拉条/buff/充能/SP/能量）→ 削韧 → 击破 → 重排队。大招即时释放插在**每次行动结算后**（能量检查）。
+依据：官方规则 + 现有 `_character_act`（顺序保持一致，重构不改语义）。
+
+### E2 Event phases（触发锚点）
+- `on_ally_attack`（红A追击/协奏/回能）：在**伤害结算后**触发（官方：追加攻击紧随攻击）
+- 击破：发生在削韧后、行动重排前；击破伤害与击破效果在同一结算点
+- buff 施加：伤害结算链内（施加者行动序）
+
+### E3 Trigger timing（插队语义）
+追击/协奏等触发效果**立即执行，不占行动条**（时间戳与触发行动相同）；执行完回到原结算链。依据：官方（追加攻击不排队）。
+
+### E4 Priority & tie breaking
+同一触发点的多个触发器按**官方固定序**：红A追击（消耗充能）→ 知更鸟协奏附加 → 回能/增伤层数。同序按队伍排列序。P0 只实现红A队已知序，新角色触发器在数据层声明 `priority` 字段（默认 0）。
+
+### E5 Duration clock（buff 计时）
+维持"施加者行动次数递减"（现有 BuffManager），标 UNKNOWN（官方多为回合制，T3 对账锁定）。
+
+### E6 Stacking（叠加规则）
+同类 buff：cap 封顶（现有）；花火增伤按 SP 消耗叠层（每层独立计数）；不同来源同名 buff 覆盖规则待 T3。
+
+### E7 Target selector（目标解析）
+主目标（act 指定）/ 全体（忆灵/击破）/ 自身 / 拉条目标（友方）。目标死亡：伤害溢出丢失，剩余 effects 继续结算。
+
+### E8 Cancellation（死亡语义）
+目标死亡不中断当前行动剩余 effects（已锁定结算继续）；我方全灭 → 推演终止。依据：官方（伤害结算不因目标死亡取消）。
+
+### E9 Re-entrancy（触发链保护）
+触发链可嵌套（追击内再触发），但保留 50000 步熔断（语义化：环检测 → 报错并终止该推演，标注 UNKNOWN 机制嫌疑）。
+
+### E10 Extra action vs 100% advance（语义区分）
+- **额外行动**（红A 回路连接）：distance 保持 0，立即再行动，**不消耗行动条**
+- **100% 拉条**（知更鸟大招）：distance 清零后**按新距离重排**（若目标距离已为 0 则不重复触发）
+两者在事件流中为不同事件类型（`ExtraActionEvent` vs `AdvanceEvent`），禁止混用。
+
+### E11 事件不可变 / 可重放（ADR-0007 硬约束）
+事件 = 不可变记录（类型 + 时间戳 + 载荷）；**状态 = 事件流重放结果**；每角色行动打快照；undo = 快照 + 增量重放。事件字段不携带"结果值"以外的可变引用。
+
+### E12 RNG 入事件流（ADR-0007 D1）
+随机源清单（P0）：**暴击判定**（每次伤害 hit 掷骰）、敌人 AI 选择（P1 真实敌人起）。RNG 状态（seed + 已消耗数）作为状态项序列化进事件流——重放产生完全相同的结果序列。随机值本身也记录进事件（`roll: {seed_idx, value}`），分支对比可解释"暴击线/不暴击线"。
+
+---
+
+## 三、实现映射（P0-2 → P0-3）
+
+| 改动 | 文件 | 内容 |
+|---|---|---|
+| 等级默认 80 | `damage.py` / `simulate.py` | `attacker_level` 默认 90 → 80（敌人等级独立） |
+| 删负抗减半 | `damage.py` | `resistance_multiplier()` 简化 |
+| Broken 乘区 | `damage.py` | `expected_damage()` / `flat_damage()` 增加 broken_mult 参数 |
+| 击破公式 | `damage.py` | 3767.5533 + 韧性乘区 + def/res/vuln/final/true 乘区 |
+| final_dmg 乘区 | `damage.py` / `Multipliers` | 新增字段（当前 0） |
+| 事件语义 | `simulate.py` 重构（P0-3） | E1-E12 落为执行器约束 |
+| T1 修正 | `tests/test_damage.py` | 负抗减半测试改写；击破系数测试改 3767.5533 + 新乘区 |
+
+## 四、验收
+
+- [ ] 公式定值项全部有来源（本文件即记录）
+- [ ] UNKNOWN 项全部在 1.9 清单，代码无猜测值
+- [ ] T1 测试按新公式修正并全绿
+- [ ] P0-3 执行器满足 E1-E12

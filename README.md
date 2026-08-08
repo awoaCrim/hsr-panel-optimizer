@@ -64,6 +64,7 @@ CONTEXT.md            # 领域术语表
 ## 关键文档
 
 - `docs/game-knowledge.md` — 给 AI 的游戏信息大纲（规则书 + prompt 模板）
+- `docs/mechanics-spec.md` — 机制规格：伤害公式定值（fribbels/实测依据）+ 事件语义十二项（P0-2 交付物）
 - `docs/data-schema.md` — 数据源字段清单（StarRailRes / TurnBasedGameData）
 - `docs/adr/` — 架构决策（自研引擎 / 输入层解耦 / 红A数据来源 / 机制范围）；**0006 = v2 地基重构蓝图（五层架构 + 数据溯源 + Effects 模型 + 对账体系）**；**0007 = 战斗推演模拟引擎（可回退任意行动 + LLM 交互式指挥）**
 - `CONTEXT.md` — 领域术语表
