@@ -84,9 +84,9 @@ class TestTrustEnvelope:
                         unverified_inputs=unv + unv2)
         r = sim.run()
         assert r.trust_level == "unverified"
-        assert len(r.unverified_inputs) == len(unv) + len(unv2) == 34
+        assert len(r.unverified_inputs) == len(unv) + len(unv2) == 30
         assert any(p.startswith("enemies.") for p in r.unverified_inputs)
-        assert any("memosprite" in p for p in r.unverified_inputs)
+        assert any("break_effect" in p for p in r.unverified_inputs)
 
     def test_legacy_path_no_envelope_is_trusted(self):
         """legacy 路径（不传 unverified）→ 默认 trusted（信封未启用）。"""
@@ -102,4 +102,4 @@ class TestTrustEnvelope:
         """audit 未验证数与 loader 信封一致（门禁与信封同源）。"""
         from hsr_sim.data.audit import audit
         _, unverified = audit()
-        assert len(unverified) == 34
+        assert len(unverified) == 30

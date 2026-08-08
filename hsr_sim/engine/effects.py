@@ -93,9 +93,8 @@ class MemospriteChargeEffect(Effect):
 
 
 @dataclass
-class MemospriteDamageEffect(Effect):
-    """忆灵全体伤害（迷迷：对全部存活敌人）。"""
-    mult: float = 0.0
+class MemospriteImmediateEffect(Effect):
+    """忆灵立即行动（迷迷：距离清零，插队到下一行动）。"""
 
 
 @dataclass
@@ -143,8 +142,8 @@ def skill_to_effects(action_name: str, skill: SkillData, talent_extra: Dict) -> 
                                   additional_mult=se.get("additional_mult", 0.72)))
     if se.get("mem_charge"):
         effs.append(MemospriteChargeEffect(amount=se["mem_charge"]))
-    if se.get("mem_dmg"):
-        effs.append(MemospriteDamageEffect(mult=se["mem_dmg"]))
+    if se.get("mem_immediate"):
+        effs.append(MemospriteImmediateEffect())
     if se.get("buff"):
         b = se["buff"]
         effs.append(BuffEffect(

@@ -98,8 +98,8 @@ def audit() -> Tuple[List[str], List[Unverified]]:
                         known.append(f"{tag}@{v.get('sha', '')[:7]}")
                     if prov.version not in known:
                         errors.append(f"{path}: version={prov.version!r} 不在 VERSIONS.json 中（{known}）")
-                elif not prov.version.startswith("biligame-"):
-                    errors.append(f"{path}: version={prov.version!r} 格式未知（应 srr@/tbgd@<sha 前 7 位> 或 biligame-<日期>）")
+                elif not prov.version.startswith(("biligame-", "miyoushe-")):
+                    errors.append(f"{path}: version={prov.version!r} 格式未知（应 srr@/tbgd@<sha 前 7 位> 或 biligame-/miyoushe-<日期>）")
             # 未验证值收集
             if not prov.is_trusted():
                 unverified.append((path, prov.source_trust, prov.validation))

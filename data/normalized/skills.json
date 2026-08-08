@@ -696,8 +696,10 @@
         "note": "wiki 核对（ADR-0003）"
       },
       "mechanic": {
-        "mem_charge": 0.1
-      }
+        "mem_charge": 0.1,
+        "mem_heal": 0.6
+      },
+      "_mechanic_note": "召唤/回血 60% + 充能 10%（回血未实现）"
     },
     "ult": {
       "_source": {
@@ -749,8 +751,9 @@
       },
       "mechanic": {
         "mem_charge": 0.4,
-        "mem_dmg": 2.4
-      }
+        "mem_immediate": true
+      },
+      "_mechanic_note": "充能 40% + 迷迷立即行动（强化）"
     },
     "talent": {
       "_source": {
@@ -779,9 +782,9 @@
         "note": "wiki 核对（ADR-0003）"
       },
       "mechanic": {
-        "true_dmg_aura": 0.1
+        "memo_cd_share": 0.12
       },
-      "_mechanic_note": "迷迷在场全队真伤 +10%（手填待验证）"
+      "_mechanic_note": "全队暴伤 + 迷迷暴伤 12%（未实现）"
     }
   }
 }

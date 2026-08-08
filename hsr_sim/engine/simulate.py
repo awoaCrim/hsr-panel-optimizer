@@ -34,7 +34,7 @@ from .effects import (
     ExtraActionEffect,
     FateChargeEffect,
     MemospriteChargeEffect,
-    MemospriteDamageEffect,
+    MemospriteImmediateEffect,
     SPChangeEffect,
     ToughnessEffect,
     skill_to_effects,
@@ -327,9 +327,10 @@ class Simulator:
             elif isinstance(eff, MemospriteChargeEffect):
                 if self.memosprite is not None:
                     self.memosprite["charge"] = min(100.0, self.memosprite["charge"] + eff.amount * 100.0)
-            elif isinstance(eff, MemospriteDamageEffect):
+            elif isinstance(eff, MemospriteImmediateEffect):
                 if self.memosprite is not None:
-                    self._mem_damage_all(eff.mult)
+                    # 迷迷立即行动（距离清零，插队）；行动内容轮到它时执行
+                    self.queue.advance("MEM", 1.0)
             elif isinstance(eff, BuffEffect):
                 buff_target = ""
                 if eff.target == "advance_target":
@@ -346,7 +347,9 @@ class Simulator:
                 self.sp = min(self.sp_max, self.sp + eff.delta)
                 self.sp_timeline.append((self.t, self.sp))
             elif isinstance(eff, EnergyGainEffect):
-                self.energy[cid] += eff.amount * self.stats[cid].energy_regen
+                gained = eff.amount * self.stats[cid].energy_regen
+                self.energy[cid] += gained
+                self._memosprite_charge_from_energy(gained)
             elif isinstance(eff, EnergyCostEffect):
                 self.energy[cid] -= eff.amount
                 self.ult_count[cid] = self.ult_count.get(cid, 0) + 1
@@ -367,18 +370,9 @@ class Simulator:
                 self._apply_toughness(cid, dmg_target, eff.amount)
 
     def _mem_damage_all(self, mult: float) -> None:
-        owner = self.chars[self.memosprite_owner]
-        owner_stats = self._effective_stats(self.memosprite_owner)
-        mem_atk = owner_stats.atk
         for eid, hp in list(self.enemy_hp.items()):
             if hp > 0.0:
-                dmg = expected_damage(
-                    mult, mem_atk, owner_stats, self._current_multipliers(),
-                    self.enemies[eid].defense,
-                    self.enemies[eid].resistances.get("Ice", 0.0),
-                    self.attacker_level,
-                    enemy_broken=self.toughness[eid] <= 0.0,
-                )
+                dmg = self._mem_deal(eid, mult)
                 self._record_damage("MEM", eid, dmg, "normal")
 
     def _resolve_target(self, target_id: str, skill) -> Optional[str]:
@@ -443,6 +437,7 @@ class Simulator:
         self.sp = min(self.sp_max, self.sp + 1.0)
         self.sp_timeline.append((self.t, self.sp))
         self.energy[cid] += self.chars[cid].talent_extra.get("followup_energy", 0.0) * self.stats[cid].energy_regen
+        self._memosprite_charge_from_energy(self.chars[cid].talent_extra.get("followup_energy", 0.0) * self.stats[cid].energy_regen)
 
     def _additional_damage(self, robin: CharacterData, target: str) -> None:
         """知更鸟协奏附加伤害：固定双暴（100%/150%）。"""
@@ -495,28 +490,63 @@ class Simulator:
 
     # ---------- 忆灵 / 敌人 ----------
     def _memosprite_act(self) -> None:
+        """迷迷行动（docs/research/memory-trailblazer-mem.md 定值）：
+        - 充能未满：普通行动 = 4 段随机单体 + 全体（迷迷攻击），行动后充能 +5%
+        - 充能已满：强化行动 = 100% 拉条声援目标 + 施加【声援】（per-hit 真伤，3 次行动）
+        """
         if self.memosprite is None or not self.memosprite["alive"]:
             self.queue.remove("MEM")
             return
-        owner = self.chars[self.memosprite_owner]
-        owner_stats = self._effective_stats(self.memosprite_owner)
-        mem_atk = owner_stats.atk  # v1：迷迷攻击 = 记忆主攻击（待验证）
+        cfg = self.chars[self.memosprite_owner].talent_extra.get("memosprite", {})
         enhanced = self.memosprite["charge"] >= 100.0
-        mult = 1.0 if not enhanced else 1.6  # 迷迷行动倍率（待验证）；强化 ×1.6（待验证）
-        for eid, hp in list(self.enemy_hp.items()):
-            if hp > 0.0:
-                dmg = expected_damage(
-                    mult, mem_atk, owner_stats, self._current_multipliers(),
-                    self.enemies[eid].defense,
-                    self.enemies[eid].resistances.get("Ice", 0.0),
-                    self.attacker_level,
-                    enemy_broken=self.toughness[eid] <= 0.0,
-                )
-                self._record_damage("MEM", eid, dmg, "normal")
         if enhanced:
             self.memosprite["charge"] = 0.0
+            # 强化：拉条声援目标 + 声援 buff（目标选择 = 玩家决策，v1.5 自动默认主C）
+            target = self._mems_support_target()
+            self.queue.advance(target, cfg.get("enhanced_advance_pct", 1.0))
+            self.buffs.add("mems_support", cfg.get("support_true_dmg", 0.28),
+                           "MEM", cfg.get("support_rounds", 3), target=target)
+            self.log.append(ActionLog(self.t, "MEM", "memosprite_ult",
+                                      detail=f"强化：拉条+声援 {target}"))
+        else:
+            # 普通：4 段随机单体（每段独立随机目标，E12 RNG）+ 全体
+            hits = int(cfg.get("basic_hits", 4))
+            mult = cfg.get("basic_mult", 0.36)
+            alive = [eid for eid, hp in self.enemy_hp.items() if hp > 0.0]
+            for _ in range(hits):
+                if not alive:
+                    break
+                target = self.rng.choice(alive)
+                dmg = self._mem_deal(target, mult)
+                if dmg > 0.0:
+                    self._record_damage("MEM", target, dmg, "normal")
+            if alive:
+                self._mem_damage_all(cfg.get("basic_aoe_mult", 0.90))
+            # 行动充能 +5%（充能未满时）
+            self.memosprite["charge"] = min(100.0, self.memosprite["charge"]
+                                             + cfg.get("act_charge", 0.05) * 100.0)
+            self.log.append(ActionLog(self.t, "MEM", "memosprite_skill"))
         self.queue.reset_after_action("MEM")
-        self.log.append(ActionLog(self.t, "MEM", "memosprite_skill"))
+
+    def _mem_deal(self, eid: str, mult: float) -> float:
+        """迷迷单目标伤害（攻击 = 忆师攻击，继承比例待实测）。"""
+        owner_stats = self._effective_stats(self.memosprite_owner)
+        return expected_damage(
+            mult, owner_stats.atk, owner_stats, self._current_multipliers(),
+            self.enemies[eid].defense,
+            self.enemies[eid].resistances.get("Ice", 0.0),
+            self.attacker_level,
+            enemy_broken=self.toughness[eid] <= 0.0,
+        )
+
+    def _mems_support_target(self) -> str:
+        """声援目标：官方为玩家决策；v1.5 自动默认主C（队伍第一个角色），P1 LLM 指挥时由决策指定。"""
+        return next(iter(self.chars))
+
+    def _memosprite_charge_from_energy(self, amount: float) -> None:
+        """全队每恢复 10 点能量 → 迷迷充能 +1%（research 定值）。"""
+        if self.memosprite is not None and amount > 0.0:
+            self.memosprite["charge"] = min(100.0, self.memosprite["charge"] + amount / 10.0)
 
     def _enemy_act(self, eid: str) -> None:
         # v1：敌人行动仅恢复韧性（破韧后），不结算对角色伤害
@@ -598,6 +628,14 @@ class Simulator:
     def _record_damage(self, source: str, target: str, amount: float, kind: str) -> None:
         self.damage_events.append(DamageEvent(self.t, source, target, amount, kind))
         self.enemy_hp[target] = max(0.0, self.enemy_hp[target] - amount)
+        # 声援真伤（research 定值）：声援目标每段伤害后附加真伤 = 该段伤害 × 比例
+        # 真伤本身不再触发真伤；不削韧、不算行动、独立乘区
+        if kind != "true" and amount > 0.0:
+            pct = self.buffs.sum_for("mems_support", source)
+            if pct > 0.0:
+                true = amount * pct
+                self.damage_events.append(DamageEvent(self.t, source, target, true, "true"))
+                self.enemy_hp[target] = max(0.0, self.enemy_hp[target] - true)
 
     def _result(self) -> SimResult:
         r = SimResult(t_end=self.t)

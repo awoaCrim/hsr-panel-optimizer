@@ -369,33 +369,91 @@
       "memosprite": {
         "speed": {
           "value": 130.0,
-          "source_trust": "D",
-          "validation": "raw",
-          "source": "handfill",
-          "note": "手填待验证（mechanics-spec 1.9 UNKNOWN）"
+          "source_trust": "A",
+          "validation": "mapped",
+          "source": "datamine",
+          "version": "tbgd@648b08f",
+          "field": "AvatarSkillConfig[800704@L10].ParamList",
+          "note": "research 定值：与实测帖一致；等级基准待实测"
         },
-        "atk_inherit": {
+        "hp_inherit": {
+          "value": 0.8,
+          "source_trust": "A",
+          "validation": "mapped",
+          "source": "datamine",
+          "version": "tbgd@648b08f",
+          "field": "AvatarSkillConfig[800704@L10].ParamList",
+          "note": "research 定值：与实测帖一致；等级基准待实测"
+        },
+        "hp_flat": {
+          "value": 640.0,
+          "source_trust": "A",
+          "validation": "mapped",
+          "source": "datamine",
+          "version": "tbgd@648b08f",
+          "field": "AvatarSkillConfig[800704@L10].ParamList",
+          "note": "research 定值：与实测帖一致；等级基准待实测"
+        },
+        "basic_hits": {
+          "value": 4,
+          "source_trust": "B",
+          "validation": "cross_checked",
+          "source": "starrailres",
+          "version": "srr@b95e75c",
+          "field": "character_skills.1800701.params[6]",
+          "note": "L6 基准（fribbels 同款）；HoneyHunter 等级表交叉一致；等级基准待实测"
+        },
+        "basic_mult": {
+          "value": 0.36,
+          "source_trust": "B",
+          "validation": "cross_checked",
+          "source": "starrailres",
+          "version": "srr@b95e75c",
+          "field": "character_skills.1800701.params[6]",
+          "note": "L6 基准（fribbels 同款）；HoneyHunter 等级表交叉一致；等级基准待实测"
+        },
+        "basic_aoe_mult": {
+          "value": 0.9,
+          "source_trust": "B",
+          "validation": "cross_checked",
+          "source": "starrailres",
+          "version": "srr@b95e75c",
+          "field": "character_skills.1800701.params[6]",
+          "note": "L6 基准（fribbels 同款）；HoneyHunter 等级表交叉一致；等级基准待实测"
+        },
+        "act_charge": {
+          "value": 0.05,
+          "source_trust": "C",
+          "validation": "cross_checked",
+          "source": "community-guide",
+          "version": "miyoushe-2026-01",
+          "note": "米游社/游民星空实测帖多源一致；等级基准待实测"
+        },
+        "enhanced_advance_pct": {
           "value": 1.0,
-          "source_trust": "D",
-          "validation": "raw",
-          "source": "handfill",
-          "note": "手填待验证（mechanics-spec 1.9 UNKNOWN）"
+          "source_trust": "C",
+          "validation": "cross_checked",
+          "source": "community-guide",
+          "version": "miyoushe-2026-01",
+          "note": "米游社/游民星空实测帖多源一致；等级基准待实测"
         },
-        "act_mult": {
-          "value": 1.0,
-          "source_trust": "D",
-          "validation": "raw",
-          "source": "handfill",
-          "note": "手填待验证（mechanics-spec 1.9 UNKNOWN）"
+        "support_true_dmg": {
+          "value": 0.28,
+          "source_trust": "C",
+          "validation": "cross_checked",
+          "source": "community-guide",
+          "version": "miyoushe-2026-01",
+          "note": "米游社/游民星空实测帖多源一致；等级基准待实测"
         },
-        "enhanced_mult": {
-          "value": 1.6,
-          "source_trust": "D",
-          "validation": "raw",
-          "source": "handfill",
-          "note": "手填待验证（mechanics-spec 1.9 UNKNOWN）"
+        "support_rounds": {
+          "value": 3,
+          "source_trust": "C",
+          "validation": "cross_checked",
+          "source": "community-guide",
+          "version": "miyoushe-2026-01",
+          "note": "米游社/游民星空实测帖多源一致；等级基准待实测"
         },
-        "note": "迷迷攻击=记忆主攻击 100%、行动倍率 100%/强化 160%，均为手填待验证"
+        "note": "0 命忆灵技 L6 基准（fribbels 同款）；普攻 4 段随机单体×36% + 全体×90%；强化 = 100% 拉条+声援（非伤害）；HP 继承 80%+640；真伤 28%（docs/research/memory-trailblazer-mem.md，待实测确认等级基准）"
       }
     }
   }

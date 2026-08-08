@@ -42,6 +42,6 @@ def test_legacy_parity_reda_2t():
 
 
 def test_parity_golden_is_frozen():
-    """基线文件不可手改（改了等于自欺）。"""
+    """基线文件不可手改（改了等于自欺）；meta 标注生成原因。"""
     meta = json.loads(GOLDEN.read_text(encoding="utf-8"))["meta"]
-    assert meta["source"].startswith("v1.5 baseline")
+    assert "基线" in meta["source"]

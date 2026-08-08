@@ -110,27 +110,45 @@ def build_characters(raw: Dict) -> Dict:
             )),
             "base_stats": stats,
             # 角色级机制（技能级钩子在 skills.json 的 mechanic；wiki 核对，溯源 C）
-            "talent_extra": _char_talent_extra(cid),
+            "talent_extra": _char_talent_extra(cid, raw),
         }
     return out
 
 
-def _char_talent_extra(cid: str) -> Dict:
-    """角色级天赋钩子（followup/summon/sp_cap/memosprite），来源 = v1.5 手填 wiki 核对。"""
+def _char_talent_extra(cid: str, raw: Dict) -> Dict:
+    """角色级天赋钩子（followup/summon/sp_cap/memosprite）。"""
     legacy = json.loads((LEGACY_DIR / f"{cid}.json").read_text(encoding="utf-8"))
     te = legacy.get("talent_extra", {})
     # skill_effects 已并入 skills.json 的 mechanic，这里只保留角色级字段
     te = {k: v for k, v in te.items() if k != "skill_effects"}
-    # 忆灵数值为手填待验证（mechanics-spec UNKNOWN 清单），显式标 D
+    # 忆灵数值溯源（docs/research/memory-trailblazer-mem.md 定值）：
+    # speed/HP 继承 = 解包（AvatarSkillConfig 800704 params）；倍率 = StarRailRes 忆灵技 params（1800701）+ HoneyHunter/fribbels 交叉；
+    # 充能/声援 = 米游社/游民星空实测帖（C）；等级基准（0 命忆灵技 L6）待实测
     if "memosprite" in te:
         m = te["memosprite"]
-        te["memosprite"] = {
-            k: (v if k == "note" else wrapper(v, prov(
-                "handfill", "D", "", "raw",
-                note="手填待验证（mechanics-spec 1.9 UNKNOWN）",
-            )))
-            for k, v in m.items()
-        }
+        tb_v = tb_ver(raw)
+        sr_v = sr_ver(raw)
+        te["memosprite"] = {}
+        for k, v in m.items():
+            if k == "note":
+                te["memosprite"][k] = v
+            elif k in ("speed", "hp_inherit", "hp_flat"):
+                te["memosprite"][k] = wrapper(v, prov(
+                    "datamine", "A", tb_v, "mapped",
+                    field=f"AvatarSkillConfig[800704@L10].ParamList",
+                    note="research 定值：与实测帖一致；等级基准待实测",
+                ))
+            elif k in ("basic_hits", "basic_mult", "basic_aoe_mult"):
+                te["memosprite"][k] = wrapper(v, prov(
+                    "starrailres", "B", sr_v, "cross_checked",
+                    field=f"character_skills.1800701.params[6]",
+                    note="L6 基准（fribbels 同款）；HoneyHunter 等级表交叉一致；等级基准待实测",
+                ))
+            else:
+                te["memosprite"][k] = wrapper(v, prov(
+                    "community-guide", "C", "miyoushe-2026-01", "cross_checked",
+                    note="米游社/游民星空实测帖多源一致；等级基准待实测",
+                ))
     return te
 
 

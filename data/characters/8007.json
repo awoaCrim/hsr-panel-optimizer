@@ -39,29 +39,38 @@
     },
     "talent": {
       "mult": 0.0,
-      "note": "无所不能的伙伴：迷迷速度 130、HP=主人 80%+640（L10）、真伤光环"
+      "note": "伙伴！一起！/迷迷加油/遗憾不留：充能与暴伤转化（docs/research/memory-trailblazer-mem.md）"
     }
   },
   "talent_extra": {
     "summon": true,
     "memosprite": {
       "speed": 130.0,
-      "atk_inherit": 1.0,
-      "act_mult": 1.0,
-      "enhanced_mult": 1.6,
-      "note": "迷迷攻击=记忆主攻击 100%、行动倍率 100%/强化 160%，均为手填待验证"
+      "hp_inherit": 0.8,
+      "hp_flat": 640.0,
+      "basic_hits": 4,
+      "basic_mult": 0.36,
+      "basic_aoe_mult": 0.9,
+      "act_charge": 0.05,
+      "enhanced_advance_pct": 1.0,
+      "support_true_dmg": 0.28,
+      "support_rounds": 3,
+      "note": "0 命忆灵技 L6 基准（fribbels 同款）；普攻 4 段随机单体×36% + 全体×90%；强化 = 100% 拉条+声援（非伤害）；HP 继承 80%+640；真伤 28%（docs/research/memory-trailblazer-mem.md，待实测确认等级基准）"
     },
     "skill_effects": {
       "skill": {
-        "mem_charge": 0.1
+        "mem_charge": 0.1,
+        "mem_heal": 0.6,
+        "note": "召唤/回血 60% + 充能 10%（回血未实现）"
       },
       "ult": {
         "mem_charge": 0.4,
-        "mem_dmg": 2.4
+        "mem_immediate": true,
+        "note": "充能 40% + 迷迷立即行动（强化）"
       },
       "talent": {
-        "true_dmg_aura": 0.1,
-        "note": "迷迷在场全队真伤 +10%（手填待验证）"
+        "memo_cd_share": 0.12,
+        "note": "全队暴伤 + 迷迷暴伤 12%（未实现）"
       }
     }
   }
