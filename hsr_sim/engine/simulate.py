@@ -18,7 +18,24 @@ from ..model import Action, CharacterData, CharacterPolicy, Enemy, Rotation, Sta
 from .av_queue import ActionQueue
 from .buffs import BuffManager
 from .damage import Multipliers, break_damage, expected_damage, flat_damage
-
+from .effects import (
+    AdvanceAllEffect,
+    AdvanceEffect,
+    AuraEffect,
+    BuffEffect,
+    ConcertEffect,
+    DamageEffect,
+    Effect,
+    EnergyCostEffect,
+    EnergyGainEffect,
+    ExtraActionEffect,
+    FateChargeEffect,
+    MemospriteChargeEffect,
+    MemospriteDamageEffect,
+    SPChangeEffect,
+    ToughnessEffect,
+    skill_to_effects,
+)
 
 DEFAULT_TARGET_AV = 250.0  # 2T = 首轮 150 + 次轮 100
 BREAK_POSTPONE_PCT = 0.25
@@ -210,47 +227,20 @@ class Simulator:
         dmg_target = self._resolve_target(action.target, skill)
         ally_target = action.target if action.target in self.chars else (skill.advance_target or "")
 
-        # 伤害结算
-        if skill.mult > 0.0 and dmg_target:
-            dmg = self._deal_damage(cid, dmg_target, skill.mult, kind="normal")
-            self._on_ally_attack(cid, dmg_target)
-
-        # 技能特效（天赋钩子：拉条/充能/协奏/真伤等，配置见各角色 JSON talent_extra.skill_effects）
-        self._apply_skill_effects(cid, action.action, ally_target)
-
-        # SP
-        sp_delta = skill.sp + getattr(skill, "sp_bonus", 0)
-        if skill.sp < 0:
-            self.sp_spent_count += 1  # 花火天赋：每耗 1 SP 全队增伤
-        self.sp = min(self.sp_max, self.sp + sp_delta)
-        self.sp_timeline.append((self.t, self.sp))
-
-        # 能量（回能 × 充能效率；大招消耗不乘）
-        regen = self.stats[cid].energy_regen
-        self.energy[cid] += skill.energy * regen
-        if action.action == "ult":
-            self.energy[cid] -= skill.energy_cost
-            self.ult_count[cid] = self.ult_count.get(cid, 0) + 1
-
-        # 削韧
-        if dmg_target and skill.toughness > 0.0:
-            self._apply_toughness(cid, dmg_target, skill)
-
-        # 拉条：目标 = 友方目标（rotation target）或技能配置，否则自身
-        if skill.advance_pct > 0.0:
-            adv_target = ally_target or cid
-            self.queue.advance(adv_target, skill.advance_pct)
+        # 效果执行（E1 结算链：伤害 → 天赋钩子 → SP → 能量 → 削韧 → 拉条；顺序与 v1.5 等价）
+        effects = skill_to_effects(action.action, skill, self.chars[cid].talent_extra)
+        self._apply_effects(cid, effects, dmg_target, ally_target)
+        extra_effect = next((e for e in effects if isinstance(e, ExtraActionEffect)), None)
 
         # 行动日志与队列推进
         self.action_count[cid] = self.action_count.get(cid, 0) + 1
         self.log.append(ActionLog(self.t, cid, action.action))
         self.rotation.advance(cid)
 
-        if skill.extra_action:
+        if extra_effect is not None:
             # 额外行动链（红A 回路连接）：链内战技次数达上限后强制结束回合
             self.burst_chain[cid] = self.burst_chain.get(cid, 0) + 1
-            default_max = self.chars[cid].talent_extra.get("skill_effects", {}).get("skill", {}).get("extra_action_max", 0)
-            max_chain = pol.chain_max if (pol is not None and pol.chain_max > 0) else default_max
+            max_chain = pol.chain_max if (pol is not None and pol.chain_max > 0) else extra_effect.max_chain
             if max_chain and self.burst_chain[cid] >= max_chain:
                 self.burst_chain.pop(cid, None)
                 self.queue.reset_after_action(cid)
@@ -280,65 +270,71 @@ class Simulator:
         """执行大招：伤害/特效/能量扣除/SP，不占用行动条（不 reset、不推进时间）。"""
         dmg_target = self._resolve_target("", skill)
         ally_target = ""
-        if skill.mult > 0.0 and dmg_target:
-            self._deal_damage(cid, dmg_target, skill.mult, kind="normal")
-            self._on_ally_attack(cid, dmg_target)
-        self._apply_skill_effects(cid, "ult", ally_target)
-        sp_delta = skill.sp + getattr(skill, "sp_bonus", 0)
-        if skill.sp < 0:
-            self.sp_spent_count += 1
-        self.sp = min(self.sp_max, self.sp + sp_delta)
-        self.sp_timeline.append((self.t, self.sp))
-        self.energy[cid] += skill.energy * self.stats[cid].energy_regen
-        self.energy[cid] -= skill.energy_cost
-        self.ult_count[cid] = self.ult_count.get(cid, 0) + 1
+        # v1.5 顺序保留：ult 的削韧在行动日志之后（toughness_in_effects=False，log 后补）
+        effects = skill_to_effects("ult", skill, self.chars[cid].talent_extra)
+        self._apply_effects(cid, effects, dmg_target, ally_target, toughness_in_effects=False)
         self.action_count[cid] = self.action_count.get(cid, 0) + 1
         self.log.append(ActionLog(self.t, cid, "ult", detail="即时释放"))
-        if dmg_target and skill.toughness > 0.0:
-            self._apply_toughness(cid, dmg_target, skill)
+        if dmg_target:
+            self._apply_effect_toughness(cid, dmg_target, effects)
 
-    def _apply_skill_effects(self, cid: str, action_name: str, target: Optional[str]) -> None:
-        """技能特效钩子：全队拉条 / 协奏 / 红A充能 / 迷迷充能与伤害 / buff 施加。"""
-        effects = self.chars[cid].talent_extra.get("skill_effects", {}).get(action_name, {})
-        # 全队拉条（知更鸟大招：除自身外立即行动）
-        if effects.get("advance_all"):
-            for other in self.chars:
-                if other != cid:
-                    self.queue.advance(other, effects["advance_all"])
-        # 红A 充能（大招 +2，上限 4）
-        if effects.get("fate_charge"):
-            self.fate_charge[cid] = min(4.0, self.fate_charge.get(cid, 0.0) + effects["fate_charge"])
-        # 知更鸟协奏：附加伤害倍率 + 持续轮数
-        if effects.get("concert"):
-            self.concert_rounds = effects["concert"]
-            self._concert_additional_mult = effects.get("additional_mult", 0.72)
+    def _apply_effects(self, cid: str, effects: List[Effect], dmg_target: Optional[str],
+                       ally_target: str, toughness_in_effects: bool = True) -> None:
+        """通用效果执行器（E1 结算链）。效果类型 = 数据，无角色特判（ADR-0007 D2）。"""
+        for eff in effects:
+            if isinstance(eff, DamageEffect) and dmg_target:
+                self._deal_damage(cid, dmg_target, eff.mult, kind=eff.kind)
+                self._on_ally_attack(cid, dmg_target)
+            elif isinstance(eff, AdvanceAllEffect):
+                for other in self.chars:
+                    if other != cid:
+                        self.queue.advance(other, eff.pct)
+            elif isinstance(eff, FateChargeEffect):
+                self.fate_charge[cid] = min(eff.cap, self.fate_charge.get(cid, 0.0) + eff.amount)
+            elif isinstance(eff, ConcertEffect):
+                self.concert_rounds = eff.rounds
+                self._concert_additional_mult = eff.additional_mult
+            elif isinstance(eff, MemospriteChargeEffect):
+                if self.memosprite is not None:
+                    self.memosprite["charge"] = min(100.0, self.memosprite["charge"] + eff.amount * 100.0)
+            elif isinstance(eff, MemospriteDamageEffect):
+                if self.memosprite is not None:
+                    self._mem_damage_all(eff.mult)
+            elif isinstance(eff, BuffEffect):
+                buff_target = ""
+                if eff.target == "advance_target":
+                    buff_target = ally_target or ""
+                elif eff.target:
+                    buff_target = eff.target
+                self.buffs.add(eff.stat, eff.value, cid, eff.duration,
+                               target=buff_target, cap=eff.cap)
+            elif isinstance(eff, AuraEffect):
+                self.buffs.add(eff.stat, eff.value, cid, 0)
+            elif isinstance(eff, SPChangeEffect):
+                if eff.counts_as_spent:
+                    self.sp_spent_count += 1  # 花火天赋：每耗 1 SP 全队增伤
+                self.sp = min(self.sp_max, self.sp + eff.delta)
+                self.sp_timeline.append((self.t, self.sp))
+            elif isinstance(eff, EnergyGainEffect):
+                self.energy[cid] += eff.amount * self.stats[cid].energy_regen
+            elif isinstance(eff, EnergyCostEffect):
+                self.energy[cid] -= eff.amount
+                self.ult_count[cid] = self.ult_count.get(cid, 0) + 1
+            elif isinstance(eff, ToughnessEffect):
+                if toughness_in_effects and dmg_target:
+                    self._apply_toughness(cid, dmg_target, eff.amount)
+            elif isinstance(eff, AdvanceEffect):
+                adv_target = ally_target or cid
+                self.queue.advance(adv_target, eff.pct)
+        # 协奏轮数递减（v1.5：每次行动结算后 -1）
         if self.concert_rounds > 0:
             self.concert_rounds -= 1
-        # 迷迷充能 / 迷迷全体伤害（记忆主）
-        if self.memosprite is not None:
-            if effects.get("mem_charge"):
-                self.memosprite["charge"] = min(100.0, self.memosprite["charge"] + effects["mem_charge"] * 100.0)
-            if effects.get("mem_dmg"):
-                self._mem_damage_all(effects["mem_dmg"])
-        # 通用 buff 施加（增伤/暴伤/真伤）
-        for key in ("buff",):
-            b = effects.get(key)
-            if b:
-                buff_target = ""
-                if b.get("target") == "advance_target":
-                    buff_target = target or ""
-                elif b.get("target"):
-                    buff_target = b["target"]
-                self.buffs.add(
-                    b["stat"], b["value"], cid,
-                    b.get("duration", 1), target=buff_target, cap=b.get("cap", 0.0),
-                )
-        # 真伤常驻光环（记忆主：迷迷在场全队真伤）
-        if effects.get("true_dmg_aura"):
-            self.buffs.add("true_dmg", effects["true_dmg_aura"], cid, 0)
-        # 固定攻击加成（知更鸟协奏 +200）
-        if effects.get("atk_flat"):
-            self.buffs.add("atk_flat", effects["atk_flat"], cid, effects.get("buff", {}).get("duration", 2))
+
+    def _apply_effect_toughness(self, cid: str, dmg_target: str, effects: List[Effect]) -> None:
+        """ult 补执行削韧（v1.5 顺序：ult 削韧在行动日志之后）。"""
+        for eff in effects:
+            if isinstance(eff, ToughnessEffect):
+                self._apply_toughness(cid, dmg_target, eff.amount)
 
     def _mem_damage_all(self, mult: float) -> None:
         owner = self.chars[self.memosprite_owner]
@@ -440,14 +436,14 @@ class Simulator:
         return resistance_multiplier(self.enemies[target].resistances.get(element, 0.0))
 
     # ---------- 削韧 / 击破 ----------
-    def _apply_toughness(self, cid: str, target: str, skill) -> None:
+    def _apply_toughness(self, cid: str, target: str, amount: float) -> None:
         elem = self.chars[cid].element
         enemy = self.enemies[target]
         if elem not in enemy.weaknesses:
             return
         if self.toughness[target] <= 0.0:
             return
-        self.toughness[target] = max(0.0, self.toughness[target] - skill.toughness)
+        self.toughness[target] = max(0.0, self.toughness[target] - amount)
         if self.toughness[target] <= 0.0:
             self._on_break(cid, target)
 
