@@ -29,6 +29,7 @@ class BattleSnapshot:
     concert_additional_mult: float = 0.72
     memosprite: Optional[dict] = None
     memosprite_owner: str = ""
+    skill_streak: Dict[str, int] = field(default_factory=dict)  # 连续战技计数（星魂 E1）
     queue_entries: Dict[str, Tuple[float, float]] = field(default_factory=dict)  # unit -> (distance, speed)
     sp_timeline: List[Tuple[float, float]] = field(default_factory=list)
     damage_events: List = field(default_factory=list)

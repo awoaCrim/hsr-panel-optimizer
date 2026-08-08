@@ -65,8 +65,9 @@ class BuildConfig:
     main_stats: Dict[str, str] = field(default_factory=dict)  # slot -> 主词条类型
     substats: Dict[str, float] = field(default_factory=dict)  # stat -> 词条数
     light_cone: str = ""               # 光锥 id（equipment 数据；空 = legacy 模板）
-    relic_sets: List[str] = field(default_factory=list)  # 套装 id：1 个 = 4 件套；2 个 = 2+2
+    relic_sets: List[str] = field(default_factory=list)  # 套装配置：{id, pieces} 或旧格式 str
     eidolon: int = 0                   # 星魂等级（0-6）
+    cid: str = ""                      # 角色 id（星魂效果按角色查 equipment.eidolons）
 
 
 def substat_count(config: BuildConfig) -> float:
@@ -106,6 +107,16 @@ def resolve_equipment(build: Dict, equipment: Optional[Dict]) -> Dict:
                         stat_bonus[ex["stat"]] = stat_bonus.get(ex["stat"], 0.0) + ex["value"]
                     else:
                         effects.append({**ex, "src": f"rs:{sid}:{key}"})
+    # 星魂（0-6 命，逐命收集；等级类 E3/E5 无 exec 自动跳过）
+    el = int(build.get("eidolon", 0) or 0)
+    if el > 0:
+        cid = build.get("cid", "")
+        eid = (equipment.get("eidolons") or {}).get(cid)
+        if eid:
+            for rk in range(1, el + 1):
+                rv = eid.get("ranks", {}).get(str(rk)) or {}
+                for ex in rv.get("exec", []) or []:
+                    effects.append({**ex, "src": f"rank:{rk}"})
     return {"stat_bonus": stat_bonus, "effects": effects}
 
 
@@ -122,7 +133,8 @@ def assemble(base: Stats, element: str, config: BuildConfig,
 
     # 装备 stat 效果（光锥被动/套装面板类；速度% 乘算单独处理）
     eq = resolve_equipment({"light_cone": config.light_cone,
-                            "relic_sets": config.relic_sets}, equipment)
+                            "relic_sets": config.relic_sets,
+                            "eidolon": config.eidolon, "cid": config.cid}, equipment)
     sb = eq["stat_bonus"]
     speed_pct = 0.0
     speed_flat = 0.0

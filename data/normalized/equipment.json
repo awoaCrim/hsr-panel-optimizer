@@ -5926,6 +5926,13 @@
             "param_list": [
               3,
               2
+            ],
+            "exec": [
+              {
+                "type": "skill_count_sp_refund",
+                "count": 3,
+                "amount": 2
+              }
             ]
           },
           "source_trust": "B",
@@ -5941,6 +5948,15 @@
             "param_list": [
               0.2,
               2
+            ],
+            "exec": [
+              {
+                "type": "ult_quantum_pen",
+                "element": "Quantum",
+                "res_pen": 0.2,
+                "add_weakness": true,
+                "duration": 2
+              }
             ]
           },
           "source_trust": "B",
@@ -5953,7 +5969,8 @@
           "value": {
             "name": "难为凡庸的意气",
             "desc": "战技等级+2，最多不超过<unbreak>15</unbreak>级；普攻等级+1，最多不超过<unbreak>10</unbreak>级。",
-            "param_list": []
+            "param_list": [],
+            "exec_skip": "等级类星魂（技能等级+2），模拟器技能等级固定，未接入"
           },
           "source_trust": "B",
           "validation": "cross_checked",
@@ -5979,7 +5996,8 @@
           "value": {
             "name": "无铭孤影的守望",
             "desc": "终结技等级+2，最多不超过<unbreak>15</unbreak>级；天赋等级+2，最多不超过<unbreak>15</unbreak>级。",
-            "param_list": []
+            "param_list": [],
+            "exec_skip": "等级类星魂（技能等级+2），模拟器技能等级固定，未接入"
           },
           "source_trust": "B",
           "validation": "cross_checked",
@@ -6040,7 +6058,8 @@
           "value": {
             "name": "梦幻泡影",
             "desc": "战技等级+2，最多不超过<unbreak>15</unbreak>级；普攻等级+1，最多不超过<unbreak>10</unbreak>级。",
-            "param_list": []
+            "param_list": [],
+            "exec_skip": "等级类星魂（技能等级+2），模拟器技能等级固定，未接入"
           },
           "source_trust": "B",
           "validation": "cross_checked",
@@ -6052,7 +6071,14 @@
           "value": {
             "name": "游戏人间",
             "desc": "终结技可以额外恢复1点战技点，天赋的战技点上限增加效果额外增加1点。",
-            "param_list": []
+            "param_list": [],
+            "exec": [
+              {
+                "type": "ult_sp_refund_extra",
+                "amount": 1,
+                "sp_cap_bonus": 1
+              }
+            ]
           },
           "source_trust": "B",
           "validation": "cross_checked",
@@ -6064,7 +6090,8 @@
           "value": {
             "name": "双面真相",
             "desc": "终结技等级+2，最多不超过<unbreak>15</unbreak>级；天赋等级+2，最多不超过<unbreak>15</unbreak>级。",
-            "param_list": []
+            "param_list": [],
+            "exec_skip": "等级类星魂（技能等级+2），模拟器技能等级固定，未接入"
           },
           "source_trust": "B",
           "validation": "cross_checked",
@@ -6098,6 +6125,12 @@
             "desc": "处于【协奏】状态时，我方全体全属性<u>抗性穿透</u>提高<unbreak>#1[i]%</unbreak>。",
             "param_list": [
               0.24
+            ],
+            "exec": [
+              {
+                "type": "concert_res_pen",
+                "value": 0.24
+              }
             ]
           },
           "source_trust": "B",
@@ -6125,7 +6158,8 @@
           "value": {
             "name": "倒悬的弦宫",
             "desc": "战技等级+2，最多不超过<unbreak>15</unbreak>级；终结技等级+2，最多不超过<unbreak>15</unbreak>级。",
-            "param_list": []
+            "param_list": [],
+            "exec_skip": "等级类星魂（技能等级+2），模拟器技能等级固定，未接入"
           },
           "source_trust": "B",
           "validation": "cross_checked",
@@ -6151,7 +6185,8 @@
           "value": {
             "name": "孤星的眼泪",
             "desc": "普攻等级+1，最多不超过<unbreak>10</unbreak>级；天赋等级+2，最多不超过<unbreak>15</unbreak>级。",
-            "param_list": []
+            "param_list": [],
+            "exec_skip": "等级类星魂（技能等级+2），模拟器技能等级固定，未接入"
           },
           "source_trust": "B",
           "validation": "cross_checked",
@@ -6186,6 +6221,12 @@
             "desc": "持有【迷迷的声援】的我方目标暴击率提高<unbreak>#1[i]%</unbreak>。当我方目标持有【迷迷的声援】时，【迷迷的声援】的效果对该目标的忆灵/忆师也生效，该效果不可叠加。",
             "param_list": [
               0.1
+            ],
+            "exec": [
+              {
+                "type": "mems_support_crit",
+                "value": 0.1
+              }
             ]
           },
           "source_trust": "B",
@@ -6213,7 +6254,8 @@
           "value": {
             "name": "未来的咏唱者",
             "desc": "战技等级+2，最多不超过<unbreak>15</unbreak>级；天赋等级+2，最多不超过<unbreak>15</unbreak>级；忆灵天赋等级+1，最多不超过<unbreak>10</unbreak>级。",
-            "param_list": []
+            "param_list": [],
+            "exec_skip": "等级类星魂（技能等级+2），模拟器技能等级固定，未接入"
           },
           "source_trust": "B",
           "validation": "cross_checked",
@@ -6240,7 +6282,8 @@
           "value": {
             "name": "诗篇的裁缝匠",
             "desc": "终结技等级+2，最多不超过<unbreak>15</unbreak>级；普攻等级+1，最多不超过<unbreak>10</unbreak>级；忆灵技等级+1，最多不超过<unbreak>10</unbreak>级。",
-            "param_list": []
+            "param_list": [],
+            "exec_skip": "等级类星魂（技能等级+2），模拟器技能等级固定，未接入"
           },
           "source_trust": "B",
           "validation": "cross_checked",

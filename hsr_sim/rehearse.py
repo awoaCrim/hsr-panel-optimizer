@@ -555,6 +555,7 @@ def _snap_to_dict(snap: BattleSnapshot) -> Dict[str, Any]:
         "concert_rounds": snap.concert_rounds,
         "concert_additional_mult": snap.concert_additional_mult,
         "memosprite": snap.memosprite, "memosprite_owner": snap.memosprite_owner,
+        "skill_streak": snap.skill_streak,
         "queue_entries": {uid: [d, s] for uid, (d, s) in snap.queue_entries.items()},
         "sp_timeline": [list(x) for x in snap.sp_timeline],
         "damage_events": [[e.t, e.source, e.target, e.amount, e.kind]
@@ -584,6 +585,7 @@ def _snap_from_dict(d: Dict[str, Any]) -> BattleSnapshot:
         concert_additional_mult=d["concert_additional_mult"],
         memosprite=dict(d["memosprite"]) if d["memosprite"] else None,
         memosprite_owner=d["memosprite_owner"],
+        skill_streak=dict(d.get("skill_streak", {})),
         queue_entries={uid: (float(v[0]), float(v[1]))
                        for uid, v in d["queue_entries"].items()},
         sp_timeline=[(float(x[0]), float(x[1])) for x in d["sp_timeline"]],

@@ -66,7 +66,7 @@ def assemble_team(team_path: Path, characters: Dict[str, CharacterData],
                               substats=build.get("substats", {}),
                               light_cone=build.get("light_cone", ""),
                               relic_sets=build.get("relic_sets", []),
-                              eidolon=build.get("eidolon", 0))
+                              eidolon=build.get("eidolon", 0), cid=cid)
             errs = validate_config(cfg)
             if errs:
                 build_errors[cid] = errs
@@ -76,7 +76,8 @@ def assemble_team(team_path: Path, characters: Dict[str, CharacterData],
                 # 装备机制效果（光锥被动/套装，供模拟器执行）
                 resolved = resolve_equipment(
                     {"light_cone": build.get("light_cone", ""),
-                     "relic_sets": build.get("relic_sets", [])}, equipment)
+                     "relic_sets": build.get("relic_sets", []),
+                     "eidolon": build.get("eidolon", 0), "cid": cid}, equipment)
                 ch.equipment_effects = resolved["effects"]
         else:
             stats[cid] = ch.base_stats

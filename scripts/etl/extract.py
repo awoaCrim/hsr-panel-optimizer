@@ -343,6 +343,28 @@ RS_EXEC = {
 }
 
 
+# 星魂效果可执行映射（等级类 E3/E5 不接入——模拟器技能等级固定，标注跳过）
+# 类型：skill_count_sp_refund（单回合 3 战技回 SP）/ ult_quantum_pen（终结技抗性+弱点）/\
+#       ult_sp_refund_extra（大招额外回 SP+上限）/ concert_res_pen（协奏抗穿）/
+#       mems_support_crit（声援目标暴击）
+RANK_EXEC = {
+    "1015": {  # 红A
+        "1": [{"type": "skill_count_sp_refund", "count": 3, "amount": 2}],
+        "2": [{"type": "ult_quantum_pen", "element": "Quantum", "res_pen": 0.20,
+                "add_weakness": True, "duration": 2}],
+    },
+    "1306": {  # 花火
+        "4": [{"type": "ult_sp_refund_extra", "amount": 1, "sp_cap_bonus": 1}],
+    },
+    "1309": {  # 知更鸟
+        "1": [{"type": "concert_res_pen", "value": 0.24}],
+    },
+    "8007": {  # 记忆主
+        "1": [{"type": "mems_support_crit", "value": 0.10}],
+    },
+}
+
+
 def build_equipment(raw: Dict) -> Dict:
     """光锥/遗器套装/星魂（Nanoka wiki 接口：中文描述+数值合一，用户提供）。
 
@@ -423,10 +445,14 @@ def build_equipment(raw: Dict) -> Dict:
             continue
         ranks = {}
         for rk, rv in sorted(ch["ranks"].items(), key=lambda kv: int(kv[0])):
-            ranks[rk] = wrapper({
-                "name": rv.get("name"), "desc": rv.get("desc"),
-                "param_list": rv.get("param_list") or [],
-            }, p_rank)
+            d = {"name": rv.get("name"), "desc": rv.get("desc"),
+                 "param_list": rv.get("param_list") or []}
+            execs = RANK_EXEC.get(cid, {}).get(rk)
+            if execs:
+                d["exec"] = execs
+            elif rk in ("3", "5"):
+                d["exec_skip"] = "等级类星魂（技能等级+2），模拟器技能等级固定，未接入"
+            ranks[rk] = wrapper(d, p_rank)
         out["eidolons"][cid] = {"id": cid, "name": ch.get("zh"), "ranks": ranks}
     return out
 

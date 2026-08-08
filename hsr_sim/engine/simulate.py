@@ -125,6 +125,10 @@ class Simulator:
         self.sp_max = 5.0
         for cid, c in self.chars.items():
             self.sp_max += c.talent_extra.get("sp_cap_bonus", 0)
+            # 星魂 SP 上限加成（花火 E4）
+            for ex in c.equipment_effects:
+                if ex["type"] == "ult_sp_refund_extra":
+                    self.sp_max += ex.get("sp_cap_bonus", 0)
         self.energy: Dict[str, float] = {cid: 0.0 for cid in self.chars}
         self.toughness: Dict[str, float] = {eid: e.toughness for eid, e in self.enemies.items()}
         self.enemy_hp: Dict[str, float] = {eid: e.hp for eid, e in self.enemies.items()}
@@ -148,6 +152,7 @@ class Simulator:
         # 装备效果运行时（光锥被动/套装；exec DSL，见 build.resolve_equipment）
         self.equip_stacks: Dict[str, Dict[str, int]] = {}   # cid -> effect_id -> 层数
         self.equip_ult_count: Dict[str, int] = {}           # cid -> 大招计数（ult_sp_refund）
+        self.skill_streak: Dict[str, int] = {}              # 连续战技计数（星魂 E1）
         self._start_effects_applied = False
         # LLM 指挥通道（ADR-0007 3.3）：
         self.external_action: Optional[Action] = None    # 决策注入（优先于 policy/序列；消费后清空）
@@ -309,6 +314,7 @@ class Simulator:
         self.action_count[cid] = self.action_count.get(cid, 0) + 1
         self.log.append(ActionLog(self.t, cid, action.action))
         self.rotation.advance(cid)
+        self._track_skill_streak(cid, action.action)
 
         if extra_effect is not None:
             # 额外行动链（红A 回路连接）：链内战技次数达上限后强制结束回合
@@ -322,6 +328,20 @@ class Simulator:
         else:
             self.burst_chain.pop(cid, None)
             self.queue.reset_after_action(cid)
+
+    def _track_skill_streak(self, cid: str, action: str) -> None:
+        """星魂 E1（红A）：单个回合内连续 3 次战技 → 回 2 SP（普攻/其他动作打断计数）。"""
+        streak = self.skill_streak.get(cid, 0)
+        if action == "skill":
+            streak += 1
+            self.skill_streak[cid] = streak
+            for ex in self._equip_effects(cid):
+                if ex["type"] == "skill_count_sp_refund" and streak == ex["count"]:
+                    self.sp = min(self.sp_max, self.sp + ex["amount"])
+                    self.sp_timeline.append((self.t, self.sp))
+                    self.skill_streak[cid] = 0
+        else:
+            self.skill_streak.pop(cid, None)
 
     def _after_skill_equipment(self, cid: str, action: str, ally_target: str) -> None:
         """装备战技后效果：23003 下一个队友增伤 / 24005 全队增伤 / 121-4 目标暴伤。"""
@@ -372,7 +392,9 @@ class Simulator:
         self._after_ult_equipment(cid)
 
     def _after_ult_equipment(self, cid: str) -> None:
-        """装备大招后效果：23003 每 2 次大招回 1 SP；23026 【歌咏】→【华彩】。"""
+        """装备大招后效果：23003 每 2 次大招回 1 SP；23026 【歌咏】→【华彩】；
+        红A E2 量子抗性+弱点；花火 E4 额外回 SP。"""
+        dmg_target = self._resolve_target("", self.chars[cid].skills["ult"])
         for ex in self._equip_effects(cid):
             if ex["type"] == "ult_sp_refund":
                 n = self.equip_ult_count.get(cid, 0) + 1
@@ -380,6 +402,17 @@ class Simulator:
                 if n % ex["every"] == 0:
                     self.sp = min(self.sp_max, self.sp + ex["amount"])
                     self.sp_timeline.append((self.t, self.sp))
+            elif ex["type"] == "ult_sp_refund_extra":
+                # 花火 E4：终结技额外恢复 1 点战技点
+                self.sp = min(self.sp_max, self.sp + ex["amount"])
+                self.sp_timeline.append((self.t, self.sp))
+            elif ex["type"] == "ult_quantum_pen" and dmg_target:
+                # 红A E2：终结技使目标量子抗性 -20% + 添加量子弱点，持续 2 回合
+                self.buffs.add(f"enemy_res_pen:{ex['element']}", ex["res_pen"],
+                               cid, ex["duration"], target=dmg_target)
+                if ex.get("add_weakness"):
+                    self.buffs.add(f"enemy_weakness_add:{ex['element']}", 1.0,
+                                   cid, ex["duration"], target=dmg_target)
             elif ex["type"] == "ult_convert":
                 # 23026：大招移除【歌咏】，获得【华彩】：攻击 +48%、全队增伤 +24% 1 回合
                 self.equip_stacks.get(cid, {}).pop(ex["src"], None)
@@ -469,6 +502,8 @@ class Simulator:
         stats = self._effective_stats(cid)
         enemy = self.enemies[target]
         res = enemy.resistances.get(self.chars[cid].element, 0.0)
+        # 星魂 E2（红A）：终结技降低目标元素抗性
+        res -= self.buffs.sum_for(f"enemy_res_pen:{self.chars[cid].element}", target)
         m = self._current_multipliers()
         bonus, def_ignore = self._equip_damage(cid, kind, skill_type, target, stats)
         m.dmg_bonus += bonus
@@ -525,6 +560,7 @@ class Simulator:
     def _effective_stats(self, cid: str) -> Stats:
         s = replace(self.stats[cid])
         s.crit_dmg += self.buffs.sum_for("crit_dmg", cid)
+        s.crit_rate += self.buffs.sum_for("crit_rate", cid)   # 记忆主 E1：声援暴击
         s.atk = s.atk * (1.0 + self.buffs.sum_for("atk_pct", cid)) + self.buffs.sum_for("atk_flat", cid)
         # 装备条件面板（stat_conditional）：如蕉乐园召唤在场暴伤
         for ex in self._equip_effects(cid):
@@ -539,6 +575,12 @@ class Simulator:
         m.dmg_bonus = self.buffs.sum_for("dmg_bonus")
         # 花火天赋：每耗 1 SP 全队增伤 3%（叠 3 层）
         m.dmg_bonus += 0.03 * min(self.sp_spent_count, 3)
+        # 知更鸟 E1：协奏期间全属性抗性穿透 24%
+        if self.concert_rounds > 0:
+            for c in self.chars.values():
+                for ex in c.equipment_effects:
+                    if ex["type"] == "concert_res_pen":
+                        m.res_pen += ex["value"]
         m.true_dmg = self.buffs.sum_for("true_dmg")
         m.extra_atk_pct = self.buffs.sum_for("concert_atk")
         return m
@@ -611,7 +653,9 @@ class Simulator:
     def _apply_toughness(self, cid: str, target: str, amount: float) -> None:
         elem = self.chars[cid].element
         enemy = self.enemies[target]
-        if elem not in enemy.weaknesses:
+        has_weakness = elem in enemy.weaknesses or \
+            self.buffs.sum_for(f"enemy_weakness_add:{elem}", target) > 0.0  # 星魂 E2 动态弱点
+        if not has_weakness:
             return
         if self.toughness[target] <= 0.0:
             return
@@ -651,6 +695,11 @@ class Simulator:
             self.queue.advance(target, cfg.get("enhanced_advance_pct", 1.0))
             self.buffs.add("mems_support", cfg.get("support_true_dmg", 0.28),
                            "MEM", cfg.get("support_rounds", 3), target=target)
+            # 记忆主 E1：声援目标暴击率 +10%
+            for ex in self._equip_effects(self.memosprite_owner):
+                if ex["type"] == "mems_support_crit":
+                    self.buffs.add("crit_rate", ex["value"], "MEM",
+                                   cfg.get("support_rounds", 3), target=target)
             self.log.append(ActionLog(self.t, "MEM", "memosprite_ult",
                                       detail=f"强化：拉条+声援 {target}"))
         else:
@@ -718,6 +767,7 @@ class Simulator:
             concert_additional_mult=getattr(self, "_concert_additional_mult", 0.72),
             memosprite=dict(self.memosprite) if self.memosprite else None,
             memosprite_owner=self.memosprite_owner,
+            skill_streak=dict(self.skill_streak),
             queue_entries={uid: (e.distance, e.speed) for uid, e in self.queue._entries.items()},
             sp_timeline=list(self.sp_timeline), damage_events=list(self.damage_events),
             log=list(self.log), breaks=list(self.breaks),
@@ -748,6 +798,7 @@ class Simulator:
         self._concert_additional_mult = snap.concert_additional_mult
         self.memosprite = dict(snap.memosprite) if snap.memosprite else None
         self.memosprite_owner = snap.memosprite_owner
+        self.skill_streak = dict(snap.skill_streak)
         self.queue = ActionQueue()
         for uid, (distance, speed) in snap.queue_entries.items():
             self.queue.add(uid, speed, distance)

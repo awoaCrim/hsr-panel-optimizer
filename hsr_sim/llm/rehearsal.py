@@ -120,7 +120,7 @@ def _gear_summary(session: RehearsalSession) -> str:
     """装备与星魂（光锥/遗器套装/星魂管理系统）：真实数据 + 接入状态标注。"""
     cfg = session._config_paths
     lines = ["光锥被动 / 套装效果已接入战斗模拟（面板类+条件增伤+无视防御+叠层+SP返还+开局提前）；",
-             "星魂效果尚未接入（当前队伍 0 命无影响）。装备明细："]
+             "星魂效果部分接入（红A E1/E2、花火 E4、知更鸟 E1、记忆主 E1；等级类 E3/E5 未接入）。装备明细："]
     if cfg is None:
         lines.append("  （会话未绑定队伍文件，装备配置不可查）")
         return "\n".join(lines)
@@ -174,8 +174,10 @@ def _gear_summary(session: RehearsalSession) -> str:
         el = b.get("eidolon", 0) or 0
         eid = eids.get(cid)
         if eid and el > 0:
-            owned = [f"E{rk} {rv.get('name')}: {_clean_desc(rv.get('desc'))[:70]}"
-                     for rk, rv in list(eid.get("ranks", {}).items())[:el]]
+            owned = []
+            for rk, rv in list(eid.get("ranks", {}).items())[:el]:
+                tag = "（已接入）" if rv.get("exec") else ("（未接入）" if rv.get("exec_skip") else "")
+                owned.append(f"E{rk} {rv.get('name')}{tag}: {_clean_desc(rv.get('desc'))[:80]}")
             parts.append(f"星魂 {el} 命：" + " | ".join(owned))
         elif eid:
             parts.append("星魂 0 命")

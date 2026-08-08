@@ -52,11 +52,12 @@ def test_knowledge_pack_advance_and_gear():
     s = RS.from_files()   # 默认红A队（含花火 1306）
     pack = build_knowledge_pack(s)
     assert "不可自拉" in pack          # 花火战技目标选择器排除自身
-    assert "已接入战斗模拟" in pack      # 光锥/套装效果已接入（星魂除外）
-    assert "星魂效果尚未接入" in pack    # 星魂诚实标注
+    assert "已接入战斗模拟" in pack      # 光锥/套装效果已接入
+    assert "E2" in pack and "已接入" in pack   # 红A 2 命（星魂效果已接入）
+    assert "等级类 E3/E5 未接入" in pack        # 星魂诚实标注
     assert "于夜色中" in pack and "花与蝶" in pack   # 红A 光锥 + 精炼效果
     assert "繁星璀璨的天才" in pack    # 红A 量子套
-    assert "星魂 0 命" in pack
+    assert "星魂 2 命" in pack
     assert "词条" in pack             # builds 词条构成
 
 
