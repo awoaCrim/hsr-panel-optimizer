@@ -7,7 +7,7 @@ import json
 from pathlib import Path
 from typing import Dict, List, Tuple
 
-from .build import BuildConfig, assemble, validate_config
+from .build import BuildConfig, assemble, resolve_equipment, validate_config
 from .model import Action, CharacterData, CharacterPolicy, Enemy, Rotation, SkillData, Stats
 
 DATA_DIR = Path(__file__).resolve().parent.parent / "data"
@@ -73,6 +73,11 @@ def assemble_team(team_path: Path, characters: Dict[str, CharacterData],
                 stats[cid] = ch.base_stats
             else:
                 stats[cid] = assemble(ch.base_stats, ch.element, cfg, equipment)
+                # 装备机制效果（光锥被动/套装，供模拟器执行）
+                resolved = resolve_equipment(
+                    {"light_cone": build.get("light_cone", ""),
+                     "relic_sets": build.get("relic_sets", [])}, equipment)
+                ch.equipment_effects = resolved["effects"]
         else:
             stats[cid] = ch.base_stats
     return stats, d.get("speed_targets", {}), build_errors

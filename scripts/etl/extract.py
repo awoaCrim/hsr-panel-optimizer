@@ -291,6 +291,58 @@ def build_level_curves(raw: Dict) -> Dict:
 
 # ---------------- 主流程 ----------------
 
+# 装备效果可执行映射（手工：desc 参数位语义 → exec DSL；队伍配置装备全覆盖）
+# 类型：stat(面板常驻) / element_dmg / speed_over_100_dmg / crit_ge_dmg / basic_dmg /
+#       def_ignore / stack_energy_regen / ult_sp_refund / skill_next_ally_dmg /
+#       skill_team_dmg / start_advance / ult_convert / target_cd_buff / mem_cd_buff /
+#       same_element_team_dmg / stat_conditional(memosprite_present)
+LC_EXEC = {
+    "23001": [  # 于夜色中：暴击+18%；超速每10点普攻战技+6%（6层）；大招暴伤+12%/层
+        {"type": "stat", "stat": "crit_rate", "value": 0.18},
+        {"type": "speed_over_100_dmg", "speed_step": 10, "mult": 0.06,
+         "max_stacks": 6, "skills": ["basic", "skill"], "ult_crit_dmg": 0.12},
+    ],
+    "23003": [  # 但战斗还未结束：充能+10%；每2次大招回1 SP；战技后下一个行动队友增伤30%
+        {"type": "stat", "stat": "energy_regen", "value": 0.10},
+        {"type": "ult_sp_refund", "every": 2, "amount": 1},
+        {"type": "skill_next_ally_dmg", "value": 0.30, "duration": 1},
+    ],
+    "23026": [  # 夜色流光溢彩：我方攻击→【歌咏】层（充能+3%/层，5层）；大招转化【华彩】
+        {"type": "stack_energy_regen", "per_stack": 0.03, "max": 5, "trigger": "ally_attack"},
+        {"type": "ult_convert", "stack_stat": "atk_pct", "stack_value": 0.48,
+         "team_dmg": 0.24, "duration": 1},
+    ],
+    "24005": [  # 记忆永不落幕：速度+6%；战技后全队增伤8% 3回合
+        {"type": "stat", "stat": "speed_pct", "value": 0.06},
+        {"type": "skill_team_dmg", "value": 0.08, "duration": 3},
+    ],
+}
+RS_EXEC = {
+    "108": {"2": [{"type": "element_dmg", "element": "Quantum", "value": 0.10}],
+             "4": [{"type": "def_ignore", "value": 0.10, "weakness_extra": 0.10,
+                     "element": "Quantum"}]},
+    # 内圈套装（球/绳）只有 2 件套效果，2 件描述含多段效果
+    "306": {"2": [{"type": "stat", "stat": "crit_rate", "value": 0.08},
+                    {"type": "crit_ge_dmg", "crit_ge": 0.50, "value": 0.15,
+                     "skills": ["ult", "followup"]}]},
+    "121": {"2": [{"type": "stat", "stat": "speed_pct", "value": 0.06}],
+             "4": [{"type": "target_cd_buff", "value": 0.18, "duration": 2,
+                     "max_stacks": 2}]},
+    "308": {"2": [{"type": "stat", "stat": "energy_regen", "value": 0.05},
+                    {"type": "start_advance", "speed_ge": 120.0, "pct": 0.40}]},
+    "102": {"2": [{"type": "stat", "stat": "atk_pct", "value": 0.12}],
+             "4": [{"type": "stat", "stat": "speed_pct", "value": 0.06},
+                    {"type": "basic_dmg", "value": 0.10}]},
+    "312": {"2": [{"type": "stat", "stat": "energy_regen", "value": 0.05},
+                    {"type": "same_element_team_dmg", "value": 0.10}]},
+    "123": {"2": [{"type": "stat", "stat": "atk_pct", "value": 0.12}],
+             "4": [{"type": "mem_cd_buff", "value": 0.30, "duration": 2}]},
+    "318": {"2": [{"type": "stat", "stat": "crit_dmg", "value": 0.16},
+                    {"type": "stat_conditional", "stat": "crit_dmg", "value": 0.32,
+                     "cond": "memosprite_present"}]},
+}
+
+
 def build_equipment(raw: Dict) -> Dict:
     """光锥/遗器套装/星魂（Nanoka wiki 接口：中文描述+数值合一，用户提供）。
 
@@ -342,6 +394,7 @@ def build_equipment(raw: Dict) -> Dict:
             "base_stats": wrapper(base, p_lc),
         }
         if ref:
+            ref["exec"] = LC_EXEC.get(cid, [])
             entry["effect"] = wrapper(ref, p_eff)
         # 无详情（未 fetch）：不写 effect 字段（数据缺失 ≠ 未验证输入，不污染信任信封）
         out["light_cones"][cid] = entry
@@ -352,7 +405,11 @@ def build_equipment(raw: Dict) -> Dict:
             p = rs.get("set", {}).get(key)
             if not p:
                 return None
-            return {"desc": p.get("zh"), "params": p.get("ParamList") or []}
+            d = {"desc": p.get("zh"), "params": p.get("ParamList") or []}
+            execs = RS_EXEC.get(sid, {}).get(key)
+            if execs:
+                d["exec"] = execs
+            return d
         out["relic_sets"][sid] = {
             "id": sid, "name": rs.get("zh"),
             "two_piece": wrapper(piece("2"), p_rs),

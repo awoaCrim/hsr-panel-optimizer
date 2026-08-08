@@ -2311,6 +2311,24 @@
             0.06,
             0.12,
             6
+          ],
+          "exec": [
+            {
+              "type": "stat",
+              "stat": "crit_rate",
+              "value": 0.18
+            },
+            {
+              "type": "speed_over_100_dmg",
+              "speed_step": 10,
+              "mult": 0.06,
+              "max_stacks": 6,
+              "skills": [
+                "basic",
+                "skill"
+              ],
+              "ult_crit_dmg": 0.12
+            }
           ]
         },
         "source_trust": "B",
@@ -2375,6 +2393,23 @@
             0.1,
             0.3,
             1
+          ],
+          "exec": [
+            {
+              "type": "stat",
+              "stat": "energy_regen",
+              "value": 0.1
+            },
+            {
+              "type": "ult_sp_refund",
+              "every": 2,
+              "amount": 1
+            },
+            {
+              "type": "skill_next_ally_dmg",
+              "value": 0.3,
+              "duration": 1
+            }
           ]
         },
         "source_trust": "B",
@@ -2924,6 +2959,21 @@
             0.24,
             0.48,
             1
+          ],
+          "exec": [
+            {
+              "type": "stack_energy_regen",
+              "per_stack": 0.03,
+              "max": 5,
+              "trigger": "ally_attack"
+            },
+            {
+              "type": "ult_convert",
+              "stack_stat": "atk_pct",
+              "stack_value": 0.48,
+              "team_dmg": 0.24,
+              "duration": 1
+            }
           ]
         },
         "source_trust": "B",
@@ -3931,6 +3981,18 @@
             0.06,
             0.08,
             3
+          ],
+          "exec": [
+            {
+              "type": "stat",
+              "stat": "speed_pct",
+              "value": 0.06
+            },
+            {
+              "type": "skill_team_dmg",
+              "value": 0.08,
+              "duration": 3
+            }
           ]
         },
         "source_trust": "B",
@@ -4001,6 +4063,13 @@
           "desc": "攻击力提高<unbreak>#1[i]%</unbreak>。",
           "params": [
             0.12
+          ],
+          "exec": [
+            {
+              "type": "stat",
+              "stat": "atk_pct",
+              "value": 0.12
+            }
           ]
         },
         "source_trust": "B",
@@ -4015,6 +4084,17 @@
           "params": [
             0.06,
             0.1
+          ],
+          "exec": [
+            {
+              "type": "stat",
+              "stat": "speed_pct",
+              "value": 0.06
+            },
+            {
+              "type": "basic_dmg",
+              "value": 0.1
+            }
           ]
         },
         "source_trust": "B",
@@ -4187,6 +4267,13 @@
           "desc": "量子属性伤害提高<unbreak>#1[i]%</unbreak>。",
           "params": [
             0.1
+          ],
+          "exec": [
+            {
+              "type": "element_dmg",
+              "element": "Quantum",
+              "value": 0.1
+            }
           ]
         },
         "source_trust": "B",
@@ -4201,6 +4288,14 @@
           "params": [
             0.1,
             0.1
+          ],
+          "exec": [
+            {
+              "type": "def_ignore",
+              "value": 0.1,
+              "weakness_extra": 0.1,
+              "element": "Quantum"
+            }
           ]
         },
         "source_trust": "B",
@@ -4598,6 +4693,13 @@
           "desc": "速度提高<unbreak>#1[i]%</unbreak>。",
           "params": [
             0.06
+          ],
+          "exec": [
+            {
+              "type": "stat",
+              "stat": "speed_pct",
+              "value": 0.06
+            }
           ]
         },
         "source_trust": "B",
@@ -4613,6 +4715,14 @@
             0.18,
             2,
             2
+          ],
+          "exec": [
+            {
+              "type": "target_cd_buff",
+              "value": 0.18,
+              "duration": 2,
+              "max_stacks": 2
+            }
           ]
         },
         "source_trust": "B",
@@ -4661,6 +4771,13 @@
           "desc": "攻击力提高<unbreak>#1[i]%</unbreak>。",
           "params": [
             0.12
+          ],
+          "exec": [
+            {
+              "type": "stat",
+              "stat": "atk_pct",
+              "value": 0.12
+            }
           ]
         },
         "source_trust": "B",
@@ -4676,6 +4793,13 @@
             0.06,
             0.3,
             2
+          ],
+          "exec": [
+            {
+              "type": "mem_cd_buff",
+              "value": 0.3,
+              "duration": 2
+            }
           ]
         },
         "source_trust": "B",
@@ -5122,6 +5246,22 @@
             0.08,
             0.5,
             0.15
+          ],
+          "exec": [
+            {
+              "type": "stat",
+              "stat": "crit_rate",
+              "value": 0.08
+            },
+            {
+              "type": "crit_ge_dmg",
+              "crit_ge": 0.5,
+              "value": 0.15,
+              "skills": [
+                "ult",
+                "followup"
+              ]
+            }
           ]
         },
         "source_trust": "B",
@@ -5176,6 +5316,18 @@
             0.05,
             120,
             0.4
+          ],
+          "exec": [
+            {
+              "type": "stat",
+              "stat": "energy_regen",
+              "value": 0.05
+            },
+            {
+              "type": "start_advance",
+              "speed_ge": 120.0,
+              "pct": 0.4
+            }
           ]
         },
         "source_trust": "B",
@@ -5285,6 +5437,17 @@
           "params": [
             0.05,
             0.1
+          ],
+          "exec": [
+            {
+              "type": "stat",
+              "stat": "energy_regen",
+              "value": 0.05
+            },
+            {
+              "type": "same_element_team_dmg",
+              "value": 0.1
+            }
           ]
         },
         "source_trust": "B",
@@ -5444,6 +5607,19 @@
           "params": [
             0.16,
             0.32
+          ],
+          "exec": [
+            {
+              "type": "stat",
+              "stat": "crit_dmg",
+              "value": 0.16
+            },
+            {
+              "type": "stat_conditional",
+              "stat": "crit_dmg",
+              "value": 0.32,
+              "cond": "memosprite_present"
+            }
           ]
         },
         "source_trust": "B",

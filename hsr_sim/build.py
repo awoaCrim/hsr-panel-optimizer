@@ -73,6 +73,42 @@ def substat_count(config: BuildConfig) -> float:
     return sum(config.substats.values())
 
 
+def resolve_equipment(build: Dict, equipment: Optional[Dict]) -> Dict:
+    """解析装备配置 → 生效效果：{stat_bonus: {stat: value}, effects: [exec...]}。
+
+    - stat/stat_conditional：面板类（stat_conditional 的 cond 由模拟器判定，不进面板）
+    - 其余类型：机制效果（模拟器执行，src 标注来源）
+    relic_sets 格式：{"id": str, "pieces": int}（2 件生效 two_piece，4 件叠加 four_piece）；
+    兼容旧格式（str = 4 件）。
+    """
+    stat_bonus: Dict[str, float] = {}
+    effects: List[Dict] = []
+    if not equipment:
+        return {"stat_bonus": stat_bonus, "effects": effects}
+    lc_id = build.get("light_cone", "")
+    if lc_id:
+        lc = equipment.get("light_cones", {}).get(lc_id) or {}
+        for ex in (lc.get("effect") or {}).get("exec", []) or []:
+            if ex["type"] == "stat":
+                stat_bonus[ex["stat"]] = stat_bonus.get(ex["stat"], 0.0) + ex["value"]
+            else:
+                effects.append({**ex, "src": f"lc:{lc_id}"})
+    for rs_cfg in build.get("relic_sets", []) or []:
+        if isinstance(rs_cfg, str):
+            rs_cfg = {"id": rs_cfg, "pieces": 4}
+        sid = str(rs_cfg.get("id", ""))
+        pieces = int(rs_cfg.get("pieces", 4))
+        rs = equipment.get("relic_sets", {}).get(sid) or {}
+        for key, need in (("two_piece", 2), ("four_piece", 4)):
+            if pieces >= need:
+                for ex in (rs.get(key) or {}).get("exec", []) or []:
+                    if ex["type"] == "stat":
+                        stat_bonus[ex["stat"]] = stat_bonus.get(ex["stat"], 0.0) + ex["value"]
+                    else:
+                        effects.append({**ex, "src": f"rs:{sid}:{key}"})
+    return {"stat_bonus": stat_bonus, "effects": effects}
+
+
 def assemble(base: Stats, element: str, config: BuildConfig,
              equipment: Optional[Dict] = None) -> Stats:
     """装配最终面板：基础 + 光锥白值 + 主词条 + 副词条。
@@ -81,6 +117,28 @@ def assemble(base: Stats, element: str, config: BuildConfig,
     equipment = load_equipment() 的原始 dict（strip 溯源后）。
     """
     out = base.copy()
+
+    atk_pct_total = 0.0
+
+    # 装备 stat 效果（光锥被动/套装面板类；速度% 乘算单独处理）
+    eq = resolve_equipment({"light_cone": config.light_cone,
+                            "relic_sets": config.relic_sets}, equipment)
+    sb = eq["stat_bonus"]
+    speed_pct = 0.0
+    speed_flat = 0.0
+    for stat, v in sb.items():
+        if stat == "crit_rate":
+            out.crit_rate += v
+        elif stat == "crit_dmg":
+            out.crit_dmg += v
+        elif stat == "energy_regen":
+            out.energy_regen += v
+        elif stat == "speed_pct":
+            speed_pct += v
+        elif stat == "atk_pct":
+            atk_pct_total += v
+        else:
+            speed_flat += v  # speed 常量（当前无，预留）
 
     # 光锥（真实数据：80 级基础攻击；legacy 兜底模板）
     atk_flat = LIGHT_CONE_TEMPLATE["atk_base"]
@@ -91,7 +149,6 @@ def assemble(base: Stats, element: str, config: BuildConfig,
             bs = lc["base_stats"]
             if bs.get("atk"):
                 atk_flat = bs["atk"]
-    atk_pct_total = 0.0
 
     # 主词条
     body = config.main_stats.get("body")
@@ -141,6 +198,9 @@ def assemble(base: Stats, element: str, config: BuildConfig,
             out.energy_regen += v * count
 
     out.atk = (base.atk + atk_flat) * (1.0 + atk_pct_total)
+    if speed_pct:
+        out.speed = out.speed * (1.0 + speed_pct)
+    out.speed += speed_flat
     return out
 
 

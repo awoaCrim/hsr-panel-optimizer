@@ -612,7 +612,8 @@ def _demo_pilot(session: RehearsalSession, max_acts: int = 200) -> RehearsalSess
     acts = 0
     while state["phase"] == "decision" and acts < max_acts:
         d = state["decision"]
-        target = d["targets"][0] if d["targets"] else ""
+        # 拉条/增益技能 → 目标取队友；伤害技能 → 目标取第一个敌人
+        target = d["ally_targets"][0] if d.get("ally_targets") else (d["targets"][0] if d["targets"] else "")
         session.act(skill=d["default"], target=target, note="demo")
         acts += 1
         state = session.observe()

@@ -117,10 +117,10 @@ def _clean_desc(s: Optional[str]) -> str:
 
 
 def _gear_summary(session: RehearsalSession) -> str:
-    """装备与星魂（光锥/遗器套装/星魂管理系统）：真实数据 + 效果未接入标注。"""
+    """装备与星魂（光锥/遗器套装/星魂管理系统）：真实数据 + 接入状态标注。"""
     cfg = session._config_paths
-    lines = ["光锥被动 / 套装效果 / 星魂效果尚未接入战斗模拟（仅面板白值与词条生效），"
-             "以下数值供决策参考："]
+    lines = ["光锥被动 / 套装效果已接入战斗模拟（面板类+条件增伤+无视防御+叠层+SP返还+开局提前）；",
+             "星魂效果尚未接入（当前队伍 0 命无影响）。装备明细："]
     if cfg is None:
         lines.append("  （会话未绑定队伍文件，装备配置不可查）")
         return "\n".join(lines)
@@ -156,7 +156,9 @@ def _gear_summary(session: RehearsalSession) -> str:
         sets = b.get("relic_sets", []) or []
         if sets:
             pieces = []
-            for sid in sets:
+            for rs_cfg in sets:
+                sid = rs_cfg.get("id") if isinstance(rs_cfg, dict) else rs_cfg
+                need = int(rs_cfg.get("pieces", 4)) if isinstance(rs_cfg, dict) else 4
                 rs = rss.get(str(sid)) or rss.get(sid)
                 if rs:
                     descs = []
@@ -164,9 +166,9 @@ def _gear_summary(session: RehearsalSession) -> str:
                     t4 = rs.get("four_piece") or {}
                     if t2:
                         descs.append(f"2件:{_clean_desc(t2.get('desc'))[:40]}")
-                    if t4 and len(sets) == 1:
+                    if t4 and need >= 4:
                         descs.append(f"4件:{_clean_desc(t4.get('desc'))[:40]}")
-                    pieces.append(f"{rs.get('name')}[{'，'.join(descs)}]")
+                    pieces.append(f"{rs.get('name')}[{'，'.join(descs)}]×{need}")
             parts.append("套装: " + " + ".join(pieces))
         # 星魂
         el = b.get("eidolon", 0) or 0

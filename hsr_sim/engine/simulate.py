@@ -145,14 +145,42 @@ class Simulator:
         self.concert_rounds: int = 0                     # 知更鸟协奏剩余回合
         self.memosprite: Optional[dict] = None           # {charge, alive}
         self.memosprite_owner: str = ""
+        # 装备效果运行时（光锥被动/套装；exec DSL，见 build.resolve_equipment）
+        self.equip_stacks: Dict[str, Dict[str, int]] = {}   # cid -> effect_id -> 层数
+        self.equip_ult_count: Dict[str, int] = {}           # cid -> 大招计数（ult_sp_refund）
+        self._start_effects_applied = False
         # LLM 指挥通道（ADR-0007 3.3）：
         self.external_action: Optional[Action] = None    # 决策注入（优先于 policy/序列；消费后清空）
         self.ult_hold: Set[str] = set()                  # 大招抑制：成员即使能量满也不自动释放
         self.ult_override: Optional[bool] = None         # True = 忽略 rotation 声明，非 hold 者满能即放
 
+    def _equip_effects(self, cid: str) -> List[Dict]:
+        """角色生效的装备机制效果（exec DSL，含来源标注）。"""
+        return self.chars[cid].equipment_effects
+
+    def _energy_regen(self, cid: str) -> float:
+        """充能效率：面板 + 装备叠层（如【歌咏】每层 +3%）。"""
+        v = self.stats[cid].energy_regen
+        for ex in self._equip_effects(cid):
+            if ex["type"] == "stack_energy_regen":
+                n = self.equip_stacks.get(cid, {}).get(ex["src"], 0)
+                v += n * ex["per_stack"]
+        return v
+
+    def _apply_start_effects(self) -> None:
+        """开局效果：start_advance（翁瓦克：速度≥120 开局行动提前 40%）。"""
+        if self._start_effects_applied:
+            return
+        self._start_effects_applied = True
+        for cid, ch in self.chars.items():
+            for ex in self._equip_effects(cid):
+                if ex["type"] == "start_advance" and self.stats[cid].speed >= ex["speed_ge"]:
+                    self.queue.advance(cid, ex["pct"])
+
     # ---------- 主循环 ----------
     def run(self) -> SimResult:
         self._ensure_memosprite_summon()
+        self._apply_start_effects()
         while self.run_step() is not None:
             pass
         return self._result()
@@ -164,6 +192,7 @@ class Simulator:
         我方角色行动前自动压快照（undo 的决策点，ADR-0007 D3）。
         """
         self._ensure_memosprite_summon()
+        self._apply_start_effects()
         nxt = self.queue.next()
         if nxt is None:
             return None
@@ -272,7 +301,8 @@ class Simulator:
         # 效果执行（E1 结算链：伤害 → 天赋钩子 → SP → 能量 → 削韧 → 拉条；顺序与 v1.5 等价）
         effects = skill_to_effects(action.action, skill, self.chars[cid].talent_extra)
         self._apply_effects(cid, effects, dmg_target, ally_target,
-                            advance_self=skill.advance_self)
+                            advance_self=skill.advance_self, skill_type=action.action)
+        self._after_skill_equipment(cid, action.action, ally_target)
         extra_effect = next((e for e in effects if isinstance(e, ExtraActionEffect)), None)
 
         # 行动日志与队列推进
@@ -292,6 +322,19 @@ class Simulator:
         else:
             self.burst_chain.pop(cid, None)
             self.queue.reset_after_action(cid)
+
+    def _after_skill_equipment(self, cid: str, action: str, ally_target: str) -> None:
+        """装备战技后效果：23003 下一个队友增伤 / 24005 全队增伤 / 121-4 目标暴伤。"""
+        for ex in self._equip_effects(cid):
+            if action == "skill":
+                if ex["type"] == "skill_next_ally_dmg":
+                    self.buffs.add("equip_next_ally_dmg", ex["value"], cid, ex["duration"])
+                elif ex["type"] == "skill_team_dmg":
+                    self.buffs.add("dmg_bonus", ex["value"], cid, ex["duration"])
+            if ex["type"] == "target_cd_buff" and ally_target and ally_target in self.chars:
+                # 121-4：对单体目标施放战技/大招 → 目标暴伤（可叠 2 层）
+                self.buffs.add("crit_dmg", ex["value"], cid, ex["duration"],
+                               target=ally_target, cap=ex["value"] * ex.get("max_stacks", 2))
 
     # ---------- 终结技即时释放（不占行动条） ----------
     def _try_immediate_ults(self) -> None:
@@ -320,19 +363,37 @@ class Simulator:
         ally_target = ""
         # v1.5 顺序保留：ult 的削韧在行动日志之后（toughness_in_effects=False，log 后补）
         effects = skill_to_effects("ult", skill, self.chars[cid].talent_extra)
-        self._apply_effects(cid, effects, dmg_target, ally_target, toughness_in_effects=False)
+        self._apply_effects(cid, effects, dmg_target, ally_target, toughness_in_effects=False,
+                            skill_type="ult")
         self.action_count[cid] = self.action_count.get(cid, 0) + 1
         self.log.append(ActionLog(self.t, cid, "ult", detail="即时释放"))
         if dmg_target:
             self._apply_effect_toughness(cid, dmg_target, effects)
+        self._after_ult_equipment(cid)
+
+    def _after_ult_equipment(self, cid: str) -> None:
+        """装备大招后效果：23003 每 2 次大招回 1 SP；23026 【歌咏】→【华彩】。"""
+        for ex in self._equip_effects(cid):
+            if ex["type"] == "ult_sp_refund":
+                n = self.equip_ult_count.get(cid, 0) + 1
+                self.equip_ult_count[cid] = n
+                if n % ex["every"] == 0:
+                    self.sp = min(self.sp_max, self.sp + ex["amount"])
+                    self.sp_timeline.append((self.t, self.sp))
+            elif ex["type"] == "ult_convert":
+                # 23026：大招移除【歌咏】，获得【华彩】：攻击 +48%、全队增伤 +24% 1 回合
+                self.equip_stacks.get(cid, {}).pop(ex["src"], None)
+                self.buffs.add("atk_pct", ex["stack_value"], cid, ex["duration"], target=cid)
+                self.buffs.add("dmg_bonus", ex["team_dmg"], cid, ex["duration"])
 
     def _apply_effects(self, cid: str, effects: List[Effect], dmg_target: Optional[str],
                        ally_target: str, toughness_in_effects: bool = True,
-                       advance_self: bool = True) -> None:
+                       advance_self: bool = True, skill_type: str = "") -> None:
         """通用效果执行器（E1 结算链）。效果类型 = 数据，无角色特判（ADR-0007 D2）。"""
         for eff in effects:
             if isinstance(eff, DamageEffect) and dmg_target:
-                self._deal_damage(cid, dmg_target, eff.mult, kind=eff.kind)
+                self._deal_damage(cid, dmg_target, eff.mult, kind=eff.kind,
+                                  skill_type=skill_type)
                 self._on_ally_attack(cid, dmg_target)
             elif isinstance(eff, AdvanceAllEffect):
                 for other in self.chars:
@@ -366,7 +427,7 @@ class Simulator:
                 self.sp = min(self.sp_max, self.sp + eff.delta)
                 self.sp_timeline.append((self.t, self.sp))
             elif isinstance(eff, EnergyGainEffect):
-                gained = eff.amount * self.stats[cid].energy_regen
+                gained = eff.amount * self._energy_regen(cid)
                 self.energy[cid] += gained
                 self._memosprite_charge_from_energy(gained)
             elif isinstance(eff, EnergyCostEffect):
@@ -403,20 +464,74 @@ class Simulator:
         alive = [eid for eid, hp in self.enemy_hp.items() if hp > 0.0]
         return alive[0] if alive else None
 
-    def _deal_damage(self, cid: str, target: str, mult: float, kind: str = "normal") -> float:
+    def _deal_damage(self, cid: str, target: str, mult: float, kind: str = "normal",
+                     skill_type: str = "") -> float:
         stats = self._effective_stats(cid)
         enemy = self.enemies[target]
         res = enemy.resistances.get(self.chars[cid].element, 0.0)
         m = self._current_multipliers()
+        bonus, def_ignore = self._equip_damage(cid, kind, skill_type, target, stats)
+        m.dmg_bonus += bonus
+        m.def_ignore += def_ignore
         dmg = expected_damage(mult, stats.atk, stats, m, enemy.defense, res, self.attacker_level,
                               enemy_broken=self.toughness[target] <= 0.0)
         self._record_damage(cid, target, dmg, kind)
         return dmg
 
+    def _equip_damage(self, cid: str, kind: str, skill_type: str, target: str,
+                      stats) -> Tuple[float, float]:
+        """装备伤害乘区（per-attacker）：条件增伤 + 无视防御 + 元素伤。
+
+        返回 (dmg_bonus 增量, def_ignore)。技能条件用 (skill_type or kind) 匹配
+        （basic/skill → skill_type；ult/追击 → kind）。speed_over_100 层数取整。
+        """
+        bonus = 0.0
+        def_ignore = 0.0
+        elem = self.chars[cid].element
+        for ex in self._equip_effects(cid):
+            t = ex["type"]
+            if t == "element_dmg" and elem == ex["element"]:
+                bonus += ex["value"]
+            elif t == "basic_dmg" and kind == "normal" and skill_type == "basic":
+                bonus += ex["value"]
+            elif t == "crit_ge_dmg" and (skill_type or kind) in ex.get("skills", []) \
+                    and stats.crit_rate >= ex["crit_ge"]:
+                bonus += ex["value"]
+            elif t == "speed_over_100_dmg":
+                stacks = max(0, int((stats.speed - 100.0) / ex["speed_step"]))
+                stacks = min(stacks, ex["max_stacks"])
+                if (skill_type or kind) in ex.get("skills", []):
+                    bonus += stacks * ex["mult"]
+                elif kind == "ult" and ex.get("ult_crit_dmg"):
+                    stats.crit_dmg += stacks * ex["ult_crit_dmg"]
+            elif t == "def_ignore":
+                def_ignore += ex["value"]
+                if ex.get("weakness_extra") and self.chars[cid].element in \
+                        self.enemies[target].weaknesses:
+                    def_ignore += ex["weakness_extra"]
+        # 23003 战技后增伤（下一个行动的队友，buff 存在期间其他角色攻击都吃——近似）
+        for b in self.buffs._buffs:
+            if b.stat == "equip_next_ally_dmg" and b.source != cid:
+                bonus += b.value
+        # 312-4 同属性队友增伤（装备者效果，作用于元素相同的其他角色）
+        for owner, ch in self.chars.items():
+            if owner == cid or self.chars[owner].element != elem:
+                continue
+            for ex in ch.equipment_effects:
+                if ex["type"] == "same_element_team_dmg":
+                    bonus += ex["value"]
+        return bonus, def_ignore
+
     def _effective_stats(self, cid: str) -> Stats:
         s = replace(self.stats[cid])
         s.crit_dmg += self.buffs.sum_for("crit_dmg", cid)
         s.atk = s.atk * (1.0 + self.buffs.sum_for("atk_pct", cid)) + self.buffs.sum_for("atk_flat", cid)
+        # 装备条件面板（stat_conditional）：如蕉乐园召唤在场暴伤
+        for ex in self._equip_effects(cid):
+            if ex["type"] == "stat_conditional" and ex.get("cond") == "memosprite_present":
+                if self.memosprite is not None and self.memosprite["alive"]:
+                    if ex["stat"] == "crit_dmg":
+                        s.crit_dmg += ex["value"]
         return s
 
     def _current_multipliers(self) -> Multipliers:
@@ -430,7 +545,15 @@ class Simulator:
 
     # ---------- 天赋触发 ----------
     def _on_ally_attack(self, cid: str, target: str) -> None:
-        """队友攻击后触发：红A 追击 / 知更鸟回能。"""
+        """队友攻击后触发：红A 追击 / 知更鸟回能 / 装备叠层（如【歌咏】）。"""
+        # 装备叠层：我方角色每次攻击 → 装备者 +1 层（23026 歌咏）
+        for other_id, ch in self.chars.items():
+            for ex in ch.equipment_effects:
+                if ex["type"] == "stack_energy_regen" and ex.get("trigger") == "ally_attack":
+                    stacks = self.equip_stacks.setdefault(other_id, {})
+                    key = ex["src"]
+                    if stacks.get(key, 0) < ex["max"]:
+                        stacks[key] = stacks.get(key, 0) + 1
         for other_id in self.chars:
             if other_id == cid:
                 continue
@@ -438,7 +561,7 @@ class Simulator:
             if talent.get("followup_on_ally_attack"):
                 self._archer_followup(other_id, target)
             if talent.get("energy_on_ally_attack"):
-                self.energy[other_id] += talent["energy_on_ally_attack"] * self.stats[other_id].energy_regen
+                self.energy[other_id] += talent["energy_on_ally_attack"] * self._energy_regen(other_id)
         # 知更鸟协奏附加伤害：任何我方攻击后
         if self.concert_rounds > 0:
             robin = next(
@@ -458,8 +581,8 @@ class Simulator:
         # 追击恢复 1 个战技点 + 天赋回能（wiki：心眼真 回 5 能量，× 充能效率）
         self.sp = min(self.sp_max, self.sp + 1.0)
         self.sp_timeline.append((self.t, self.sp))
-        self.energy[cid] += self.chars[cid].talent_extra.get("followup_energy", 0.0) * self.stats[cid].energy_regen
-        self._memosprite_charge_from_energy(self.chars[cid].talent_extra.get("followup_energy", 0.0) * self.stats[cid].energy_regen)
+        self.energy[cid] += self.chars[cid].talent_extra.get("followup_energy", 0.0) * self._energy_regen(cid)
+        self._memosprite_charge_from_energy(self.chars[cid].talent_extra.get("followup_energy", 0.0) * self._energy_regen(cid))
 
     def _additional_damage(self, robin: CharacterData, target: str) -> None:
         """知更鸟协奏附加伤害：固定双暴（100%/150%）。"""
@@ -544,6 +667,11 @@ class Simulator:
                     self._record_damage("MEM", target, dmg, "normal")
             if alive:
                 self._mem_damage_all(cfg.get("basic_aoe_mult", 0.90))
+            # 123-4：忆灵攻击时装备者暴伤提升（迷迷共享装备者面板）
+            for ex in self._equip_effects(self.memosprite_owner):
+                if ex["type"] == "mem_cd_buff":
+                    self.buffs.add("crit_dmg", ex["value"], self.memosprite_owner,
+                                   ex["duration"], target=self.memosprite_owner)
             # 行动充能 +5%（充能未满时）
             self.memosprite["charge"] = min(100.0, self.memosprite["charge"]
                                              + cfg.get("act_charge", 0.05) * 100.0)
