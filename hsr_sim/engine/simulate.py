@@ -69,7 +69,7 @@ class Simulator:
         enemies: Dict[str, Enemy],
         rotation: Rotation,
         target_av: float = DEFAULT_TARGET_AV,
-        attacker_level: int = 90,
+        attacker_level: int = 80,
         memosprite_speed: float = 130.0,
     ) -> None:
         self.chars = characters
@@ -351,6 +351,7 @@ class Simulator:
                     self.enemies[eid].defense,
                     self.enemies[eid].resistances.get("Ice", 0.0),
                     self.attacker_level,
+                    enemy_broken=self.toughness[eid] <= 0.0,
                 )
                 self._record_damage("MEM", eid, dmg, "normal")
 
@@ -455,9 +456,12 @@ class Simulator:
         self.queue.postpone(target, BREAK_POSTPONE_PCT)
         if not self.enemies[target].break_immune:
             stats = self._effective_stats(cid)
+            m = self._current_multipliers()
             dmg = break_damage(
-                self.attacker_level, self.chars[cid].element, stats.break_effect,
+                self.chars[cid].element, stats.break_effect,
                 self.enemies[target].toughness,
+                self._def_m(target), self._res_m(target, self.chars[cid].element),
+                vuln=m.vuln, final_dmg=m.final_dmg, true_dmg=m.true_dmg,
             )
             self._record_damage(cid, target, dmg, "break")
 
@@ -478,6 +482,7 @@ class Simulator:
                     self.enemies[eid].defense,
                     self.enemies[eid].resistances.get("Ice", 0.0),
                     self.attacker_level,
+                    enemy_broken=self.toughness[eid] <= 0.0,
                 )
                 self._record_damage("MEM", eid, dmg, "normal")
         if enhanced:
