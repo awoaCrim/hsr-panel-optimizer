@@ -11,6 +11,8 @@
 """
 from __future__ import annotations
 
+import copy
+import random
 from dataclasses import dataclass, field, replace
 from typing import Dict, List, Optional, Tuple
 
@@ -18,6 +20,7 @@ from ..model import Action, CharacterData, CharacterPolicy, Enemy, Rotation, Sta
 from .av_queue import ActionQueue
 from .buffs import BuffManager
 from .damage import Multipliers, break_damage, expected_damage, flat_damage
+from .snapshot import BattleSnapshot
 from .effects import (
     AdvanceAllEffect,
     AdvanceEffect,
@@ -88,6 +91,7 @@ class Simulator:
         target_av: float = DEFAULT_TARGET_AV,
         attacker_level: int = 80,
         memosprite_speed: float = 130.0,
+        seed: int = 0,
     ) -> None:
         self.chars = characters
         self.stats = char_stats
@@ -96,11 +100,18 @@ class Simulator:
         self.target_av = target_av
         self.attacker_level = attacker_level
         self.memosprite_speed = memosprite_speed
+        self._reset(seed)
+
+    def _reset(self, seed: int = 0) -> None:
+        """初始化/重置全部可变状态（__init__ 与 restart 共用）。"""
+        self.seed = seed
+        self.rng = random.Random(seed)          # E12：RNG 入状态（暴击判定等随机源）
+        self._snapshots: List[BattleSnapshot] = []
 
         self.queue = ActionQueue()
-        for cid in characters:
-            self.queue.add(cid, char_stats[cid].speed)
-        for eid, e in enemies.items():
+        for cid in self.chars:
+            self.queue.add(cid, self.stats[cid].speed)
+        for eid, e in self.enemies.items():
             self.queue.add(eid, e.speed)
 
         # 运行时状态
@@ -108,23 +119,23 @@ class Simulator:
         self._steps = 0
         self.sp = 4.0
         self.sp_max = 5.0
-        for cid, c in characters.items():
+        for cid, c in self.chars.items():
             self.sp_max += c.talent_extra.get("sp_cap_bonus", 0)
-        self.energy: Dict[str, float] = {cid: 0.0 for cid in characters}
-        self.toughness: Dict[str, float] = {eid: e.toughness for eid, e in enemies.items()}
-        self.enemy_hp: Dict[str, float] = {eid: e.hp for eid, e in enemies.items()}
+        self.energy: Dict[str, float] = {cid: 0.0 for cid in self.chars}
+        self.toughness: Dict[str, float] = {eid: e.toughness for eid, e in self.enemies.items()}
+        self.enemy_hp: Dict[str, float] = {eid: e.hp for eid, e in self.enemies.items()}
         self.buffs = BuffManager()
         self.damage_events: List[DamageEvent] = []
         self.sp_timeline: List[Tuple[float, float]] = [(0.0, self.sp)]
         self.shortfalls: List[Tuple[float, str, float, float]] = []
         self.log: List[ActionLog] = []
         self.breaks: List[Tuple[float, str]] = []
-        self.ult_count: Dict[str, int] = {cid: 0 for cid in characters}
-        self.action_count: Dict[str, int] = {cid: 0 for cid in characters}
+        self.ult_count: Dict[str, int] = {cid: 0 for cid in self.chars}
+        self.action_count: Dict[str, int] = {cid: 0 for cid in self.chars}
 
         # 天赋运行时
         self.fate_charge: Dict[str, float] = {}          # 红A充能
-        self.skill_used: Dict[str, int] = {cid: 0 for cid in characters}  # 战技使用计数（策略 skill_budget）
+        self.skill_used: Dict[str, int] = {cid: 0 for cid in self.chars}  # 战技使用计数（策略 skill_budget）
         self.burst_chain: Dict[str, int] = {}            # 额外行动链计数（红A 回路）
         self.sp_spent_count: int = 0                     # 花火天赋层数
         self.concert_rounds: int = 0                     # 知更鸟协奏剩余回合
@@ -133,7 +144,52 @@ class Simulator:
 
     # ---------- 主循环 ----------
     def run(self) -> SimResult:
-        if self.memosprite_speed and any(
+        self._ensure_memosprite_summon()
+        while self.run_step() is not None:
+            pass
+        return self._result()
+
+    def run_step(self) -> Optional[str]:
+        """执行一个行动边界：下一个单位行动 + 即时大招结算（含全部连锁）。
+
+        返回行动单位 id；None = 推演结束（队列空 / AV 耗尽 / 超步熔断）。
+        我方角色行动前自动压快照（undo 的决策点，ADR-0007 D3）。
+        """
+        self._ensure_memosprite_summon()
+        nxt = self.queue.next()
+        if nxt is None:
+            return None
+        unit_id, dt = nxt
+        if self.t + dt > self.target_av:
+            return None
+        self._steps += 1
+        if self._steps > 50000:
+            raise RuntimeError(
+                f"模拟超过 {self._steps} 步未结束：t={self.t:.1f} 单位={unit_id} dt={dt:.3f} "
+                f"队列={self.queue.snapshot()} SP={self.sp:.0f}"
+            )
+        # 决策点：我方主动行动前压栈（undo 回到此处，敌人/忆灵行动自动回退）
+        if unit_id in self.chars:
+            self.push_act_snapshot()
+        self.t += dt
+        self.queue.advance_time(dt)
+
+        if unit_id == "MEM":
+            self._memosprite_act()
+        elif unit_id in self.enemies:
+            self._enemy_act(unit_id)
+        elif unit_id in self.chars:
+            self._character_act(unit_id)
+        else:
+            self.queue.reset_after_action(unit_id)
+
+        # 终结技不占行动条：行动结算后检查能量，够则立即释放（星铁真实规则）
+        self._try_immediate_ults()
+        return unit_id
+
+    def _ensure_memosprite_summon(self) -> None:
+        """开局召唤忆灵（幂等：已召唤或队伍无召唤者则跳过）。"""
+        if self.memosprite is None and self.memosprite_speed and any(
             c.talent_extra.get("summon") for c in self.chars.values()
         ):
             # 记忆主开局召唤迷迷
@@ -141,36 +197,6 @@ class Simulator:
             self.memosprite_owner = owner
             self.memosprite = {"charge": 0.0, "alive": True}
             self.queue.add("MEM", self.memosprite_speed)
-
-        while True:
-            nxt = self.queue.next()
-            if nxt is None:
-                break
-            unit_id, dt = nxt
-            if self.t + dt > self.target_av:
-                break
-            self._steps += 1
-            if self._steps > 50000:
-                raise RuntimeError(
-                    f"模拟超过 {self._steps} 步未结束：t={self.t:.1f} 单位={unit_id} dt={dt:.3f} "
-                    f"队列={self.queue.snapshot()} SP={self.sp:.0f}"
-                )
-            self.t += dt
-            self.queue.advance_time(dt)
-
-            if unit_id == "MEM":
-                self._memosprite_act()
-            elif unit_id in self.enemies:
-                self._enemy_act(unit_id)
-            elif unit_id in self.chars:
-                self._character_act(unit_id)
-            else:
-                self.queue.reset_after_action(unit_id)
-
-            # 终结技不占行动条：行动结算后检查能量，够则立即释放（星铁真实规则）
-            self._try_immediate_ults()
-
-        return self._result()
 
     # ---------- 角色行动 ----------
     def _policy_decide(self, cid: str, pol: CharacterPolicy) -> Action:
@@ -492,6 +518,75 @@ class Simulator:
             self.toughness[eid] = self.enemies[eid].toughness
         self.queue.reset_after_action(eid)
         self.log.append(ActionLog(self.t, eid, "enemy_action"))
+
+    # ---------- 快照 / 回退（ADR-0007 3.1，E11/E12） ----------
+    def snapshot(self) -> BattleSnapshot:
+        """捕获当前完整状态（可序列化）。"""
+        return BattleSnapshot(
+            t=self.t, steps=self._steps, sp=self.sp, sp_max=self.sp_max,
+            energy=dict(self.energy), toughness=dict(self.toughness),
+            enemy_hp=dict(self.enemy_hp), buffs=copy.deepcopy(self.buffs._buffs),
+            fate_charge=dict(self.fate_charge), skill_used=dict(self.skill_used),
+            burst_chain=dict(self.burst_chain), sp_spent_count=self.sp_spent_count,
+            concert_rounds=self.concert_rounds,
+            concert_additional_mult=getattr(self, "_concert_additional_mult", 0.72),
+            memosprite=dict(self.memosprite) if self.memosprite else None,
+            memosprite_owner=self.memosprite_owner,
+            queue_entries={uid: (e.distance, e.speed) for uid, e in self.queue._entries.items()},
+            sp_timeline=list(self.sp_timeline), damage_events=list(self.damage_events),
+            log=list(self.log), breaks=list(self.breaks),
+            ult_count=dict(self.ult_count), action_count=dict(self.action_count),
+            rotation_actions={uid: list(seq) for uid, seq in self.rotation.actions.items()},
+            rng_state=(self.seed, self.rng.getstate()),
+        )
+
+    def restore(self, snap: BattleSnapshot) -> None:
+        """恢复快照（回退/分支探索共用；配置未变前提，D5）。"""
+        self.seed = snap.rng_state[0]
+        self.rng = random.Random()
+        self.rng.setstate(snap.rng_state[1])
+        self.t = snap.t
+        self._steps = snap.steps
+        self.sp = snap.sp
+        self.sp_max = snap.sp_max
+        self.energy = dict(snap.energy)
+        self.toughness = dict(snap.toughness)
+        self.enemy_hp = dict(snap.enemy_hp)
+        self.buffs = BuffManager()
+        self.buffs._buffs = copy.deepcopy(snap.buffs)
+        self.fate_charge = dict(snap.fate_charge)
+        self.skill_used = dict(snap.skill_used)
+        self.burst_chain = dict(snap.burst_chain)
+        self.sp_spent_count = snap.sp_spent_count
+        self.concert_rounds = snap.concert_rounds
+        self._concert_additional_mult = snap.concert_additional_mult
+        self.memosprite = dict(snap.memosprite) if snap.memosprite else None
+        self.memosprite_owner = snap.memosprite_owner
+        self.queue = ActionQueue()
+        for uid, (distance, speed) in snap.queue_entries.items():
+            self.queue.add(uid, speed, distance)
+        self.sp_timeline = list(snap.sp_timeline)
+        self.damage_events = list(snap.damage_events)
+        self.log = list(snap.log)
+        self.breaks = list(snap.breaks)
+        self.ult_count = dict(snap.ult_count)
+        self.action_count = dict(snap.action_count)
+        self.rotation.actions = {uid: list(seq) for uid, seq in snap.rotation_actions.items()}
+
+    def push_act_snapshot(self) -> None:
+        """决策点压栈：undo 回到最近一次我方主动行动前。"""
+        self._snapshots.append(self.snapshot())
+
+    def undo(self) -> bool:
+        """撤销最近一次我方主动行动（含其全部自动连锁）。返回是否成功。"""
+        if not self._snapshots:
+            return False
+        self.restore(self._snapshots.pop())
+        return True
+
+    def restart(self) -> None:
+        """回到初始状态（推演配置不变时；配置变更 = 新会话，见 ADR-0007 D5）。"""
+        self._reset(self.seed)
 
     # ---------- 记录与结果 ----------
     def _record_damage(self, source: str, target: str, amount: float, kind: str) -> None:
