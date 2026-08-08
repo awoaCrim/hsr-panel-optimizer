@@ -388,7 +388,8 @@ class Simulator:
         enemy = self.enemies[target]
         res = enemy.resistances.get(self.chars[cid].element, 0.0)
         m = self._current_multipliers()
-        dmg = expected_damage(mult, stats.atk, stats, m, enemy.defense, res, self.attacker_level)
+        dmg = expected_damage(mult, stats.atk, stats, m, enemy.defense, res, self.attacker_level,
+                              enemy_broken=self.toughness[target] <= 0.0)
         self._record_damage(cid, target, dmg, kind)
         return dmg
 
@@ -450,6 +451,7 @@ class Simulator:
             m.dmg_bonus,
             self._def_m(target),
             self._res_m(target, robin.element),
+            enemy_broken=self.toughness[target] <= 0.0,
         )
         self._record_damage(robin.id, target, dmg, "additional")
 
