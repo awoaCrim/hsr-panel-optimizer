@@ -676,6 +676,10 @@ def main(argv: Optional[List[str]] = None) -> int:
     parser.add_argument("--state", default=None, help="会话持久化文件（单指令模式共享状态）")
     parser.add_argument("--demo", action="store_true", help="演示决策器全流程 + 完整报告")
     parser.add_argument("--brief", action="store_true", help="报告只给结论")
+    parser.add_argument("--llm", action="store_true", help="LLM 指挥整局推演（OpenAI 兼容接口）")
+    parser.add_argument("--llm-config", default=None, help="LLM 配置 JSON（可选，覆盖环境变量）")
+    parser.add_argument("--max-acts", type=int, default=40, help="LLM 推演 act 上限（默认 40）")
+    parser.add_argument("--quiet", action="store_true", help="LLM 推演不打印逐步轨迹")
     args = parser.parse_args(argv)
 
     if args.state and Path(args.state).exists():
@@ -689,6 +693,29 @@ def main(argv: Optional[List[str]] = None) -> int:
     if args.demo:
         _demo_pilot(session)
         print(session.report(brief=args.brief))
+        return 0
+    if args.llm:
+        from .llm.client import LLMClient, default_config
+        from .llm.rehearsal import run_rehearsal
+        cfg = default_config()
+        if args.llm_config:
+            cfg.update(json.loads(Path(args.llm_config).read_text(encoding="utf-8")))
+        try:
+            client = LLMClient(cfg["base_url"], cfg["api_key"], cfg["model"],
+                               disable_thinking=bool(cfg.get("no_thinking")))
+            if not cfg["api_key"]:
+                raise RuntimeError("未配置 API Key")
+        except RuntimeError as e:
+            print(f"❌ LLM 配置错误：{e}\n"
+                  "请设置环境变量 HSR_LLM_BASE_URL / HSR_LLM_API_KEY / HSR_LLM_MODEL，"
+                  "或 --llm-config 指定 JSON", file=sys.stderr)
+            return 2
+        result = run_rehearsal(client, session, max_acts=args.max_acts,
+                               verbose=not args.quiet)
+        if args.brief:
+            print(session.report(brief=True))
+        else:
+            print(result.report)
         return 0
     return _run_repl(session, args.state)
 
