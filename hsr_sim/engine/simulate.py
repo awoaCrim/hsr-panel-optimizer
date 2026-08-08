@@ -14,7 +14,7 @@ from __future__ import annotations
 import copy
 import random
 from dataclasses import dataclass, field, replace
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Set, Tuple
 
 from ..model import Action, CharacterData, CharacterPolicy, Enemy, Rotation, Stats
 from .av_queue import ActionQueue
@@ -145,6 +145,10 @@ class Simulator:
         self.concert_rounds: int = 0                     # 知更鸟协奏剩余回合
         self.memosprite: Optional[dict] = None           # {charge, alive}
         self.memosprite_owner: str = ""
+        # LLM 指挥通道（ADR-0007 3.3）：
+        self.external_action: Optional[Action] = None    # 决策注入（优先于 policy/序列；消费后清空）
+        self.ult_hold: Set[str] = set()                  # 大招抑制：成员即使能量满也不自动释放
+        self.ult_override: Optional[bool] = None         # True = 忽略 rotation 声明，非 hold 者满能即放
 
     # ---------- 主循环 ----------
     def run(self) -> SimResult:
@@ -224,22 +228,27 @@ class Simulator:
         return Action(unit_id=cid, action="skill", target=pol.pull_target)
 
     def _character_act(self, cid: str) -> None:
-        pol = self.rotation.policy.get(cid)
-        if pol is not None:
-            action = self._policy_decide(cid, pol)
+        if self.external_action is not None and self.external_action.unit_id == cid:
+            # LLM 指挥注入的决策（ADR-0007 3.3）：优先于策略/序列，消费后清空
+            action = self.external_action
+            self.external_action = None
+            pol = self.rotation.policy.get(cid)
         else:
-            # 序列模式（v2 兼容）：消费写死的行动序列
-            action = self.rotation.next_action(cid)
-            if action is None:
-                action = Action(unit_id=cid, action="basic")
+            pol = self.rotation.policy.get(cid)
+            if pol is not None:
+                action = self._policy_decide(cid, pol)
+            else:
+                # 序列模式（v2 兼容）：消费写死的行动序列
+                action = self.rotation.next_action(cid)
+                if action is None:
+                    action = Action(unit_id=cid, action="basic")
         skill = self.chars[cid].skills.get(action.action)
         if skill is None:
             skill = self.chars[cid].skills["basic"]
             action = Action(unit_id=cid, action="basic")
 
         # 大招能量检查：能量不足则跳过该动作（保持行动链，继续打战技攒能），不降级普攻
-        if action.action == "ult":
-            # 终结技由即时释放机制负责（_try_immediate_ults）：轮到该槽时能量必然不足，跳过
+        if action.action == "ult":            # 终结技由即时释放机制负责（_try_immediate_ults）：轮到该槽时能量必然不足，跳过
             self.log.append(ActionLog(self.t, cid, "ult", detail="能量不足，跳过（攒能后即时释放）"))
             self.rotation.advance(cid)
             return
@@ -284,12 +293,17 @@ class Simulator:
     def _try_immediate_ults(self) -> None:
         """能量满足即释放大招：策略 ult=on_full 或序列含 ult 的角色启用。"""
         for cid in list(self.chars):
-            pol = self.rotation.policy.get(cid)
-            if pol is not None:
-                enabled = pol.ult == "on_full"
+            if cid in self.ult_hold:
+                continue    # LLM 指挥：该角色本 act 内 hold（ADR-0007 D2 大招时机）
+            if self.ult_override:
+                enabled = True   # LLM 显式指令：非 hold 者满能即放（覆盖 rotation 声明）
             else:
-                seq = self.rotation.actions.get(cid)
-                enabled = bool(seq) and any(a.action == "ult" for a in seq)
+                pol = self.rotation.policy.get(cid)
+                if pol is not None:
+                    enabled = pol.ult == "on_full"
+                else:
+                    seq = self.rotation.actions.get(cid)
+                    enabled = bool(seq) and any(a.action == "ult" for a in seq)
             if not enabled:
                 continue
             skill = self.chars[cid].skills["ult"]
