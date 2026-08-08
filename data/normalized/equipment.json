@@ -1,0 +1,6092 @@
+{
+  "light_cones": {
+    "20000": {
+      "id": "20000",
+      "name": "锋镝",
+      "path": "Rogue",
+      "rarity": {
+        "value": 3,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.20000.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 318
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "20001": {
+      "id": "20001",
+      "name": "物穰",
+      "path": "Priest",
+      "rarity": {
+        "value": 3,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.20001.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 265
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "20002": {
+      "id": "20002",
+      "name": "天倾",
+      "path": "Warrior",
+      "rarity": {
+        "value": 3,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.20002.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 370
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "20003": {
+      "id": "20003",
+      "name": "琥珀",
+      "path": "Knight",
+      "rarity": {
+        "value": 3,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.20003.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 265
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "20004": {
+      "id": "20004",
+      "name": "幽邃",
+      "path": "Warlock",
+      "rarity": {
+        "value": 3,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.20004.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 318
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "20005": {
+      "id": "20005",
+      "name": "齐颂",
+      "path": "Shaman",
+      "rarity": {
+        "value": 3,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.20005.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 318
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "20006": {
+      "id": "20006",
+      "name": "智库",
+      "path": "Mage",
+      "rarity": {
+        "value": 3,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.20006.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 370
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "20007": {
+      "id": "20007",
+      "name": "离弦",
+      "path": "Rogue",
+      "rarity": {
+        "value": 3,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.20007.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 370
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "20008": {
+      "id": "20008",
+      "name": "嘉果",
+      "path": "Priest",
+      "rarity": {
+        "value": 3,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.20008.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 318
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "20009": {
+      "id": "20009",
+      "name": "乐圮",
+      "path": "Warrior",
+      "rarity": {
+        "value": 3,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.20009.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 370
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "20010": {
+      "id": "20010",
+      "name": "戍御",
+      "path": "Knight",
+      "rarity": {
+        "value": 3,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.20010.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 265
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "20011": {
+      "id": "20011",
+      "name": "渊环",
+      "path": "Warlock",
+      "rarity": {
+        "value": 3,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.20011.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 318
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "20012": {
+      "id": "20012",
+      "name": "轮契",
+      "path": "Shaman",
+      "rarity": {
+        "value": 3,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.20012.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 318
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "20013": {
+      "id": "20013",
+      "name": "灵钥",
+      "path": "Mage",
+      "rarity": {
+        "value": 3,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.20013.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 370
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "20014": {
+      "id": "20014",
+      "name": "相抗",
+      "path": "Rogue",
+      "rarity": {
+        "value": 3,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.20014.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 370
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "20015": {
+      "id": "20015",
+      "name": "蕃息",
+      "path": "Priest",
+      "rarity": {
+        "value": 3,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.20015.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 318
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "20016": {
+      "id": "20016",
+      "name": "俱殁",
+      "path": "Warrior",
+      "rarity": {
+        "value": 3,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.20016.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 370
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "20017": {
+      "id": "20017",
+      "name": "开疆",
+      "path": "Knight",
+      "rarity": {
+        "value": 3,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.20017.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 265
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "20018": {
+      "id": "20018",
+      "name": "匿影",
+      "path": "Warlock",
+      "rarity": {
+        "value": 3,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.20018.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 318
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "20019": {
+      "id": "20019",
+      "name": "调和",
+      "path": "Shaman",
+      "rarity": {
+        "value": 3,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.20019.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 318
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "20020": {
+      "id": "20020",
+      "name": "睿见",
+      "path": "Mage",
+      "rarity": {
+        "value": 3,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.20020.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 370
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "20021": {
+      "id": "20021",
+      "name": "焚影",
+      "path": "Memory",
+      "rarity": {
+        "value": 3,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.20021.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 318
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "20022": {
+      "id": "20022",
+      "name": "溯忆",
+      "path": "Memory",
+      "rarity": {
+        "value": 3,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.20022.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 423
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "20023": {
+      "id": "20023",
+      "name": "嗤笑",
+      "path": "Elation",
+      "rarity": {
+        "value": 3,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.20023.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 370
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "20024": {
+      "id": "20024",
+      "name": "残泪",
+      "path": "Elation",
+      "rarity": {
+        "value": 3,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.20024.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 318
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "21000": {
+      "id": "21000",
+      "name": "一场术后对话",
+      "path": "Priest",
+      "rarity": {
+        "value": 4,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.21000.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 423
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "21001": {
+      "id": "21001",
+      "name": "晚安与睡颜",
+      "path": "Warlock",
+      "rarity": {
+        "value": 4,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.21001.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 476
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "21002": {
+      "id": "21002",
+      "name": "余生的第一天",
+      "path": "Knight",
+      "rarity": {
+        "value": 4,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.21002.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 370
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "21003": {
+      "id": "21003",
+      "name": "唯有沉默",
+      "path": "Rogue",
+      "rarity": {
+        "value": 4,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.21003.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 476
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "21004": {
+      "id": "21004",
+      "name": "记忆中的模样",
+      "path": "Shaman",
+      "rarity": {
+        "value": 4,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.21004.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 423
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "21005": {
+      "id": "21005",
+      "name": "鼹鼠党欢迎你",
+      "path": "Warrior",
+      "rarity": {
+        "value": 4,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.21005.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 476
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "21006": {
+      "id": "21006",
+      "name": "「我」的诞生",
+      "path": "Mage",
+      "rarity": {
+        "value": 4,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.21006.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 476
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "21007": {
+      "id": "21007",
+      "name": "同一种心情",
+      "path": "Priest",
+      "rarity": {
+        "value": 4,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.21007.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 423
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "21008": {
+      "id": "21008",
+      "name": "猎物的视线",
+      "path": "Warlock",
+      "rarity": {
+        "value": 4,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.21008.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 476
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "21009": {
+      "id": "21009",
+      "name": "朗道的选择",
+      "path": "Knight",
+      "rarity": {
+        "value": 4,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.21009.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 423
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "21010": {
+      "id": "21010",
+      "name": "论剑",
+      "path": "Rogue",
+      "rarity": {
+        "value": 4,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.21010.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 476
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "21011": {
+      "id": "21011",
+      "name": "与行星相会",
+      "path": "Shaman",
+      "rarity": {
+        "value": 4,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.21011.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 423
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "21012": {
+      "id": "21012",
+      "name": "秘密誓心",
+      "path": "Warrior",
+      "rarity": {
+        "value": 4,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.21012.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 476
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "21013": {
+      "id": "21013",
+      "name": "别让世界静下来",
+      "path": "Mage",
+      "rarity": {
+        "value": 4,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.21013.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 476
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "21014": {
+      "id": "21014",
+      "name": "此时恰好",
+      "path": "Priest",
+      "rarity": {
+        "value": 4,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.21014.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 423
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "21015": {
+      "id": "21015",
+      "name": "决心如汗珠般闪耀",
+      "path": "Warlock",
+      "rarity": {
+        "value": 4,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.21015.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 476
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "21016": {
+      "id": "21016",
+      "name": "宇宙市场趋势",
+      "path": "Knight",
+      "rarity": {
+        "value": 4,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.21016.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 370
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "21017": {
+      "id": "21017",
+      "name": "点个关注吧！",
+      "path": "Rogue",
+      "rarity": {
+        "value": 4,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.21017.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 476
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "21018": {
+      "id": "21018",
+      "name": "舞！舞！舞！",
+      "path": "Shaman",
+      "rarity": {
+        "value": 4,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.21018.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 423
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "21019": {
+      "id": "21019",
+      "name": "在蓝天下",
+      "path": "Warrior",
+      "rarity": {
+        "value": 4,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.21019.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 476
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "21020": {
+      "id": "21020",
+      "name": "天才们的休憩",
+      "path": "Mage",
+      "rarity": {
+        "value": 4,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.21020.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 476
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "21021": {
+      "id": "21021",
+      "name": "等价交换",
+      "path": "Priest",
+      "rarity": {
+        "value": 4,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.21021.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 423
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "21022": {
+      "id": "21022",
+      "name": "延长记号",
+      "path": "Warlock",
+      "rarity": {
+        "value": 4,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.21022.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 476
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "21023": {
+      "id": "21023",
+      "name": "我们是地火",
+      "path": "Knight",
+      "rarity": {
+        "value": 4,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.21023.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 476
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "21024": {
+      "id": "21024",
+      "name": "春水初生",
+      "path": "Rogue",
+      "rarity": {
+        "value": 4,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.21024.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 476
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "21025": {
+      "id": "21025",
+      "name": "过往未来",
+      "path": "Shaman",
+      "rarity": {
+        "value": 4,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.21025.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 423
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "21026": {
+      "id": "21026",
+      "name": "汪！散步时间！",
+      "path": "Warrior",
+      "rarity": {
+        "value": 4,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.21026.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 476
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "21027": {
+      "id": "21027",
+      "name": "早餐的仪式感",
+      "path": "Mage",
+      "rarity": {
+        "value": 4,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.21027.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 476
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "21028": {
+      "id": "21028",
+      "name": "暖夜不会漫长",
+      "path": "Priest",
+      "rarity": {
+        "value": 4,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.21028.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 370
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "21029": {
+      "id": "21029",
+      "name": "后会有期",
+      "path": "Warlock",
+      "rarity": {
+        "value": 4,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.21029.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 529
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "21030": {
+      "id": "21030",
+      "name": "这就是我啦！",
+      "path": "Knight",
+      "rarity": {
+        "value": 4,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.21030.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 370
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "21031": {
+      "id": "21031",
+      "name": "重返幽冥",
+      "path": "Rogue",
+      "rarity": {
+        "value": 4,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.21031.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 529
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "21032": {
+      "id": "21032",
+      "name": "镂月裁云之意",
+      "path": "Shaman",
+      "rarity": {
+        "value": 4,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.21032.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 476
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "21033": {
+      "id": "21033",
+      "name": "无处可逃",
+      "path": "Warrior",
+      "rarity": {
+        "value": 4,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.21033.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 529
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "21034": {
+      "id": "21034",
+      "name": "今日亦是和平的一日",
+      "path": "Mage",
+      "rarity": {
+        "value": 4,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.21034.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 529
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "21035": {
+      "id": "21035",
+      "name": "何物为真",
+      "path": "Priest",
+      "rarity": {
+        "value": 4,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.21035.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 423
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "21036": {
+      "id": "21036",
+      "name": "美梦小镇大冒险",
+      "path": "Shaman",
+      "rarity": {
+        "value": 4,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.21036.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 423
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "21037": {
+      "id": "21037",
+      "name": "最后的赢家",
+      "path": "Rogue",
+      "rarity": {
+        "value": 4,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.21037.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 476
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "21038": {
+      "id": "21038",
+      "name": "在火的远处",
+      "path": "Warrior",
+      "rarity": {
+        "value": 4,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.21038.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 476
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "21039": {
+      "id": "21039",
+      "name": "织造命运之线",
+      "path": "Knight",
+      "rarity": {
+        "value": 4,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.21039.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 370
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "21040": {
+      "id": "21040",
+      "name": "银河沦陷日",
+      "path": "Mage",
+      "rarity": {
+        "value": 4,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.21040.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 476
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "21041": {
+      "id": "21041",
+      "name": "好戏开演",
+      "path": "Warlock",
+      "rarity": {
+        "value": 4,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.21041.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 476
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "21042": {
+      "id": "21042",
+      "name": "铭记于心的约定",
+      "path": "Warrior",
+      "rarity": {
+        "value": 4,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.21042.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 476
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "21043": {
+      "id": "21043",
+      "name": "两个人的演唱会",
+      "path": "Knight",
+      "rarity": {
+        "value": 4,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.21043.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 370
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "21044": {
+      "id": "21044",
+      "name": "无边曼舞",
+      "path": "Warlock",
+      "rarity": {
+        "value": 4,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.21044.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 476
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "21045": {
+      "id": "21045",
+      "name": "谐乐静默之后",
+      "path": "Mage",
+      "rarity": {
+        "value": 4,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.21045.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 476
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "21046": {
+      "id": "21046",
+      "name": "芳华待灼",
+      "path": "Shaman",
+      "rarity": {
+        "value": 4,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.21046.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 423
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "21047": {
+      "id": "21047",
+      "name": "黑夜如影随行",
+      "path": "Rogue",
+      "rarity": {
+        "value": 4,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.21047.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 476
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "21048": {
+      "id": "21048",
+      "name": "梦的蒙太奇",
+      "path": "Priest",
+      "rarity": {
+        "value": 4,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.21048.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 423
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "21050": {
+      "id": "21050",
+      "name": "胜利只在朝夕间",
+      "path": "Memory",
+      "rarity": {
+        "value": 4,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.21050.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 476
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "21051": {
+      "id": "21051",
+      "name": "天才们的问候",
+      "path": "Memory",
+      "rarity": {
+        "value": 4,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.21051.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 476
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "21052": {
+      "id": "21052",
+      "name": "多流汗，少流泪",
+      "path": "Memory",
+      "rarity": {
+        "value": 4,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.21052.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 529
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "21053": {
+      "id": "21053",
+      "name": "愿旅途永远坦然",
+      "path": "Knight",
+      "rarity": {
+        "value": 4,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.21053.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 370
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "21054": {
+      "id": "21054",
+      "name": "故事的下一页",
+      "path": "Memory",
+      "rarity": {
+        "value": 4,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.21054.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 370
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "21055": {
+      "id": "21055",
+      "name": "直到明天的明天",
+      "path": "Priest",
+      "rarity": {
+        "value": 4,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.21055.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 476
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "21056": {
+      "id": "21056",
+      "name": "追逐风的时候",
+      "path": "Shaman",
+      "rarity": {
+        "value": 4,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.21056.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 476
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "21057": {
+      "id": "21057",
+      "name": "花儿不会忘记",
+      "path": "Memory",
+      "rarity": {
+        "value": 4,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.21057.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 529
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "21058": {
+      "id": "21058",
+      "name": "一行往日的血",
+      "path": "Warrior",
+      "rarity": {
+        "value": 4,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.21058.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 529
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "21060": {
+      "id": "21060",
+      "name": "氤氲麦香的梦",
+      "path": "Mage",
+      "rarity": {
+        "value": 4,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.21060.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 529
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "21061": {
+      "id": "21061",
+      "name": "假日浴场大冒险",
+      "path": "Warlock",
+      "rarity": {
+        "value": 4,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.21061.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 529
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "21062": {
+      "id": "21062",
+      "name": "于那终点再见",
+      "path": "Rogue",
+      "rarity": {
+        "value": 4,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.21062.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 529
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "21064": {
+      "id": "21064",
+      "name": "菇菇嘎嘎历险记",
+      "path": "Elation",
+      "rarity": {
+        "value": 4,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.21064.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 476
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "21065": {
+      "id": "21065",
+      "name": "今日好手气",
+      "path": "Elation",
+      "rarity": {
+        "value": 4,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.21065.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 529
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "21066": {
+      "id": "21066",
+      "name": "放个短假",
+      "path": "Elation",
+      "rarity": {
+        "value": 4,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.21066.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 423
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "22000": {
+      "id": "22000",
+      "name": "新手任务开始前",
+      "path": "Warlock",
+      "rarity": {
+        "value": 4,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.22000.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 476
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "22001": {
+      "id": "22001",
+      "name": "嘿，我在这儿",
+      "path": "Priest",
+      "rarity": {
+        "value": 4,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.22001.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 423
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "22002": {
+      "id": "22002",
+      "name": "为了明日的旅途",
+      "path": "Shaman",
+      "rarity": {
+        "value": 4,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.22002.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 476
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "22003": {
+      "id": "22003",
+      "name": "忍事录•音律狩猎",
+      "path": "Warrior",
+      "rarity": {
+        "value": 4,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.22003.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 476
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "22004": {
+      "id": "22004",
+      "name": "宇宙大生意",
+      "path": "Mage",
+      "rarity": {
+        "value": 4,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.22004.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 476
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "22005": {
+      "id": "22005",
+      "name": "永远的迷境饭",
+      "path": "Shaman",
+      "rarity": {
+        "value": 4,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.22005.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 476
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "22006": {
+      "id": "22006",
+      "name": "飞向粉色的明天",
+      "path": "Memory",
+      "rarity": {
+        "value": 4,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.22006.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 476
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "22007": {
+      "id": "22007",
+      "name": "未来，有我们一起",
+      "path": "Elation",
+      "rarity": {
+        "value": 4,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.22007.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 476
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "22008": {
+      "id": "22008",
+      "name": "向着地平线的终点",
+      "path": "Rogue",
+      "rarity": {
+        "value": 4,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.22008.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 476
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "23000": {
+      "id": "23000",
+      "name": "银河铁道之夜",
+      "path": "Mage",
+      "rarity": {
+        "value": 5,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.23000.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 582
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "23001": {
+      "id": "23001",
+      "name": "于夜色中",
+      "path": "Rogue",
+      "rarity": {
+        "value": 5,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.23001.rank"
+      },
+      "base_stats": {
+        "value": {
+          "hp": 1058.4,
+          "atk": 582.1199999999999,
+          "def": 463.04999999999995
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      },
+      "effect": {
+        "value": {
+          "name": "花与蝶",
+          "desc": "使装备者的暴击率提高<color=#f29e38ff><unbreak>#1[i]%</unbreak></color>。当装备者在战斗中速度大于<unbreak>100</unbreak>时，每超过<unbreak>#2[i]</unbreak>点，普攻和战技造成的伤害提高<color=#f29e38ff><unbreak>#3[i]%</unbreak></color>，同时终结技的暴击伤害提高<color=#f29e38ff><unbreak>#4[i]%</unbreak></color>，该效果可叠加<unbreak>#5[i]</unbreak>层。",
+          "level_1_params": [
+            0.18,
+            10,
+            0.06,
+            0.12,
+            6
+          ]
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "精炼 1 数值（与 TBGD EquipmentSkillConfig ParamList 交叉一致）"
+      }
+    },
+    "23002": {
+      "id": "23002",
+      "name": "无可取代的东西",
+      "path": "Warrior",
+      "rarity": {
+        "value": 5,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.23002.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 582
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "23003": {
+      "id": "23003",
+      "name": "但战斗还未结束",
+      "path": "Shaman",
+      "rarity": {
+        "value": 5,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.23003.rank"
+      },
+      "base_stats": {
+        "value": {
+          "hp": 1164.2399999999998,
+          "atk": 529.2,
+          "def": 463.04999999999995
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      },
+      "effect": {
+        "value": {
+          "name": "继承人",
+          "desc": "使装备者的能量恢复效率提高<color=#f29e38ff><unbreak>#1[i]%</unbreak></color>，并在对我方目标施放终结技时恢复1个战技点。该效果每施放2次终结技可触发1次。当装备者施放战技后，使下一个行动的我方其他目标造成的伤害提高<color=#f29e38ff><unbreak>#2[i]%</unbreak></color>，持续<unbreak>#3[i]</unbreak>回合。",
+          "level_1_params": [
+            0.1,
+            0.3,
+            1
+          ]
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "精炼 1 数值（与 TBGD EquipmentSkillConfig ParamList 交叉一致）"
+      }
+    },
+    "23004": {
+      "id": "23004",
+      "name": "以世界之名",
+      "path": "Warlock",
+      "rarity": {
+        "value": 5,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.23004.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 582
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "23005": {
+      "id": "23005",
+      "name": "制胜的瞬间",
+      "path": "Knight",
+      "rarity": {
+        "value": 5,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.23005.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 476
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "23006": {
+      "id": "23006",
+      "name": "只需等待",
+      "path": "Warlock",
+      "rarity": {
+        "value": 5,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.23006.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 582
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "23007": {
+      "id": "23007",
+      "name": "雨一直下",
+      "path": "Warlock",
+      "rarity": {
+        "value": 5,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.23007.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 582
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "23008": {
+      "id": "23008",
+      "name": "棺的回响",
+      "path": "Priest",
+      "rarity": {
+        "value": 5,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.23008.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 582
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "23009": {
+      "id": "23009",
+      "name": "到不了的彼岸",
+      "path": "Warrior",
+      "rarity": {
+        "value": 5,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.23009.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 582
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "23010": {
+      "id": "23010",
+      "name": "拂晓之前",
+      "path": "Mage",
+      "rarity": {
+        "value": 5,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.23010.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 582
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "23011": {
+      "id": "23011",
+      "name": "她已闭上双眼",
+      "path": "Knight",
+      "rarity": {
+        "value": 5,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.23011.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 423
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "23012": {
+      "id": "23012",
+      "name": "如泥酣眠",
+      "path": "Rogue",
+      "rarity": {
+        "value": 5,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.23012.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 582
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "23013": {
+      "id": "23013",
+      "name": "时节不居",
+      "path": "Priest",
+      "rarity": {
+        "value": 5,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.23013.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 476
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "23014": {
+      "id": "23014",
+      "name": "此身为剑",
+      "path": "Warrior",
+      "rarity": {
+        "value": 5,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.23014.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 582
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "23015": {
+      "id": "23015",
+      "name": "比阳光更明亮的",
+      "path": "Warrior",
+      "rarity": {
+        "value": 5,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.23015.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 635
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "23016": {
+      "id": "23016",
+      "name": "烦恼着，幸福着",
+      "path": "Rogue",
+      "rarity": {
+        "value": 5,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.23016.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 582
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "23017": {
+      "id": "23017",
+      "name": "惊魂夜",
+      "path": "Priest",
+      "rarity": {
+        "value": 5,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.23017.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 476
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "23018": {
+      "id": "23018",
+      "name": "片刻，留在眼底",
+      "path": "Mage",
+      "rarity": {
+        "value": 5,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.23018.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 582
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "23019": {
+      "id": "23019",
+      "name": "镜中故我",
+      "path": "Shaman",
+      "rarity": {
+        "value": 5,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.23019.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 529
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "23020": {
+      "id": "23020",
+      "name": "纯粹思维的洗礼",
+      "path": "Rogue",
+      "rarity": {
+        "value": 5,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.23020.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 582
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "23021": {
+      "id": "23021",
+      "name": "游戏尘寰",
+      "path": "Shaman",
+      "rarity": {
+        "value": 5,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.23021.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 529
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "23022": {
+      "id": "23022",
+      "name": "重塑时光之忆",
+      "path": "Warlock",
+      "rarity": {
+        "value": 5,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.23022.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 582
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "23023": {
+      "id": "23023",
+      "name": "命运从未公平",
+      "path": "Knight",
+      "rarity": {
+        "value": 5,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.23023.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 423
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "23024": {
+      "id": "23024",
+      "name": "行于流逝的岸",
+      "path": "Warlock",
+      "rarity": {
+        "value": 5,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.23024.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 635
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "23025": {
+      "id": "23025",
+      "name": "梦应归于何处",
+      "path": "Warrior",
+      "rarity": {
+        "value": 5,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.23025.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 476
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "23026": {
+      "id": "23026",
+      "name": "夜色流光溢彩",
+      "path": "Shaman",
+      "rarity": {
+        "value": 5,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.23026.rank"
+      },
+      "base_stats": {
+        "value": {
+          "hp": 952.56,
+          "atk": 635.04,
+          "def": 463.04999999999995
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      },
+      "effect": {
+        "value": {
+          "name": "抚慰",
+          "desc": "我方角色每次攻击时，使装备者获得1层【歌咏】，每层【歌咏】使装备者的能量恢复效率提高<color=#f29e38ff><unbreak>#1[f1]%</unbreak></color>，最多叠加<unbreak>#2[i]</unbreak>层。装备者施放终结技时，移除【歌咏】并获得【华彩】，【华彩】使装备者的攻击力提高<color=#f29e38ff><unbreak>#4[i]%</unbreak></color>，使我方全体造成的伤害提高<color=#f29e38ff><unbreak>#3[i]%</unbreak></color>，持续<unbreak>#5[i]</unbreak>回合。",
+          "level_1_params": [
+            0.03,
+            5,
+            0.24,
+            0.48,
+            1
+          ]
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "精炼 1 数值（与 TBGD EquipmentSkillConfig ParamList 交叉一致）"
+      }
+    },
+    "23027": {
+      "id": "23027",
+      "name": "驶向第二次生命",
+      "path": "Rogue",
+      "rarity": {
+        "value": 5,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.23027.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 582
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "23028": {
+      "id": "23028",
+      "name": "偏偏希望无价",
+      "path": "Mage",
+      "rarity": {
+        "value": 5,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.23028.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 582
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "23029": {
+      "id": "23029",
+      "name": "那无数个春天",
+      "path": "Warlock",
+      "rarity": {
+        "value": 5,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.23029.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 582
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "23030": {
+      "id": "23030",
+      "name": "落日时起舞",
+      "path": "Warrior",
+      "rarity": {
+        "value": 5,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.23030.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 582
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "23031": {
+      "id": "23031",
+      "name": "我将，巡征追猎",
+      "path": "Rogue",
+      "rarity": {
+        "value": 5,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.23031.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 635
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "23032": {
+      "id": "23032",
+      "name": "唯有香如故",
+      "path": "Priest",
+      "rarity": {
+        "value": 5,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.23032.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 529
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "23033": {
+      "id": "23033",
+      "name": "忍法帖•缭乱破魔",
+      "path": "Mage",
+      "rarity": {
+        "value": 5,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.23033.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 582
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "23034": {
+      "id": "23034",
+      "name": "回到大地的飞行",
+      "path": "Shaman",
+      "rarity": {
+        "value": 5,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.23034.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 476
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "23035": {
+      "id": "23035",
+      "name": "长路终有归途",
+      "path": "Warlock",
+      "rarity": {
+        "value": 5,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.23035.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 476
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "23036": {
+      "id": "23036",
+      "name": "将光阴织成黄金",
+      "path": "Memory",
+      "rarity": {
+        "value": 5,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.23036.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 635
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "23037": {
+      "id": "23037",
+      "name": "向着不可追问处",
+      "path": "Mage",
+      "rarity": {
+        "value": 5,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.23037.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 635
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "23038": {
+      "id": "23038",
+      "name": "如果时间是一朵花",
+      "path": "Shaman",
+      "rarity": {
+        "value": 5,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.23038.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 529
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "23039": {
+      "id": "23039",
+      "name": "血火啊，燃烧前路",
+      "path": "Warrior",
+      "rarity": {
+        "value": 5,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.23039.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 476
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "23040": {
+      "id": "23040",
+      "name": "让告别，更美一些",
+      "path": "Memory",
+      "rarity": {
+        "value": 5,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.23040.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 529
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "23041": {
+      "id": "23041",
+      "name": "生命当付之一炬",
+      "path": "Mage",
+      "rarity": {
+        "value": 5,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.23041.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 582
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "23042": {
+      "id": "23042",
+      "name": "愿虹光永驻天空",
+      "path": "Memory",
+      "rarity": {
+        "value": 5,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.23042.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 476
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "23043": {
+      "id": "23043",
+      "name": "谎言在风中飘扬",
+      "path": "Warlock",
+      "rarity": {
+        "value": 5,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.23043.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 582
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "23044": {
+      "id": "23044",
+      "name": "黎明恰如此燃烧",
+      "path": "Warrior",
+      "rarity": {
+        "value": 5,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.23044.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 688
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "23045": {
+      "id": "23045",
+      "name": "没有回报的加冕",
+      "path": "Warrior",
+      "rarity": {
+        "value": 5,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.23045.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 582
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "23046": {
+      "id": "23046",
+      "name": "理想燃烧的地狱",
+      "path": "Rogue",
+      "rarity": {
+        "value": 5,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.23046.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 582
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "23047": {
+      "id": "23047",
+      "name": "海洋为何而歌",
+      "path": "Warlock",
+      "rarity": {
+        "value": 5,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.23047.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 635
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "23048": {
+      "id": "23048",
+      "name": "金血铭刻的时代",
+      "path": "Shaman",
+      "rarity": {
+        "value": 5,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.23048.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 635
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "23049": {
+      "id": "23049",
+      "name": "致长夜的星光",
+      "path": "Memory",
+      "rarity": {
+        "value": 5,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.23049.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 529
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "23050": {
+      "id": "23050",
+      "name": "勿忘她的火焰",
+      "path": "Warlock",
+      "rarity": {
+        "value": 5,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.23050.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 529
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "23051": {
+      "id": "23051",
+      "name": "纵然山河万程",
+      "path": "Knight",
+      "rarity": {
+        "value": 5,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.23051.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 582
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "23052": {
+      "id": "23052",
+      "name": "爱如此刻永恒",
+      "path": "Memory",
+      "rarity": {
+        "value": 5,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.23052.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 476
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "23053": {
+      "id": "23053",
+      "name": "花花世界迷人眼",
+      "path": "Elation",
+      "rarity": {
+        "value": 5,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.23053.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 582
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "23054": {
+      "id": "23054",
+      "name": "当她决定看见",
+      "path": "Elation",
+      "rarity": {
+        "value": 5,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.23054.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 529
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "23056": {
+      "id": "23056",
+      "name": "一场谎言的终幕",
+      "path": "Rogue",
+      "rarity": {
+        "value": 5,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.23056.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 635
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "23057": {
+      "id": "23057",
+      "name": "欢迎来到银河城",
+      "path": "Elation",
+      "rarity": {
+        "value": 5,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.23057.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 476
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "23058": {
+      "id": "23058",
+      "name": "邂逅于下一个花季",
+      "path": "Elation",
+      "rarity": {
+        "value": 5,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.23058.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 635
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "23059": {
+      "id": "23059",
+      "name": "灼尽炼狱的新骸",
+      "path": "Warlock",
+      "rarity": {
+        "value": 5,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.23059.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 423
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "23060": {
+      "id": "23060",
+      "name": "当一颗星照亮夜空",
+      "path": "Mage",
+      "rarity": {
+        "value": 5,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.23060.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 635
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "23061": {
+      "id": "23061",
+      "name": "星火悄然闪耀",
+      "path": "Mage",
+      "rarity": {
+        "value": 5,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.23061.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 635
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "23062": {
+      "id": "23062",
+      "name": "所见即我",
+      "path": "Warrior",
+      "rarity": {
+        "value": 5,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.23062.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 635
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "23063": {
+      "id": "23063",
+      "name": "你将起身歌唱",
+      "path": "Memory",
+      "rarity": {
+        "value": 5,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.23063.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 582
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "23064": {
+      "id": "23064",
+      "name": "向浪花掷下盛夏",
+      "path": "Elation",
+      "rarity": {
+        "value": 5,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.23064.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 582
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "24000": {
+      "id": "24000",
+      "name": "记一位星神的陨落",
+      "path": "Warrior",
+      "rarity": {
+        "value": 5,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.24000.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 529
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "24001": {
+      "id": "24001",
+      "name": "星海巡航",
+      "path": "Rogue",
+      "rarity": {
+        "value": 5,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.24001.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 529
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "24002": {
+      "id": "24002",
+      "name": "记忆的质料",
+      "path": "Knight",
+      "rarity": {
+        "value": 5,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.24002.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 423
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "24003": {
+      "id": "24003",
+      "name": "孤独的疗愈",
+      "path": "Warlock",
+      "rarity": {
+        "value": 5,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.24003.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 529
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "24004": {
+      "id": "24004",
+      "name": "不息的演算",
+      "path": "Mage",
+      "rarity": {
+        "value": 5,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.24004.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 529
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    },
+    "24005": {
+      "id": "24005",
+      "name": "记忆永不落幕",
+      "path": "Memory",
+      "rarity": {
+        "value": 5,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.24005.rank"
+      },
+      "base_stats": {
+        "value": {
+          "hp": 1058.4,
+          "atk": 529.2,
+          "def": 396.9
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      },
+      "effect": {
+        "value": {
+          "name": "收取",
+          "desc": "使装备者的速度提高<color=#f29e38ff><unbreak>#1[f1]%</unbreak></color>。装备者施放战技后，使我方全体造成的伤害提高<color=#f29e38ff><unbreak>#2[i]%</unbreak></color>，持续<unbreak>#3[i]</unbreak>回合。",
+          "level_1_params": [
+            0.06,
+            0.08,
+            3
+          ]
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "精炼 1 数值（与 TBGD EquipmentSkillConfig ParamList 交叉一致）"
+      }
+    },
+    "24006": {
+      "id": "24006",
+      "name": "欢愉满溢祝福",
+      "path": "Elation",
+      "rarity": {
+        "value": 5,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "field": "lightcone.json.24006.rank"
+      },
+      "base_stats": {
+        "value": {
+          "atk": 529
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      }
+    }
+  },
+  "relic_sets": {
+    "101": {
+      "id": "101",
+      "name": "云无留迹的过客",
+      "two_piece": {
+        "value": {
+          "desc": "治疗量提高<unbreak>#1[i]%</unbreak>。",
+          "params": [
+            0.1
+          ]
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      },
+      "four_piece": {
+        "value": {
+          "desc": "在战斗开始时，立即为我方恢复1个战技点。",
+          "params": []
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      }
+    },
+    "102": {
+      "id": "102",
+      "name": "野穗伴行的快枪手",
+      "two_piece": {
+        "value": {
+          "desc": "攻击力提高<unbreak>#1[i]%</unbreak>。",
+          "params": [
+            0.12
+          ]
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      },
+      "four_piece": {
+        "value": {
+          "desc": "使装备者的速度提高<unbreak>#1[i]%</unbreak>，普攻造成的伤害提高<unbreak>#2[i]%</unbreak>。",
+          "params": [
+            0.06,
+            0.1
+          ]
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      }
+    },
+    "103": {
+      "id": "103",
+      "name": "净庭教宗的圣骑士",
+      "two_piece": {
+        "value": {
+          "desc": "防御力提高<unbreak>#1[i]%</unbreak>。",
+          "params": [
+            0.15
+          ]
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      },
+      "four_piece": {
+        "value": {
+          "desc": "使装备者提供的护盾量提高<unbreak>#1[i]%</unbreak>。",
+          "params": [
+            0.2
+          ]
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      }
+    },
+    "104": {
+      "id": "104",
+      "name": "密林卧雪的猎人",
+      "two_piece": {
+        "value": {
+          "desc": "冰属性伤害提高<unbreak>#1[i]%</unbreak>。",
+          "params": [
+            0.1
+          ]
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      },
+      "four_piece": {
+        "value": {
+          "desc": "当装备者施放终结技时，暴击伤害提高<unbreak>#1[i]%</unbreak>，持续<unbreak>#2[i]</unbreak>回合。",
+          "params": [
+            0.25,
+            2
+          ]
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      }
+    },
+    "105": {
+      "id": "105",
+      "name": "街头出身的拳王",
+      "two_piece": {
+        "value": {
+          "desc": "物理属性伤害提高<unbreak>#1[i]%</unbreak>。",
+          "params": [
+            0.1
+          ]
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      },
+      "four_piece": {
+        "value": {
+          "desc": "当装备者施放攻击或受到攻击后，其在本场战斗中攻击力提高<unbreak>#1[i]%</unbreak>，最多叠加<unbreak>#2[i]</unbreak>层。",
+          "params": [
+            0.05,
+            5
+          ]
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      }
+    },
+    "106": {
+      "id": "106",
+      "name": "戍卫风雪的铁卫",
+      "two_piece": {
+        "value": {
+          "desc": "受到伤害降低<unbreak>#1[i]%</unbreak>。",
+          "params": [
+            0.08
+          ]
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      },
+      "four_piece": {
+        "value": {
+          "desc": "回合开始时，如果装备者当前生命值百分比小于等于<unbreak>#1[i]%</unbreak>，则回复等同于自身生命上限<unbreak>#2[i]%</unbreak>的生命值，并恢复<unbreak>#3[i]</unbreak>点能量。",
+          "params": [
+            0.5,
+            0.08,
+            5
+          ]
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      }
+    },
+    "107": {
+      "id": "107",
+      "name": "熔岩锻铸的火匠",
+      "two_piece": {
+        "value": {
+          "desc": "火属性伤害提高<unbreak>#1[i]%</unbreak>。",
+          "params": [
+            0.1
+          ]
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      },
+      "four_piece": {
+        "value": {
+          "desc": "使装备者战技造成的伤害提高<unbreak>#1[i]%</unbreak>，并使施放终结技后的下一次攻击造成的火属性伤害提高<unbreak>#2[i]%</unbreak>。",
+          "params": [
+            0.12,
+            0.12
+          ]
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      }
+    },
+    "108": {
+      "id": "108",
+      "name": "繁星璀璨的天才",
+      "two_piece": {
+        "value": {
+          "desc": "量子属性伤害提高<unbreak>#1[i]%</unbreak>。",
+          "params": [
+            0.1
+          ]
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      },
+      "four_piece": {
+        "value": {
+          "desc": "当装备者对敌方目标造成伤害时，无视其<unbreak>#1[i]%</unbreak>的防御力。若目标拥有量子属性弱点，额外无视其<unbreak>#2[i]%</unbreak>的防御力。",
+          "params": [
+            0.1,
+            0.1
+          ]
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      }
+    },
+    "109": {
+      "id": "109",
+      "name": "激奏雷电的乐队",
+      "two_piece": {
+        "value": {
+          "desc": "雷属性伤害提高<unbreak>#1[i]%</unbreak>。",
+          "params": [
+            0.1
+          ]
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      },
+      "four_piece": {
+        "value": {
+          "desc": "当装备者施放战技时，使装备者的攻击力提高<unbreak>#1[i]%</unbreak>，持续<unbreak>#2[i]</unbreak>回合。",
+          "params": [
+            0.2,
+            1
+          ]
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      }
+    },
+    "110": {
+      "id": "110",
+      "name": "晨昏交界的翔鹰",
+      "two_piece": {
+        "value": {
+          "desc": "风属性伤害提高<unbreak>#1[i]%</unbreak>。",
+          "params": [
+            0.1
+          ]
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      },
+      "four_piece": {
+        "value": {
+          "desc": "当装备者施放终结技后，使其行动提前<unbreak>#1[i]%</unbreak>。",
+          "params": [
+            0.25
+          ]
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      }
+    },
+    "111": {
+      "id": "111",
+      "name": "流星追迹的怪盗",
+      "two_piece": {
+        "value": {
+          "desc": "击破特攻提高<unbreak>#1[i]%</unbreak>。",
+          "params": [
+            0.16
+          ]
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      },
+      "four_piece": {
+        "value": {
+          "desc": "使装备者的击破特攻提高<unbreak>#1[i]%</unbreak>。当装备者击破敌方目标弱点后，恢复<unbreak>#2[i]</unbreak>点能量。",
+          "params": [
+            0.16,
+            3
+          ]
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      }
+    },
+    "112": {
+      "id": "112",
+      "name": "盗匪荒漠的废土客",
+      "two_piece": {
+        "value": {
+          "desc": "虚数属性伤害提高<unbreak>#1[i]%</unbreak>。",
+          "params": [
+            0.1
+          ]
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      },
+      "four_piece": {
+        "value": {
+          "desc": "装备者对陷入负面效果的敌方目标造成伤害时暴击率提高<unbreak>#1[i]%</unbreak>，对陷入禁锢状态的敌方目标造成伤害时暴击伤害提高<unbreak>#2[i]%</unbreak>。",
+          "params": [
+            0.1,
+            0.2
+          ]
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      }
+    },
+    "113": {
+      "id": "113",
+      "name": "宝命长存的莳者",
+      "two_piece": {
+        "value": {
+          "desc": "生命上限提高<unbreak>#1[i]%</unbreak>。",
+          "params": [
+            0.12
+          ]
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      },
+      "four_piece": {
+        "value": {
+          "desc": "当装备者受到攻击或被我方目标消耗生命值后，暴击率提高<unbreak>#1[i]%</unbreak>，持续<unbreak>#2[i]</unbreak>回合，该效果最多叠加<unbreak>#3[i]</unbreak>层。",
+          "params": [
+            0.08,
+            2,
+            2
+          ]
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      }
+    },
+    "114": {
+      "id": "114",
+      "name": "骇域漫游的信使",
+      "two_piece": {
+        "value": {
+          "desc": "速度提高<unbreak>#1[i]%</unbreak>。",
+          "params": [
+            0.06
+          ]
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      },
+      "four_piece": {
+        "value": {
+          "desc": "当装备者对我方目标施放终结技时，我方全体速度提高<unbreak>#1[i]%</unbreak>，持续<unbreak>#2[i]</unbreak>回合，该效果无法叠加。",
+          "params": [
+            0.12,
+            1
+          ]
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      }
+    },
+    "115": {
+      "id": "115",
+      "name": "毁烬焚骨的大公",
+      "two_piece": {
+        "value": {
+          "desc": "追加攻击造成的伤害提高<unbreak>#1[i]%</unbreak>。",
+          "params": [
+            0.2
+          ]
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      },
+      "four_piece": {
+        "value": {
+          "desc": "装备者施放追加攻击时，根据追加攻击造成伤害的次数，每次造成伤害时使装备者的攻击力提高<unbreak>#1[i]%</unbreak>，最多叠加<unbreak>#2[i]</unbreak>次，持续<unbreak>#3[i]</unbreak>回合。该效果在装备者下一次施放追加攻击时移除。",
+          "params": [
+            0.06,
+            8,
+            3
+          ]
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      }
+    },
+    "116": {
+      "id": "116",
+      "name": "幽锁深牢的系囚",
+      "two_piece": {
+        "value": {
+          "desc": "攻击力提高<unbreak>#1[i]%</unbreak>。",
+          "params": [
+            0.12
+          ]
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      },
+      "four_piece": {
+        "value": {
+          "desc": "敌方目标每承受1个持续伤害效果，装备者对其造成伤害时就无视其<unbreak>#1[i]%</unbreak>的防御力，最多计入<unbreak>#2[i]</unbreak>个持续伤害效果。",
+          "params": [
+            0.06,
+            3
+          ]
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      }
+    },
+    "117": {
+      "id": "117",
+      "name": "死水深潜的先驱",
+      "two_piece": {
+        "value": {
+          "desc": "对受负面状态影响的敌人造成的伤害提高<unbreak>#1[i]%</unbreak>。",
+          "params": [
+            0.12
+          ]
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      },
+      "four_piece": {
+        "value": {
+          "desc": "暴击率提高<unbreak>#1[i]%</unbreak>，装备者对陷入不少于<unbreak>#4[i]</unbreak>/<unbreak>#5[i]</unbreak>个负面效果的敌方目标造成的暴击伤害提高<unbreak>#2[i]%</unbreak>/<unbreak>#3[i]%</unbreak>。装备者对敌方目标施加负面效果后，上述效果提高<unbreak>100%</unbreak>，持续<unbreak>#6[i]</unbreak>回合。",
+          "params": [
+            0.04,
+            0.08,
+            0.12,
+            2,
+            3,
+            1
+          ]
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      }
+    },
+    "118": {
+      "id": "118",
+      "name": "机心戏梦的钟表匠",
+      "two_piece": {
+        "value": {
+          "desc": "击破特攻提高<unbreak>#1[i]%</unbreak>。",
+          "params": [
+            0.16
+          ]
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      },
+      "four_piece": {
+        "value": {
+          "desc": "当装备者对我方目标施放终结技时，我方全体击破特攻提高<unbreak>#1[i]%</unbreak>，持续<unbreak>#2[i]</unbreak>回合，该效果无法叠加。",
+          "params": [
+            0.3,
+            2
+          ]
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      }
+    },
+    "119": {
+      "id": "119",
+      "name": "荡除蠹灾的铁骑",
+      "two_piece": {
+        "value": {
+          "desc": "击破特攻提高<unbreak>#1[i]%</unbreak>。",
+          "params": [
+            0.16
+          ]
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      },
+      "four_piece": {
+        "value": {
+          "desc": "当装备者的击破特攻大于等于<unbreak>#1[i]%</unbreak>时，对敌方目标造成的击破伤害无视其<unbreak>#3[i]%</unbreak>的防御力。当装备者的击破特攻大于等于<unbreak>#2[i]%</unbreak>时，对敌方目标造成的超击破伤害额外无视其<unbreak>#4[i]%</unbreak>的防御力。",
+          "params": [
+            1.5,
+            2.5,
+            0.1,
+            0.15
+          ]
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      }
+    },
+    "120": {
+      "id": "120",
+      "name": "风举云飞的勇烈",
+      "two_piece": {
+        "value": {
+          "desc": "攻击力提高<unbreak>#1[i]%</unbreak>。",
+          "params": [
+            0.12
+          ]
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      },
+      "four_piece": {
+        "value": {
+          "desc": "使装备者的暴击率提高<unbreak>#1[i]%</unbreak>，装备者施放追加攻击时，使终结技造成的伤害提高<unbreak>#2[i]%</unbreak>，持续<unbreak>#3[i]</unbreak>回合。",
+          "params": [
+            0.06,
+            0.36,
+            1
+          ]
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      }
+    },
+    "121": {
+      "id": "121",
+      "name": "重循苦旅的司铎",
+      "two_piece": {
+        "value": {
+          "desc": "速度提高<unbreak>#1[i]%</unbreak>。",
+          "params": [
+            0.06
+          ]
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      },
+      "four_piece": {
+        "value": {
+          "desc": "对我方单体目标施放战技或终结技时，使技能目标的暴击伤害提高<unbreak>#1[i]%</unbreak>，持续<unbreak>#2[i]</unbreak>回合，该效果最多叠加<unbreak>#3[i]</unbreak>次。",
+          "params": [
+            0.18,
+            2,
+            2
+          ]
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      }
+    },
+    "122": {
+      "id": "122",
+      "name": "识海迷坠的学者",
+      "two_piece": {
+        "value": {
+          "desc": "暴击率提高<unbreak>#1[i]%</unbreak>。",
+          "params": [
+            0.08
+          ]
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      },
+      "four_piece": {
+        "value": {
+          "desc": "战技和终结技造成的伤害提高<unbreak>#1[i]%</unbreak>，施放终结技后，下一次施放战技时造成的伤害额外提高<unbreak>#2[i]%</unbreak>。",
+          "params": [
+            0.2,
+            0.25
+          ]
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      }
+    },
+    "123": {
+      "id": "123",
+      "name": "凯歌祝捷的英豪",
+      "two_piece": {
+        "value": {
+          "desc": "攻击力提高<unbreak>#1[i]%</unbreak>。",
+          "params": [
+            0.12
+          ]
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      },
+      "four_piece": {
+        "value": {
+          "desc": "装备者的忆灵在场时，装备者的速度提高<unbreak>#1[i]%</unbreak>，装备者的忆灵攻击时，装备者和忆灵的暴击伤害提高<unbreak>#2[i]%</unbreak>，持续<unbreak>#3[i]</unbreak>回合。",
+          "params": [
+            0.06,
+            0.3,
+            2
+          ]
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      }
+    },
+    "124": {
+      "id": "124",
+      "name": "哀歌覆国的诗人",
+      "two_piece": {
+        "value": {
+          "desc": "量子属性伤害提高<unbreak>#1[i]%</unbreak>。",
+          "params": [
+            0.1
+          ]
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      },
+      "four_piece": {
+        "value": {
+          "desc": "使装备者的速度降低<unbreak>#6[i]%</unbreak>。进入战斗前，若装备者的速度小于<unbreak>#2[i]</unbreak>/<unbreak>#3[i]</unbreak>，使装备者的暴击率提高<unbreak>#4[i]%</unbreak>/<unbreak>#5[i]%</unbreak>。该效果同时对装备者的忆灵生效。",
+          "params": [
+            -0.08,
+            110,
+            95,
+            0.2,
+            0.32,
+            0.08
+          ]
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      }
+    },
+    "125": {
+      "id": "125",
+      "name": "烈阳惊雷的女武神",
+      "two_piece": {
+        "value": {
+          "desc": "速度提高<unbreak>#1[i]%</unbreak>。",
+          "params": [
+            0.06
+          ]
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      },
+      "four_piece": {
+        "value": {
+          "desc": "当装备者及其忆灵为装备者及其忆灵以外的我方目标提供治疗后，使装备者获得【甘霖】，每回合最多触发1次，持续<unbreak>#3[i]</unbreak>回合。装备者持有【甘霖】时，速度提高<unbreak>#1[i]%</unbreak>，我方全体暴击伤害提高<unbreak>#2[i]%</unbreak>，该效果无法叠加。",
+          "params": [
+            0.06,
+            0.15,
+            2
+          ]
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      }
+    },
+    "126": {
+      "id": "126",
+      "name": "恶海逐波的船长",
+      "two_piece": {
+        "value": {
+          "desc": "暴击伤害提高<unbreak>#1[i]%</unbreak>。",
+          "params": [
+            0.16
+          ]
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      },
+      "four_piece": {
+        "value": {
+          "desc": "装备者成为其他我方目标的技能目标时，获得1层【助力】，最多叠加<unbreak>#1[i]</unbreak>层。施放终结技时，若持有<unbreak>#1[i]</unbreak>层【助力】，消耗所有【助力】，使装备者攻击力提高<unbreak>#2[i]%</unbreak>，持续<unbreak>#3[i]</unbreak>回合。",
+          "params": [
+            2,
+            0.48,
+            1
+          ]
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      }
+    },
+    "127": {
+      "id": "127",
+      "name": "再创天地的救世主",
+      "two_piece": {
+        "value": {
+          "desc": "暴击率提高<unbreak>#1[i]%</unbreak>。",
+          "params": [
+            0.08
+          ]
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      },
+      "four_piece": {
+        "value": {
+          "desc": "装备者施放普攻或战技后，若装备者的忆灵在场，使装备者及其忆灵生命上限提高<unbreak>#1[i]%</unbreak>，我方全体造成的伤害提高<unbreak>#2[i]%</unbreak>，持续至装备者下次施放普攻或战技后。",
+          "params": [
+            0.24,
+            0.15
+          ]
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      }
+    },
+    "128": {
+      "id": "128",
+      "name": "自匿星芒的隐士",
+      "two_piece": {
+        "value": {
+          "desc": "提供的护盾量提高<unbreak>#1[i]%</unbreak>。",
+          "params": [
+            0.1
+          ]
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      },
+      "four_piece": {
+        "value": {
+          "desc": "使装备者提供的护盾量提高<unbreak>#1[i]%</unbreak>，我方目标持有装备者提供的护盾时，暴击伤害提高<unbreak>#2[i]%</unbreak>。",
+          "params": [
+            0.12,
+            0.15
+          ]
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      }
+    },
+    "129": {
+      "id": "129",
+      "name": "闪耀功勋的魔法少女",
+      "two_piece": {
+        "value": {
+          "desc": "暴击伤害提高<unbreak>#1[i]%</unbreak>。",
+          "params": [
+            0.16
+          ]
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      },
+      "four_piece": {
+        "value": {
+          "desc": "装备者及其忆灵造成的欢愉伤害无视目标<unbreak>#1[i]%</unbreak>的防御力，我方每累计获得<unbreak>#2[i]</unbreak>点笑点，造成的欢愉伤害额外无视目标<unbreak>#3[i]%</unbreak>的防御力，最多叠加<unbreak>#4[i]</unbreak>层。",
+          "params": [
+            0.1,
+            5,
+            0.01,
+            10
+          ]
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      }
+    },
+    "130": {
+      "id": "130",
+      "name": "应天涉远的卜者",
+      "two_piece": {
+        "value": {
+          "desc": "速度提高<unbreak>#1[i]%</unbreak>。",
+          "params": [
+            0.06
+          ]
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      },
+      "four_piece": {
+        "value": {
+          "desc": "进入战斗前，若装备者的速度大于等于<unbreak>#1[i]</unbreak>/<unbreak>#2[i]</unbreak>，使装备者的暴击率提高<unbreak>#3[i]%</unbreak>/<unbreak>#4[i]%</unbreak>。装备者每场战斗首次施放欢愉技时，使我方全体欢愉度提高<unbreak>#5[i]%</unbreak>，该效果无法叠加。",
+          "params": [
+            120,
+            160,
+            0.1,
+            0.18,
+            0.1
+          ]
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      }
+    },
+    "131": {
+      "id": "131",
+      "name": "星如我见的领航员",
+      "two_piece": {
+        "value": {
+          "desc": "攻击力提高<unbreak>#1[i]%</unbreak>。",
+          "params": [
+            0.12
+          ]
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      },
+      "four_piece": {
+        "value": {
+          "desc": "装备者进入战斗时/施放战技时，使战技和终结技造成的伤害提高<unbreak>#1[i]%</unbreak>，最多叠加<unbreak>#2[i]</unbreak>层，装备者回合开始时/施放终结技后，移除<unbreak>#3[i]</unbreak>层该效果。",
+          "params": [
+            0.18,
+            3,
+            1
+          ]
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      }
+    },
+    "132": {
+      "id": "132",
+      "name": "叩问天工的名冶",
+      "two_piece": {
+        "value": {
+          "desc": "生命上限提高<unbreak>#1[i]%</unbreak>。",
+          "params": [
+            0.12
+          ]
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      },
+      "four_piece": {
+        "value": {
+          "desc": "装备者对防御力降低状态的敌方目标造成的暴击伤害提高<unbreak>#1[i]%</unbreak>。装备者对敌方目标施加防御力降低状态后，使我方全体获得【助燃】，持续<unbreak>#2[i]</unbreak>回合，该效果无法叠加，持有【助燃】的我方目标造成的伤害提高<unbreak>#3[i]%</unbreak>。该效果在装备者施放攻击后可再次触发。",
+          "params": [
+            0.28,
+            2,
+            0.15
+          ]
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      }
+    },
+    "301": {
+      "id": "301",
+      "name": "太空封印站",
+      "two_piece": {
+        "value": {
+          "desc": "使装备者的攻击力提高<unbreak>#1[i]%</unbreak>。当装备者的速度大于等于<unbreak>#2[i]</unbreak>时，攻击力额外提高<unbreak>#3[i]%</unbreak>。",
+          "params": [
+            0.12,
+            120,
+            0.12
+          ]
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      },
+      "four_piece": {
+        "value": null,
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      }
+    },
+    "302": {
+      "id": "302",
+      "name": "不老者的仙舟",
+      "two_piece": {
+        "value": {
+          "desc": "使装备者的生命上限提高<unbreak>#1[i]%</unbreak>。当装备者的速度大于等于<unbreak>#2[i]</unbreak>时，我方全体攻击力提高<unbreak>#3[i]%</unbreak>。",
+          "params": [
+            0.12,
+            120,
+            0.08
+          ]
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      },
+      "four_piece": {
+        "value": null,
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      }
+    },
+    "303": {
+      "id": "303",
+      "name": "泛银河商业公司",
+      "two_piece": {
+        "value": {
+          "desc": "使装备者的效果命中提高<unbreak>#1[i]%</unbreak>。同时提高装备者等同于当前效果命中<unbreak>#2[i]%</unbreak>的攻击力，最多提高<unbreak>#3[i]%</unbreak>。",
+          "params": [
+            0.1,
+            0.25,
+            0.25
+          ]
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      },
+      "four_piece": {
+        "value": null,
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      }
+    },
+    "304": {
+      "id": "304",
+      "name": "筑城者的贝洛伯格",
+      "two_piece": {
+        "value": {
+          "desc": "使装备者的防御力提高<unbreak>#1[i]%</unbreak>。当装备者的效果命中大于等于<unbreak>#2[i]%</unbreak>时，防御力额外提高<unbreak>#3[i]%</unbreak>。",
+          "params": [
+            0.15,
+            0.5,
+            0.15
+          ]
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      },
+      "four_piece": {
+        "value": null,
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      }
+    },
+    "305": {
+      "id": "305",
+      "name": "星体差分机",
+      "two_piece": {
+        "value": {
+          "desc": "使装备者的暴击伤害提高<unbreak>#1[i]%</unbreak>。当装备者的暴击伤害大于等于<unbreak>#2[i]%</unbreak>时，进入战斗后装备者的暴击率提高<unbreak>#3[i]%</unbreak>，持续到施放首次攻击后结束。",
+          "params": [
+            0.16,
+            1.2,
+            0.6
+          ]
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      },
+      "four_piece": {
+        "value": null,
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      }
+    },
+    "306": {
+      "id": "306",
+      "name": "停转的萨尔索图",
+      "two_piece": {
+        "value": {
+          "desc": "使装备者的暴击率提高<unbreak>#1[i]%</unbreak>。当装备者当前暴击率大于等于<unbreak>#2[i]%</unbreak>时，终结技和追加攻击造成的伤害提高<unbreak>#3[i]%</unbreak>。",
+          "params": [
+            0.08,
+            0.5,
+            0.15
+          ]
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      },
+      "four_piece": {
+        "value": null,
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      }
+    },
+    "307": {
+      "id": "307",
+      "name": "盗贼公国塔利亚",
+      "two_piece": {
+        "value": {
+          "desc": "使装备者的击破特攻提高<unbreak>#1[i]%</unbreak>。当装备者的速度大于等于<unbreak>#2[i]</unbreak>时，击破特攻额外提高<unbreak>#3[i]%</unbreak>。",
+          "params": [
+            0.16,
+            145,
+            0.2
+          ]
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      },
+      "four_piece": {
+        "value": null,
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      }
+    },
+    "308": {
+      "id": "308",
+      "name": "生命的翁瓦克",
+      "two_piece": {
+        "value": {
+          "desc": "使装备者的能量恢复效率提高<unbreak>#1[i]%</unbreak>。当装备者的速度大于等于<unbreak>#2[i]</unbreak>时，进入战斗时立刻使行动提前<unbreak>#3[i]%</unbreak>。",
+          "params": [
+            0.05,
+            120,
+            0.4
+          ]
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      },
+      "four_piece": {
+        "value": null,
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      }
+    },
+    "309": {
+      "id": "309",
+      "name": "繁星竞技场",
+      "two_piece": {
+        "value": {
+          "desc": "使装备者的暴击率提高<unbreak>#1[i]%</unbreak>。当装备者的当前暴击率大于等于<unbreak>#2[i]%</unbreak>时，普攻和战技造成的伤害提高<unbreak>#3[i]%</unbreak>。",
+          "params": [
+            0.08,
+            0.7,
+            0.2
+          ]
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      },
+      "four_piece": {
+        "value": null,
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      }
+    },
+    "310": {
+      "id": "310",
+      "name": "折断的龙骨",
+      "two_piece": {
+        "value": {
+          "desc": "使装备者的效果抵抗提高<unbreak>#1[i]%</unbreak>。当装备者的效果抵抗大于等于<unbreak>#2[i]%</unbreak>时，我方全体暴击伤害提高<unbreak>#3[i]%</unbreak>。",
+          "params": [
+            0.1,
+            0.3,
+            0.1
+          ]
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      },
+      "four_piece": {
+        "value": null,
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      }
+    },
+    "311": {
+      "id": "311",
+      "name": "苍穹战线格拉默",
+      "two_piece": {
+        "value": {
+          "desc": "使装备者的攻击力提高<unbreak>#1[i]%</unbreak>。当装备者的速度大于等于<unbreak>#2[i]</unbreak>/<unbreak>#3[i]</unbreak>时，使装备者造成的伤害提高<unbreak>#4[i]%</unbreak>/<unbreak>#5[i]%</unbreak>。",
+          "params": [
+            0.12,
+            135,
+            160,
+            0.12,
+            0.18
+          ]
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      },
+      "four_piece": {
+        "value": null,
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      }
+    },
+    "312": {
+      "id": "312",
+      "name": "梦想之地匹诺康尼",
+      "two_piece": {
+        "value": {
+          "desc": "使装备者的能量恢复效率提高<unbreak>#1[i]%</unbreak>。使队伍中与装备者属性相同的我方其他角色造成的伤害提高<unbreak>#2[i]%</unbreak>。",
+          "params": [
+            0.05,
+            0.1
+          ]
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      },
+      "four_piece": {
+        "value": null,
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      }
+    },
+    "313": {
+      "id": "313",
+      "name": "无主荒星茨冈尼亚",
+      "two_piece": {
+        "value": {
+          "desc": "使装备者的暴击率提高<unbreak>#3[i]%</unbreak>。当敌方目标被消灭时，装备者暴击伤害提高<unbreak>#1[i]%</unbreak>，最多叠加<unbreak>#2[i]</unbreak>层。",
+          "params": [
+            0.04,
+            10,
+            0.04
+          ]
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      },
+      "four_piece": {
+        "value": null,
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      }
+    },
+    "314": {
+      "id": "314",
+      "name": "出云显世与高天神国",
+      "two_piece": {
+        "value": {
+          "desc": "使装备者的攻击力提高<unbreak>#1[i]%</unbreak>。进入战斗时，若至少存在一名与装备者命途相同的队友，装备者的暴击率提高<unbreak>#2[i]%</unbreak>。",
+          "params": [
+            0.12,
+            0.12
+          ]
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      },
+      "four_piece": {
+        "value": null,
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      }
+    },
+    "315": {
+      "id": "315",
+      "name": "奔狼的都蓝王朝",
+      "two_piece": {
+        "value": {
+          "desc": "我方角色施放追加攻击时，装备者获得一层【功勋】，最多叠加<unbreak>#1[i]</unbreak>层，每层【功勋】使装备者追加攻击造成的伤害提高<unbreak>#2[i]%</unbreak>，叠满<unbreak>#1[i]</unbreak>层时，额外使装备者的暴击伤害提高<unbreak>#3[i]%</unbreak>。",
+          "params": [
+            5,
+            0.05,
+            0.25
+          ]
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      },
+      "four_piece": {
+        "value": null,
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      }
+    },
+    "316": {
+      "id": "316",
+      "name": "劫火莲灯铸炼宫",
+      "two_piece": {
+        "value": {
+          "desc": "使装备者的速度提高<unbreak>#1[i]%</unbreak>。当装备者击中拥有火属性弱点的敌方目标时，击破特攻提高<unbreak>#2[i]%</unbreak>，持续<unbreak>#3[i]</unbreak>回合。",
+          "params": [
+            0.06,
+            0.4,
+            1
+          ]
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      },
+      "four_piece": {
+        "value": null,
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      }
+    },
+    "317": {
+      "id": "317",
+      "name": "沉陆海域露莎卡",
+      "two_piece": {
+        "value": {
+          "desc": "使装备者的能量恢复效率提高<unbreak>#1[i]%</unbreak>，如果装备者不是编队中的第一位角色，使编队中的第一位角色攻击力提高<unbreak>#2[i]%</unbreak>。",
+          "params": [
+            0.05,
+            0.12
+          ]
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      },
+      "four_piece": {
+        "value": null,
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      }
+    },
+    "318": {
+      "id": "318",
+      "name": "奇想蕉乐园",
+      "two_piece": {
+        "value": {
+          "desc": "使装备者的暴击伤害提高<unbreak>#1[i]%</unbreak>，当存在装备者召唤的目标时，暴击伤害额外提高<unbreak>#2[i]%</unbreak>。",
+          "params": [
+            0.16,
+            0.32
+          ]
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      },
+      "four_piece": {
+        "value": null,
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      }
+    },
+    "319": {
+      "id": "319",
+      "name": "谧宁拾骨地",
+      "two_piece": {
+        "value": {
+          "desc": "使装备者的生命上限提高<unbreak>#1[i]%</unbreak>。当装备者的生命上限大于等于<unbreak>#2[i]</unbreak>点时，使装备者及其忆灵的暴击伤害提高<unbreak>#3[i]%</unbreak>。",
+          "params": [
+            0.12,
+            5000,
+            0.28
+          ]
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      },
+      "four_piece": {
+        "value": null,
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      }
+    },
+    "320": {
+      "id": "320",
+      "name": "渊思寂虑的巨树",
+      "two_piece": {
+        "value": {
+          "desc": "使装备者的速度提高<unbreak>#1[i]%</unbreak>。当装备者的速度大于等于<unbreak>#2[i]</unbreak>/<unbreak>#3[i]</unbreak>时，使装备者及其忆灵的治疗量提高<unbreak>#4[i]%</unbreak>/<unbreak>#5[i]%</unbreak>。",
+          "params": [
+            0.06,
+            135,
+            180,
+            0.12,
+            0.2
+          ]
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      },
+      "four_piece": {
+        "value": null,
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      }
+    },
+    "321": {
+      "id": "321",
+      "name": "妖精织梦的乐园",
+      "two_piece": {
+        "value": {
+          "desc": "队伍中当前在场的我方目标数量不等于4时，每多/少1名我方目标，使装备者及其忆灵造成的伤害提高<unbreak>#1[i]%</unbreak>/<unbreak>#2[i]%</unbreak>，最多叠加<unbreak>#3[i]</unbreak>/<unbreak>#4[i]</unbreak>层。",
+          "params": [
+            0.09,
+            0.12,
+            4,
+            3
+          ]
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      },
+      "four_piece": {
+        "value": null,
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      }
+    },
+    "322": {
+      "id": "322",
+      "name": "沉欢醉饮的海隅",
+      "two_piece": {
+        "value": {
+          "desc": "使装备者的攻击力提高<unbreak>#1[i]%</unbreak>。当装备者的攻击力大于等于<unbreak>#2[i]</unbreak>/<unbreak>#3[i]</unbreak>时，使造成的持续伤害额外提高<unbreak>#4[i]%</unbreak>/<unbreak>#5[i]%</unbreak>。",
+          "params": [
+            0.12,
+            2400,
+            3600,
+            0.12,
+            0.24
+          ]
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      },
+      "four_piece": {
+        "value": null,
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      }
+    },
+    "323": {
+      "id": "323",
+      "name": "永恒之地翁法罗斯",
+      "two_piece": {
+        "value": {
+          "desc": "使装备者的暴击率提高<unbreak>#1[i]%</unbreak>。装备者的忆灵在场时，我方全体速度提高<unbreak>#2[i]%</unbreak>，该效果无法叠加。",
+          "params": [
+            0.08,
+            0.08
+          ]
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      },
+      "four_piece": {
+        "value": null,
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      }
+    },
+    "324": {
+      "id": "324",
+      "name": "天国@直播间",
+      "two_piece": {
+        "value": {
+          "desc": "使装备者的暴击伤害提高<unbreak>#1[i]%</unbreak>，若在同一回合内消耗大于等于<unbreak>#2[i]</unbreak>点战技点，额外使装备者暴击伤害提高<unbreak>#3[i]%</unbreak>，持续<unbreak>#4[i]</unbreak>回合。",
+          "params": [
+            0.16,
+            3,
+            0.32,
+            3
+          ]
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      },
+      "four_piece": {
+        "value": null,
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      }
+    },
+    "325": {
+      "id": "325",
+      "name": "零号关卡朋克洛德",
+      "two_piece": {
+        "value": {
+          "desc": "使装备者的欢愉度提高<unbreak>#1[i]%</unbreak>。战斗中欢愉度首次达到<unbreak>#2[i]%</unbreak>/<unbreak>#3[i]%</unbreak>时，使装备者暴击伤害提高<unbreak>#4[i]%</unbreak>/<unbreak>#5[i]%</unbreak>。",
+          "params": [
+            0.08,
+            0.4,
+            0.8,
+            0.2,
+            0.32
+          ]
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      },
+      "four_piece": {
+        "value": null,
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      }
+    },
+    "326": {
+      "id": "326",
+      "name": "千星荟萃之城",
+      "two_piece": {
+        "value": {
+          "desc": "装备者施放追加攻击时，攻击力提高<unbreak>#1[i]%</unbreak>，持续<unbreak>#2[i]</unbreak>回合。当敌方目标被消灭时，我方全体在本场战斗中暴击伤害提高<unbreak>#3[i]%</unbreak>，该效果无法叠加。",
+          "params": [
+            0.24,
+            2,
+            0.12
+          ]
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      },
+      "four_piece": {
+        "value": null,
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      }
+    },
+    "327": {
+      "id": "327",
+      "name": "坠星启航地",
+      "two_piece": {
+        "value": {
+          "desc": "使装备者的暴击率提高<unbreak>#1[i]%</unbreak>。进入战斗时，若装备者与另一名队友均为开拓同行角色，使装备者的暴击伤害提高<unbreak>#2[i]%</unbreak>。",
+          "params": [
+            0.08,
+            0.32
+          ]
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      },
+      "four_piece": {
+        "value": null,
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      }
+    },
+    "328": {
+      "id": "328",
+      "name": "寰宇生研院",
+      "two_piece": {
+        "value": {
+          "desc": "进入战斗时，若装备者能量上限大于等于<unbreak>#1[i]</unbreak>点，每超过1点使装备者造成的伤害提高<unbreak>#2[f1]%</unbreak>，最多提高<unbreak>#3[i]%</unbreak>。",
+          "params": [
+            200,
+            0.002,
+            0.32
+          ]
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      },
+      "four_piece": {
+        "value": null,
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致"
+      }
+    }
+  },
+  "eidolons": {
+    "1015": {
+      "id": "1015",
+      "name": null,
+      "ranks": {
+        "1": {
+          "value": {
+            "name": "未曾触及的理想",
+            "desc": "单个回合内施放<unbreak>#1[i]</unbreak>次战技后，为我方恢复<unbreak>#2[i]</unbreak>个战技点。",
+            "param_list": [
+              3,
+              2
+            ]
+          },
+          "source_trust": "B",
+          "validation": "cross_checked",
+          "source": "nanoka-wiki",
+          "version": "nanoka-4.4.54",
+          "note": "与 TBGD AvatarRankConfig Param 交叉一致"
+        },
+        "2": {
+          "value": {
+            "name": "未能实现的幸福",
+            "desc": "施放终结技时，使敌方目标的量子属性的抗性降低<unbreak>#1[i]%</unbreak>，并为其添加量子属性弱点，持续<unbreak>#2[i]</unbreak>回合。",
+            "param_list": [
+              0.2,
+              2
+            ]
+          },
+          "source_trust": "B",
+          "validation": "cross_checked",
+          "source": "nanoka-wiki",
+          "version": "nanoka-4.4.54",
+          "note": "与 TBGD AvatarRankConfig Param 交叉一致"
+        },
+        "3": {
+          "value": {
+            "name": "难为凡庸的意气",
+            "desc": "战技等级+2，最多不超过<unbreak>15</unbreak>级；普攻等级+1，最多不超过<unbreak>10</unbreak>级。",
+            "param_list": []
+          },
+          "source_trust": "B",
+          "validation": "cross_checked",
+          "source": "nanoka-wiki",
+          "version": "nanoka-4.4.54",
+          "note": "与 TBGD AvatarRankConfig Param 交叉一致"
+        },
+        "4": {
+          "value": {
+            "name": "难称英雄的一生",
+            "desc": "造成的终结技伤害提高<unbreak>#1[i]%</unbreak>。",
+            "param_list": [
+              1.5
+            ]
+          },
+          "source_trust": "B",
+          "validation": "cross_checked",
+          "source": "nanoka-wiki",
+          "version": "nanoka-4.4.54",
+          "note": "与 TBGD AvatarRankConfig Param 交叉一致"
+        },
+        "5": {
+          "value": {
+            "name": "无铭孤影的守望",
+            "desc": "终结技等级+2，最多不超过<unbreak>15</unbreak>级；天赋等级+2，最多不超过<unbreak>15</unbreak>级。",
+            "param_list": []
+          },
+          "source_trust": "B",
+          "validation": "cross_checked",
+          "source": "nanoka-wiki",
+          "version": "nanoka-4.4.54",
+          "note": "与 TBGD AvatarRankConfig Param 交叉一致"
+        },
+        "6": {
+          "value": {
+            "name": "无尽徘徊的巡礼",
+            "desc": "回合开始时为我方恢复1个战技点。自身战技提供的伤害提高效果可以叠加的上限层数提高<unbreak>#1[i]</unbreak>层。造成的战技伤害无视<unbreak>#2[i]%</unbreak>的防御力。",
+            "param_list": [
+              1,
+              0.2
+            ]
+          },
+          "source_trust": "B",
+          "validation": "cross_checked",
+          "source": "nanoka-wiki",
+          "version": "nanoka-4.4.54",
+          "note": "与 TBGD AvatarRankConfig Param 交叉一致"
+        }
+      }
+    },
+    "1306": {
+      "id": "1306",
+      "name": null,
+      "ranks": {
+        "1": {
+          "value": {
+            "name": "悬置怀疑",
+            "desc": "终结技施加的【谜诡】的持续时间额外增加1回合，持有【谜诡】的我方目标攻击力提高<unbreak>#1[i]%</unbreak>。",
+            "param_list": [
+              0.4
+            ]
+          },
+          "source_trust": "B",
+          "validation": "cross_checked",
+          "source": "nanoka-wiki",
+          "version": "nanoka-4.4.54",
+          "note": "与 TBGD AvatarRankConfig Param 交叉一致"
+        },
+        "2": {
+          "value": {
+            "name": "虚构无端",
+            "desc": "天赋每层效果额外使我方目标造成伤害时无视目标<unbreak>#1[i]%</unbreak>的防御力。",
+            "param_list": [
+              0.08
+            ]
+          },
+          "source_trust": "B",
+          "validation": "cross_checked",
+          "source": "nanoka-wiki",
+          "version": "nanoka-4.4.54",
+          "note": "与 TBGD AvatarRankConfig Param 交叉一致"
+        },
+        "3": {
+          "value": {
+            "name": "梦幻泡影",
+            "desc": "战技等级+2，最多不超过<unbreak>15</unbreak>级；普攻等级+1，最多不超过<unbreak>10</unbreak>级。",
+            "param_list": []
+          },
+          "source_trust": "B",
+          "validation": "cross_checked",
+          "source": "nanoka-wiki",
+          "version": "nanoka-4.4.54",
+          "note": "与 TBGD AvatarRankConfig Param 交叉一致"
+        },
+        "4": {
+          "value": {
+            "name": "游戏人间",
+            "desc": "终结技可以额外恢复1点战技点，天赋的战技点上限增加效果额外增加1点。",
+            "param_list": []
+          },
+          "source_trust": "B",
+          "validation": "cross_checked",
+          "source": "nanoka-wiki",
+          "version": "nanoka-4.4.54",
+          "note": "与 TBGD AvatarRankConfig Param 交叉一致"
+        },
+        "5": {
+          "value": {
+            "name": "双面真相",
+            "desc": "终结技等级+2，最多不超过<unbreak>15</unbreak>级；天赋等级+2，最多不超过<unbreak>15</unbreak>级。",
+            "param_list": []
+          },
+          "source_trust": "B",
+          "validation": "cross_checked",
+          "source": "nanoka-wiki",
+          "version": "nanoka-4.4.54",
+          "note": "与 TBGD AvatarRankConfig Param 交叉一致"
+        },
+        "6": {
+          "value": {
+            "name": "多重解答",
+            "desc": "战技的暴击伤害提高效果额外提高，提高数值等同于花火暴击伤害的<unbreak>#1[i]%</unbreak>，花火施放战技时，使战技的暴击伤害提高效果对持有【谜诡】的队友都会生效，花火施放终结技时，若我方单体中有目标持有战技的暴击伤害提高效果，使该效果扩散至持有【谜诡】的队友。",
+            "param_list": [
+              0.3
+            ]
+          },
+          "source_trust": "B",
+          "validation": "cross_checked",
+          "source": "nanoka-wiki",
+          "version": "nanoka-4.4.54",
+          "note": "与 TBGD AvatarRankConfig Param 交叉一致"
+        }
+      }
+    },
+    "1309": {
+      "id": "1309",
+      "name": null,
+      "ranks": {
+        "1": {
+          "value": {
+            "name": "微笑的国度",
+            "desc": "处于【协奏】状态时，我方全体全属性<u>抗性穿透</u>提高<unbreak>#1[i]%</unbreak>。",
+            "param_list": [
+              0.24
+            ]
+          },
+          "source_trust": "B",
+          "validation": "cross_checked",
+          "source": "nanoka-wiki",
+          "version": "nanoka-4.4.54",
+          "note": "与 TBGD AvatarRankConfig Param 交叉一致"
+        },
+        "2": {
+          "value": {
+            "name": "两者的午茶",
+            "desc": "处于【协奏】状态时，我方全体速度提高<unbreak>#1[i]%</unbreak>。天赋的能量恢复效果额外提高<unbreak>#2[i]</unbreak>点。",
+            "param_list": [
+              0.16,
+              1
+            ]
+          },
+          "source_trust": "B",
+          "validation": "cross_checked",
+          "source": "nanoka-wiki",
+          "version": "nanoka-4.4.54",
+          "note": "与 TBGD AvatarRankConfig Param 交叉一致"
+        },
+        "3": {
+          "value": {
+            "name": "倒悬的弦宫",
+            "desc": "战技等级+2，最多不超过<unbreak>15</unbreak>级；终结技等级+2，最多不超过<unbreak>15</unbreak>级。",
+            "param_list": []
+          },
+          "source_trust": "B",
+          "validation": "cross_checked",
+          "source": "nanoka-wiki",
+          "version": "nanoka-4.4.54",
+          "note": "与 TBGD AvatarRankConfig Param 交叉一致"
+        },
+        "4": {
+          "value": {
+            "name": "雨滴的钥匙",
+            "desc": "施放终结技时，解除我方全体的<u>控制类负面状态</u>，使我方全体在知更鸟处于【协奏】状态期间的效果抵抗提高<unbreak>#1[i]%</unbreak>。",
+            "param_list": [
+              0.5
+            ]
+          },
+          "source_trust": "B",
+          "validation": "cross_checked",
+          "source": "nanoka-wiki",
+          "version": "nanoka-4.4.54",
+          "note": "与 TBGD AvatarRankConfig Param 交叉一致"
+        },
+        "5": {
+          "value": {
+            "name": "孤星的眼泪",
+            "desc": "普攻等级+1，最多不超过<unbreak>10</unbreak>级；天赋等级+2，最多不超过<unbreak>15</unbreak>级。",
+            "param_list": []
+          },
+          "source_trust": "B",
+          "validation": "cross_checked",
+          "source": "nanoka-wiki",
+          "version": "nanoka-4.4.54",
+          "note": "与 TBGD AvatarRankConfig Param 交叉一致"
+        },
+        "6": {
+          "value": {
+            "name": "月隐的午夜",
+            "desc": "处于【协奏】状态时，终结技造成的物理属性<u>附加伤害</u>的暴击伤害额外提高<unbreak>#2[i]%</unbreak>。【月隐的午夜】效果最多触发<unbreak>#1[i]</unbreak>次，每次施放终结技时重置触发次数。",
+            "param_list": [
+              8,
+              4.5
+            ]
+          },
+          "source_trust": "B",
+          "validation": "cross_checked",
+          "source": "nanoka-wiki",
+          "version": "nanoka-4.4.54",
+          "note": "与 TBGD AvatarRankConfig Param 交叉一致"
+        }
+      }
+    },
+    "8007": {
+      "id": "8007",
+      "name": null,
+      "ranks": {
+        "1": {
+          "value": {
+            "name": "现在的记叙者",
+            "desc": "持有【迷迷的声援】的我方目标暴击率提高<unbreak>#1[i]%</unbreak>。当我方目标持有【迷迷的声援】时，【迷迷的声援】的效果对该目标的忆灵/忆师也生效，该效果不可叠加。",
+            "param_list": [
+              0.1
+            ]
+          },
+          "source_trust": "B",
+          "validation": "cross_checked",
+          "source": "nanoka-wiki",
+          "version": "nanoka-4.4.54",
+          "note": "与 TBGD AvatarRankConfig Param 交叉一致"
+        },
+        "2": {
+          "value": {
+            "name": "过往的拾遗者",
+            "desc": "除迷迷以外的我方忆灵行动时，开拓者恢复<unbreak>#1[i]</unbreak>点能量。该效果每回合最多触发<unbreak>#2[i]</unbreak>次，开拓者回合开始时重置可触发次数。",
+            "param_list": [
+              8,
+              1
+            ]
+          },
+          "source_trust": "B",
+          "validation": "cross_checked",
+          "source": "nanoka-wiki",
+          "version": "nanoka-4.4.54",
+          "note": "与 TBGD AvatarRankConfig Param 交叉一致"
+        },
+        "3": {
+          "value": {
+            "name": "未来的咏唱者",
+            "desc": "战技等级+2，最多不超过<unbreak>15</unbreak>级；天赋等级+2，最多不超过<unbreak>15</unbreak>级；忆灵天赋等级+1，最多不超过<unbreak>10</unbreak>级。",
+            "param_list": []
+          },
+          "source_trust": "B",
+          "validation": "cross_checked",
+          "source": "nanoka-wiki",
+          "version": "nanoka-4.4.54",
+          "note": "与 TBGD AvatarRankConfig Param 交叉一致"
+        },
+        "4": {
+          "value": {
+            "name": "缪斯的新舞伴",
+            "desc": "使能量上限为0的我方目标主动施放技能时，迷迷也能够获得<unbreak>#1[i]%</unbreak>充能，并且该目标通过【迷迷的声援】造成的真实伤害倍率额外提高<unbreak>#2[i]%</unbreak>。",
+            "param_list": [
+              0.03,
+              0.06
+            ]
+          },
+          "source_trust": "B",
+          "validation": "cross_checked",
+          "source": "nanoka-wiki",
+          "version": "nanoka-4.4.54",
+          "note": "与 TBGD AvatarRankConfig Param 交叉一致"
+        },
+        "5": {
+          "value": {
+            "name": "诗篇的裁缝匠",
+            "desc": "终结技等级+2，最多不超过<unbreak>15</unbreak>级；普攻等级+1，最多不超过<unbreak>10</unbreak>级；忆灵技等级+1，最多不超过<unbreak>10</unbreak>级。",
+            "param_list": []
+          },
+          "source_trust": "B",
+          "validation": "cross_checked",
+          "source": "nanoka-wiki",
+          "version": "nanoka-4.4.54",
+          "note": "与 TBGD AvatarRankConfig Param 交叉一致"
+        },
+        "6": {
+          "value": {
+            "name": "神启的转呈者",
+            "desc": "终结技的暴击率固定为<unbreak>100%</unbreak>。",
+            "param_list": [
+              1
+            ]
+          },
+          "source_trust": "B",
+          "validation": "cross_checked",
+          "source": "nanoka-wiki",
+          "version": "nanoka-4.4.54",
+          "note": "与 TBGD AvatarRankConfig Param 交叉一致"
+        }
+      }
+    }
+  }
+}

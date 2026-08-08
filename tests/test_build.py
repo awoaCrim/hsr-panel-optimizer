@@ -13,7 +13,7 @@ from hsr_sim.model import Stats
 
 class TestAssemble:
     def test_main_stats_and_substats(self):
-        # 基础 1000 攻/100 速/5% 暴击/50% 暴伤 + 光锥模板(582 攻 + 20%) + 主词条 + 副词条
+        # 基础 1000 攻/100 速/5% 暴击/50% 暴伤 + 光锥模板(582 攻白值，被动不入面板) + 主词条 + 副词条
         base = Stats(atk=621.0, speed=105.0, crit_rate=0.05, crit_dmg=0.50)
         cfg = BuildConfig(
             main_stats={"body": "crit_dmg", "feet": "speed",
@@ -21,8 +21,8 @@ class TestAssemble:
             substats={"speed": 2, "crit_rate": 16, "crit_dmg": 5, "atk_pct": 7},
         )
         s = assemble(base, "Quantum", cfg)
-        # 攻击：(621+582)×(1+0.20光锥+0.432绳+7×0.0432) = 1203×1.9344
-        assert s.atk == pytest.approx(1203.0 * (1 + 0.20 + 0.432 + 7 * 0.0432))
+        # 攻击：(621+582)×(1+0.432绳+7×0.0432) = 1203×1.7344（光锥被动不入面板）
+        assert s.atk == pytest.approx(1203.0 * (1 + 0.432 + 7 * 0.0432))
         # 速度：105 + 25鞋 + 2×2.4
         assert s.speed == pytest.approx(105 + 25 + 2 * 2.4)
         # 暴击：5% + 16×3.24%；暴伤：50% + 64.8%衣 + 5×6.48%
@@ -30,6 +30,35 @@ class TestAssemble:
         assert s.crit_dmg == pytest.approx(0.50 + 0.648 + 5 * 0.0648)
         # 属性伤：球
         assert s.dmg_bonus == pytest.approx(0.388)
+
+    def test_real_light_cone_white_stats(self):
+        """真实光锥数据（Nanoka/equipment）：80 级白值进面板，被动效果不进。"""
+        from hsr_sim.data.loader import load_equipment
+        eq = load_equipment()
+        lc = eq["light_cones"]["23001"]
+        assert lc["name"] == "于夜色中"
+        # 80 级总值验证（列表 atk=582 与 promotions 计算一致）
+        assert lc["base_stats"]["atk"] == pytest.approx(582.12, rel=1e-6)
+        assert lc["effect"]["name"] == "花与蝶"
+        assert len(lc["effect"]["level_1_params"]) == 5
+        base = Stats(atk=621.0, speed=105.0, crit_rate=0.05, crit_dmg=0.50)
+        cfg = BuildConfig(
+            light_cone="23001",
+            main_stats={"body": "crit_dmg", "feet": "speed",
+                        "sphere": "quantum_dmg", "rope": "atk_pct"},
+            substats={"atk_pct": 7},
+        )
+        s = assemble(base, "Quantum", cfg, eq)
+        assert s.atk == pytest.approx((621.0 + 582.12) * (1 + 0.432 + 7 * 0.0432))
+
+    def test_unknown_light_cone_falls_back(self):
+        """未知光锥 id / 无 equipment 数据：回退模板（不崩）。"""
+        base = Stats(atk=621.0, speed=105.0)
+        cfg = BuildConfig(light_cone="99999",
+                          main_stats={"body": "atk_pct", "feet": "atk_pct",
+                                      "sphere": "atk_pct", "rope": "atk_pct"})
+        s = assemble(base, "Quantum", cfg, {"light_cones": {}})
+        assert s.atk == pytest.approx((621.0 + 582.0) * (1 + 4 * 0.432))
 
     def test_energy_regen_rope(self):
         base = Stats(atk=500.0, speed=100.0)

@@ -20,7 +20,14 @@
         "crit_rate": 16,
         "crit_dmg": 5,
         "atk_pct": 7
-      }
+      },
+      "light_cone": "23001",
+      "relic_sets": [
+        "108",
+        "306"
+      ],
+      "eidolon": 0,
+      "equip_note": "示例配置：于夜色中+量子4件+萨尔索图2件（效果未接入模拟，仅面板白值生效）"
     },
     "1306": {
       "main_stats": {
@@ -34,7 +41,14 @@
         "energy_regen": 5,
         "break_effect": 5,
         "atk_pct": 5
-      }
+      },
+      "light_cone": "23003",
+      "relic_sets": [
+        "121",
+        "308"
+      ],
+      "eidolon": 0,
+      "equip_note": "示例配置：但战斗还未结束+司铎2件+翁瓦克2件"
     },
     "1309": {
       "main_stats": {
@@ -46,7 +60,14 @@
       "substats": {
         "atk_pct": 20,
         "energy_regen": 10
-      }
+      },
+      "light_cone": "23026",
+      "relic_sets": [
+        "102",
+        "312"
+      ],
+      "eidolon": 0,
+      "equip_note": "示例配置：夜色流光溢彩+快枪手4件+匹诺康尼2件"
     },
     "8007": {
       "main_stats": {
@@ -60,7 +81,14 @@
         "atk_pct": 13,
         "energy_regen": 5,
         "break_effect": 4
-      }
+      },
+      "light_cone": "24005",
+      "relic_sets": [
+        "123",
+        "318"
+      ],
+      "eidolon": 0,
+      "equip_note": "示例配置：记忆永不落幕+凯歌4件+蕉乐园2件"
     }
   }
 }

@@ -46,11 +46,12 @@ def load_character(path: Path) -> CharacterData:
     )
 
 
-def assemble_team(team_path: Path, characters: Dict[str, CharacterData]) -> Tuple[Dict[str, Stats], Dict[str, float], Dict[str, List[str]]]:
+def assemble_team(team_path: Path, characters: Dict[str, CharacterData],
+                  equipment: Optional[Dict] = None) -> Tuple[Dict[str, Stats], Dict[str, float], Dict[str, List[str]]]:
     """从队伍方案 JSON 装配面板：返回 (stats, speed_targets, build_errors)。
 
     builds 支持两种形态：
-    - {main_stats, substats}：装备配置 → 由 build.py 装配面板（词条预算可审计）
+    - {main_stats, substats, light_cone, relic_sets, eidolon}：装备配置 → build.py 装配
     - {stats}：直接给定最终面板（兼容/调试用）
     """
     d = json.loads(team_path.read_text(encoding="utf-8"))
@@ -63,13 +64,15 @@ def assemble_team(team_path: Path, characters: Dict[str, CharacterData]) -> Tupl
         elif "main_stats" in build or "substats" in build:
             cfg = BuildConfig(main_stats=build.get("main_stats", {}),
                               substats=build.get("substats", {}),
-                              light_cone=build.get("light_cone", {}))
+                              light_cone=build.get("light_cone", ""),
+                              relic_sets=build.get("relic_sets", []),
+                              eidolon=build.get("eidolon", 0))
             errs = validate_config(cfg)
             if errs:
                 build_errors[cid] = errs
                 stats[cid] = ch.base_stats
             else:
-                stats[cid] = assemble(ch.base_stats, ch.element, cfg)
+                stats[cid] = assemble(ch.base_stats, ch.element, cfg, equipment)
         else:
             stats[cid] = ch.base_stats
     return stats, d.get("speed_targets", {}), build_errors
@@ -82,7 +85,12 @@ def load_team(team_path: Path, char_dir: Path) -> Tuple[Dict[str, CharacterData]
     for cid in d["builds"]:
         cpath = char_dir / f"{cid}.json"
         characters[cid] = load_character(cpath)
-    stats, speed_targets, build_errors = assemble_team(team_path, characters)
+    try:
+        from .data.loader import load_equipment
+        equipment = load_equipment()
+    except Exception:
+        equipment = None
+    stats, speed_targets, build_errors = assemble_team(team_path, characters, equipment)
     if build_errors:
         raise ValueError(f"面板配置不合法：{json.dumps(build_errors, ensure_ascii=False)}")
     return characters, stats, speed_targets

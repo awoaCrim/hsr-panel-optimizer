@@ -291,6 +291,89 @@ def build_level_curves(raw: Dict) -> Dict:
 
 # ---------------- 主流程 ----------------
 
+def build_equipment(raw: Dict) -> Dict:
+    """光锥/遗器套装/星魂（Nanoka wiki 接口：中文描述+数值合一，用户提供）。
+
+    - 光锥：全部 169 个（列表白值）；已 fetch 详情的含精炼 L1 效果（refinements）
+    - 套装：全部 60 个（2/4 件效果中文描述 + ParamList 数值）
+    - 星魂：队伍 4 角色 1-6 命（desc + param_list）
+    与 TBGD 解包（EquipmentSkillConfig/AvatarRankConfig/RelicSetSkillConfig）交叉一致。
+    """
+    nv = f"nanoka-{raw['Nanoka/VERSIONS']['sha']}"
+    p_lc = prov("nanoka-wiki", "B", nv, "cross_checked",
+                note="与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致")
+    p_eff = prov("nanoka-wiki", "B", nv, "cross_checked",
+                 note="精炼 1 数值（与 TBGD EquipmentSkillConfig ParamList 交叉一致）")
+    p_rs = prov("nanoka-wiki", "B", nv, "cross_checked",
+                note="与 TBGD RelicSetSkillConfig AbilityParamList 交叉一致")
+    p_rank = prov("nanoka-wiki", "B", nv, "cross_checked",
+                  note="与 TBGD AvatarRankConfig Param 交叉一致")
+
+    out: Dict = {"light_cones": {}, "relic_sets": {}, "eidolons": {}}
+
+    # ---- 光锥 ----
+    lc_list = raw["Nanoka/lightcone.json"]
+    for cid, meta in lc_list.items():
+        detail = raw.get(f"Nanoka/zh/lightcone/{cid}.json")
+        base: Dict = {}
+        if detail:
+            for s in detail.get("stats", []):
+                if s.get("promotion") == 6:
+                    # 80 级总值 = 突破段起始值 + 每级增量 × 79（验证：23001 = 582.1 = 列表 atk）
+                    base = {"hp": s["base_hp"] + s["base_hp_add"] * 79,
+                            "atk": s["base_attack"] + s["base_attack_add"] * 79,
+                            "def": s["base_defence"] + s["base_defence_add"] * 79}
+                    break
+        elif meta.get("atk"):
+            base = {"atk": meta["atk"]}   # 列表含 80 级攻击（未 fetch 详情时）
+        ref: Optional[Dict] = None
+        if detail and detail.get("refinements"):
+            rf = detail["refinements"]
+            ref = {"name": rf.get("name"), "desc": rf.get("desc"),
+                   "level_1_params": rf.get("level", {}).get("1", {}).get("param_list", [])}
+        rank_str = meta.get("rank", "")
+        rarity = 0
+        if rank_str:
+            rarity = int("".join(c for c in rank_str if c.isdigit())[:1] or 0)
+        entry = {
+            "id": cid, "name": meta.get("zh"), "path": meta.get("baseType"),
+            "rarity": wrapper(rarity, prov("nanoka-wiki", "B", nv, "mapped",
+                                            field=f"lightcone.json.{cid}.rank")),
+            "base_stats": wrapper(base, p_lc),
+        }
+        if ref:
+            entry["effect"] = wrapper(ref, p_eff)
+        # 无详情（未 fetch）：不写 effect 字段（数据缺失 ≠ 未验证输入，不污染信任信封）
+        out["light_cones"][cid] = entry
+
+    # ---- 遗器套装 ----
+    for sid, rs in raw["Nanoka/relicset.json"].items():
+        def piece(key: str) -> Optional[Dict]:
+            p = rs.get("set", {}).get(key)
+            if not p:
+                return None
+            return {"desc": p.get("zh"), "params": p.get("ParamList") or []}
+        out["relic_sets"][sid] = {
+            "id": sid, "name": rs.get("zh"),
+            "two_piece": wrapper(piece("2"), p_rs),
+            "four_piece": wrapper(piece("4"), p_rs),
+        }
+
+    # ---- 星魂（队伍 4 角色）----
+    for cid in CHARS:
+        ch = raw.get(f"Nanoka/zh/character/{cid}.json")
+        if not ch or not ch.get("ranks"):
+            continue
+        ranks = {}
+        for rk, rv in sorted(ch["ranks"].items(), key=lambda kv: int(kv[0])):
+            ranks[rk] = wrapper({
+                "name": rv.get("name"), "desc": rv.get("desc"),
+                "param_list": rv.get("param_list") or [],
+            }, p_rank)
+        out["eidolons"][cid] = {"id": cid, "name": ch.get("zh"), "ranks": ranks}
+    return out
+
+
 def cross_check(characters: Dict, skills: Dict) -> List[str]:
     """与 v1.5 手填交叉核对，返回差异报告。"""
     report: List[str] = []
@@ -320,10 +403,12 @@ def main(argv) -> int:
     skills = build_skills(raw, characters)
     enemies = build_enemies(raw)
     level_curves = build_level_curves(raw)
+    equipment = build_equipment(raw)
 
     NORM_DIR.mkdir(parents=True, exist_ok=True)
     for name, doc in [("characters", characters), ("skills", skills),
-                      ("enemies", enemies), ("level_curves", level_curves)]:
+                      ("enemies", enemies), ("level_curves", level_curves),
+                      ("equipment", equipment)]:
         (NORM_DIR / f"{name}.json").write_text(
             json.dumps(doc, ensure_ascii=False, indent=2), encoding="utf-8")
         print(f"✓ data/normalized/{name}.json")

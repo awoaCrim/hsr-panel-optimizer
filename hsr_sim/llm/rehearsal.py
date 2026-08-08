@@ -106,26 +106,81 @@ def _trust_pack(session: RehearsalSession) -> str:
     return "\n".join(parts)
 
 
+def _clean_desc(s: Optional[str]) -> str:
+    """清理 wiki 富文本标签（<unbreak>/<color=...>），保留 #n[i] 参数占位符。"""
+    import re
+    if not s:
+        return ""
+    s = re.sub(r"<color=#[0-9a-fA-F]{8}>", "", s)
+    s = s.replace("</color>", "").replace("<unbreak>", "").replace("</unbreak>", "")
+    return s
+
+
 def _gear_summary(session: RehearsalSession) -> str:
-    """装备与星魂：数据层未建模光锥/遗器套装/星魂（v1.5 直接给最终面板）——诚实告知。"""
+    """装备与星魂（光锥/遗器套装/星魂管理系统）：真实数据 + 效果未接入标注。"""
     cfg = session._config_paths
-    lines = ["光锥 / 遗器套装 / 星魂未建模：数据层直接折算为最终面板（星魂默认 0 命）。",
-             "以下为当前面板的词条构成（builds）："]
+    lines = ["光锥被动 / 套装效果 / 星魂效果尚未接入战斗模拟（仅面板白值与词条生效），"
+             "以下数值供决策参考："]
     if cfg is None:
-        lines.append("  （会话未绑定队伍文件，装备构成不可查）")
+        lines.append("  （会话未绑定队伍文件，装备配置不可查）")
         return "\n".join(lines)
     try:
         team = json.loads(Path(cfg[0]).read_text(encoding="utf-8"))
+        from ..data.loader import load_equipment
+        eq = load_equipment()
     except Exception:
-        lines.append("  （队伍文件读取失败）")
+        lines.append("  （队伍/装备数据读取失败）")
         return "\n".join(lines)
+    lcs = eq.get("light_cones", {})
+    rss = eq.get("relic_sets", {})
+    eids = eq.get("eidolons", {})
     builds = team.get("builds", {})
     for cid in session.sim.chars:
-        b = builds.get(cid)
-        if b:
-            lines.append(f"  - {cid}：主词条 {b.get('main_stats', {})}；副词条 {b.get('substats', {})}")
+        b = builds.get(cid) or {}
+        parts = []
+        # 光锥
+        lc_id = b.get("light_cone", "")
+        if lc_id and lc_id in lcs:
+            lc = lcs[lc_id]
+            parts.append(f"光锥[{lc_id}] {lc.get('name')}（80级白值 {lc.get('base_stats')}")
+            eff = lc.get("effect")
+            if eff:
+                parts.append(f"精1效果[{eff.get('name')}] {_clean_desc(eff.get('desc'))[:100]} "
+                             f"参数{eff.get('level_1_params')}")
+            else:
+                parts.append("效果未收录")
+            parts.append("）")
         else:
-            lines.append(f"  - {cid}：无词条配置")
+            parts.append(f"光锥: 未配置（legacy 模板 atk+582）")
+        # 套装
+        sets = b.get("relic_sets", []) or []
+        if sets:
+            pieces = []
+            for sid in sets:
+                rs = rss.get(str(sid)) or rss.get(sid)
+                if rs:
+                    descs = []
+                    t2 = rs.get("two_piece") or {}
+                    t4 = rs.get("four_piece") or {}
+                    if t2:
+                        descs.append(f"2件:{_clean_desc(t2.get('desc'))[:40]}")
+                    if t4 and len(sets) == 1:
+                        descs.append(f"4件:{_clean_desc(t4.get('desc'))[:40]}")
+                    pieces.append(f"{rs.get('name')}[{'，'.join(descs)}]")
+            parts.append("套装: " + " + ".join(pieces))
+        # 星魂
+        el = b.get("eidolon", 0) or 0
+        eid = eids.get(cid)
+        if eid and el > 0:
+            owned = [f"E{rk} {rv.get('name')}: {_clean_desc(rv.get('desc'))[:70]}"
+                     for rk, rv in list(eid.get("ranks", {}).items())[:el]]
+            parts.append(f"星魂 {el} 命：" + " | ".join(owned))
+        elif eid:
+            parts.append("星魂 0 命")
+        # 词条
+        if b.get("main_stats") or b.get("substats"):
+            parts.append(f"词条: 主{b.get('main_stats', {})} 副{b.get('substats', {})}")
+        lines.append(f"  - {cid}：" + "; ".join(parts))
     return "\n".join(lines)
 
 

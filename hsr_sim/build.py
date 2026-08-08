@@ -17,8 +17,12 @@ from .model import Stats
 
 SUBSTAT_BUDGET = 30  # 有效副词条预算（可配置）
 
-# 光锥模板（v1 简化：5 星光锥固定基础攻击 + 攻击%；ETL 阶段按具体光锥精确化）
-LIGHT_CONE_TEMPLATE = {"atk_base": 582.0, "atk_pct": 0.20}
+# 光锥模板（legacy 兜底：未配置光锥 id 时；ETL/Nanoka 提供真实光锥数据）
+LIGHT_CONE_TEMPLATE = {"atk_base": 582.0}
+
+# 光锥主属性加成（80 级，5 星：基础攻击 + 无被动；被动由 equipment 数据提供，未接入面板）
+LIGHT_CONE_ATK_BASE = {  # id -> 80 级基础攻击（缺失时用模板）
+}
 
 MAIN_STAT_VALUES = {
     "crit_rate": 0.324,
@@ -60,21 +64,34 @@ class BuildConfig:
 
     main_stats: Dict[str, str] = field(default_factory=dict)  # slot -> 主词条类型
     substats: Dict[str, float] = field(default_factory=dict)  # stat -> 词条数
-    light_cone: Dict = field(default_factory=dict)            # 光锥（v1 模板）
+    light_cone: str = ""               # 光锥 id（equipment 数据；空 = legacy 模板）
+    relic_sets: List[str] = field(default_factory=list)  # 套装 id：1 个 = 4 件套；2 个 = 2+2
+    eidolon: int = 0                   # 星魂等级（0-6）
 
 
 def substat_count(config: BuildConfig) -> float:
     return sum(config.substats.values())
 
 
-def assemble(base: Stats, element: str, config: BuildConfig) -> Stats:
-    """装配最终面板：基础 + 光锥 + 主词条 + 副词条。攻击%为同乘区加算。"""
+def assemble(base: Stats, element: str, config: BuildConfig,
+             equipment: Optional[Dict] = None) -> Stats:
+    """装配最终面板：基础 + 光锥白值 + 主词条 + 副词条。
+
+    光锥被动/套装效果/星魂效果不进入面板（未接入战斗模拟，知识包诚实标注）；
+    equipment = load_equipment() 的原始 dict（strip 溯源后）。
+    """
     out = base.copy()
 
-    # 光锥（模板：基础攻击 + 攻击%）
-    lc = config.light_cone or {}
-    atk_flat = lc.get("atk_base", LIGHT_CONE_TEMPLATE["atk_base"])
-    atk_pct_total = lc.get("atk_pct", LIGHT_CONE_TEMPLATE["atk_pct"])
+    # 光锥（真实数据：80 级基础攻击；legacy 兜底模板）
+    atk_flat = LIGHT_CONE_TEMPLATE["atk_base"]
+    lc_id = config.light_cone
+    if lc_id and equipment:
+        lc = equipment.get("light_cones", {}).get(lc_id)
+        if lc and lc.get("base_stats"):
+            bs = lc["base_stats"]
+            if bs.get("atk"):
+                atk_flat = bs["atk"]
+    atk_pct_total = 0.0
 
     # 主词条
     body = config.main_stats.get("body")

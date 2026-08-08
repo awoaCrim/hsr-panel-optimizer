@@ -18,11 +18,11 @@
 |---|---|---|---|
 | StarRailRes | Mar-7th/StarRailRes | 角色/光锥/遗器/套装/星魂/行迹/材料/图标 | 社区整理、多语言、字段可读、持续更新（2026-07） |
 | TurnBasedGameData | DimbreathBot/TurnBasedGameData | 全部游戏数值（技能/敌人/关卡/场地/难度） | 原始解包数据，字段为内部 ID，文本为 Hash（需 TextMap 翻译） |
+| Nanoka（hsr.nanoka.cc） | 静态 JSON 接口 `static.nanoka.cc/hsr/<版本>/` | 光锥白值/精炼效果、套装 2/4 件、星魂（中文描述+数值合一） | 用户提供；与 TBGD 解包 ParamList 交叉一致；版本 4.4.54 固定 |
 
 ---
 
 ## 二、player_data/（来自 StarRailRes index_min/cn）
-
 ### 2.1 characters.json —— 角色基础信息
 - 键：角色 ID（如 `"1204"`）
 - 字段：`id, name, rarity, element, path(命途), icon, preview, portrait, release, version`
@@ -146,3 +146,29 @@ data/
 3. **能量回复数值**：StarRailRes 无精确回能字段，需从 AvatarSkillConfig `ParamList` 的特定参数位提取（每个角色参数位约定不同，需人工核对 1-2 个角色验证）
 4. **仓库体量**：StageConfig.json 24MB / AvatarSkillConfig.json 10MB —— 只提取需要的字段，不要整表入库
 5. **更新节奏**：两个数据源都随版本持续更新；ETL 应支持全量重跑
+
+## 六、equipment/（光锥/遗器套装/星魂管理系统）
+
+> 数据源：Nanoka wiki 接口（`static.nanoka.cc/hsr/4.4.54/`，中文描述+数值合一，与 TBGD 解包交叉一致）。
+> 输出：`data/normalized/equipment.json`（双维溯源，audit 门禁覆盖）。
+
+### 6.1 光锥（light_cones）
+- 键：光锥 id（20000-24000 段）；字段：`id, name(中文), path(命途), rarity, base_stats(80 级白值)`
+- `effect`（仅已 fetch 详情的）：`name`（精炼名）、`desc`（中文效果，`#n[i]` 为参数占位符）、`level_1_params`（精炼 1 数值）
+- 80 级白值 = promotion 6 段 `base + add×79`（验证：于夜色中 = 582.12 = 列表 atk）
+
+### 6.2 遗器套装（relic_sets）
+- 键：套装 id（101-132 外圈 / 301-328 内圈）；字段：`name, two_piece{desc,params}, four_piece{desc,params}`
+
+### 6.3 星魂（eidolons）
+- 键：角色 id；字段：`ranks.{1-6}.{name, desc, param_list}`
+
+### 6.4 队伍配置（team builds 扩展）
+```json
+"builds": {"1015": {"main_stats": {...}, "substats": {...},
+                    "light_cone": "23001", "relic_sets": ["108", "306"], "eidolon": 0}}
+```
+- `light_cone`：光锥 id（装配面板白值）；`relic_sets`：1 个 = 4 件套、2 个 = 2+2
+- `eidolon`：星魂等级 0-6
+- **效果边界（当前）**：光锥被动/套装效果/星魂效果未接入战斗模拟（仅白值与词条进面板）；
+  知识包如实标注，LLM 决策可参考数值但模拟结果不含其收益

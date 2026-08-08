@@ -47,14 +47,16 @@ def test_knowledge_pack_dynamic():
 
 
 def test_knowledge_pack_advance_and_gear():
-    """知识包含：拉条不可自拉规则 + 装备/星魂诚实说明（未建模）。"""
+    """知识包含：拉条不可自拉规则 + 装备管理系统（光锥/套装/星魂 + 未接入标注）。"""
     from hsr_sim.rehearse import RehearsalSession as RS
     s = RS.from_files()   # 默认红A队（含花火 1306）
     pack = build_knowledge_pack(s)
     assert "不可自拉" in pack          # 花火战技目标选择器排除自身
-    assert "星魂" in pack and "0 命" in pack
-    assert "光锥" in pack and "未建模" in pack
-    assert "主词条" in pack           # builds 词条构成
+    assert "尚未接入战斗模拟" in pack   # 装备效果诚实标注
+    assert "于夜色中" in pack and "花与蝶" in pack   # 红A 光锥 + 精炼效果
+    assert "繁星璀璨的天才" in pack    # 红A 量子套
+    assert "星魂 0 命" in pack
+    assert "词条" in pack             # builds 词条构成
 
 
 def test_full_run_to_terminal():

@@ -7,7 +7,11 @@
     "files": [
       "index_min/cn/characters.json",
       "index_min/cn/character_promotions.json",
-      "index_min/cn/character_skills.json"
+      "index_min/cn/character_skills.json",
+      "index_min/cn/light_cones.json",
+      "index_min/cn/light_cone_promotions.json",
+      "index_min/cn/relic_sets.json",
+      "index_min/cn/character_ranks.json"
     ]
   },
   "TurnBasedGameData": {
@@ -17,7 +21,28 @@
     "files": [
       "ExcelOutput/HardLevelGroup.json",
       "ExcelOutput/MonsterConfig.json",
-      "ExcelOutput/AvatarSkillConfig.json"
+      "ExcelOutput/AvatarSkillConfig.json",
+      "ExcelOutput/EquipmentConfig.json",
+      "ExcelOutput/EquipmentSkillConfig.json",
+      "ExcelOutput/AvatarRankConfig.json",
+      "ExcelOutput/RelicSetSkillConfig.json"
+    ]
+  },
+  "Nanoka": {
+    "_comment": "hsr.nanoka.cc 静态数据接口（用户提供）：中文描述+数值合一，与 TBGD 解包交叉一致",
+    "base_url": "https://static.nanoka.cc/hsr/4.4.54",
+    "sha": "4.4.54",
+    "files": [
+      "lightcone.json",
+      "relicset.json",
+      "zh/character/1015.json",
+      "zh/character/1306.json",
+      "zh/character/1309.json",
+      "zh/character/8007.json",
+      "zh/lightcone/23001.json",
+      "zh/lightcone/23003.json",
+      "zh/lightcone/23026.json",
+      "zh/lightcone/24005.json"
     ]
   }
 }

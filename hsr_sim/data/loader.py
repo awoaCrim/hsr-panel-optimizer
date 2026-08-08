@@ -148,12 +148,20 @@ def load_characters_normalized(normalized_dir: Path = NORMALIZED_DIR):
     return characters, unverified
 
 
+def load_equipment(normalized_dir: Path = NORMALIZED_DIR) -> Dict:
+    """光锥/遗器套装/星魂数据（strip 溯源后，供装配与知识包）。"""
+    nd = load(normalized_dir)
+    eq = nd.get("equipment") or {}
+    return {k: _strip_provenance(v) for k, v in eq.items()}
+
+
 def load_team_normalized(team_path: Path, normalized_dir: Path = NORMALIZED_DIR):
     """队伍方案 + normalized 角色数据 → (characters, stats, speed_targets, unverified)。"""
     import json as _json
 
     characters, unverified = load_characters_normalized(normalized_dir)
-    stats, speed_targets, build_errors = assemble_team(team_path, characters)
+    equipment = load_equipment(normalized_dir)
+    stats, speed_targets, build_errors = assemble_team(team_path, characters, equipment)
     if build_errors:
         raise ValueError(f"面板配置不合法：{_json.dumps(build_errors, ensure_ascii=False)}")
     return characters, stats, speed_targets, unverified

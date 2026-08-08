@@ -23,7 +23,9 @@ def test_unverified_are_enemies_and_defaults_only():
     _, unverified = run_audit()
     paths = {p for p, _, _ in unverified}
     # 敌人模板（D）与 break_effect/energy_regen 默认值（D）与忆灵手填（D）
+    # 与未 fetch 详情的光锥效果（B/raw）
     assert all(p.startswith("enemies") or "memosprite" in p
+               or (p.startswith("equipment.light_cones") and p.endswith(".effect"))
                for p in paths if "break_effect" not in p and "energy_regen" not in p)
     defaults = [p for p in paths if "break_effect" in p or "energy_regen" in p]
     assert len(defaults) == 8  # 4 角色 × 2

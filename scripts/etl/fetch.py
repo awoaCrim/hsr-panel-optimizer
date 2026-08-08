@@ -18,12 +18,34 @@ RAW_DIR = ROOT / "data" / "raw"
 VERSIONS_FILE = RAW_DIR / "VERSIONS.json"
 
 
+def _opener() -> urllib.request.OpenerDirector:
+    """代理探测（本地 clash 常见端口），失败回退直连。"""
+    import urllib.request as u
+    for port in (7897, 7890, 10809):
+        try:
+            proxy = u.ProxyHandler({"http": f"http://127.0.0.1:{port}",
+                                    "https": f"http://127.0.0.1:{port}"})
+            op = u.build_opener(proxy)
+            with op.open("https://static.nanoka.cc/hsr/4.4.54/lightcone.json", timeout=5) as r:
+                r.read(64)
+            return op
+        except Exception:
+            continue
+    return u.build_opener()   # 直连兜底
+
+
+_OPENER = None
+
+
 def fetch_file(url: str, dest: Path, force: bool) -> bool:
+    global _OPENER
     if dest.exists() and dest.stat().st_size > 0 and not force:
         return False
     dest.parent.mkdir(parents=True, exist_ok=True)
+    if _OPENER is None:
+        _OPENER = _opener()
     req = urllib.request.Request(url, headers={"User-Agent": "hsr-panel-optimizer-etl"})
-    with urllib.request.urlopen(req, timeout=120) as resp, open(dest, "wb") as f:
+    with _OPENER.open(req, timeout=120) as resp, open(dest, "wb") as f:
         f.write(resp.read())
     return True
 
@@ -40,15 +62,20 @@ def main(argv) -> int:
         tag = f"{name}@{cfg['sha']}"
         fetched = 0
         for rel in cfg["files"]:
-            url = f"https://raw.githubusercontent.com/{cfg['repo']}/{cfg['sha']}/{rel}"
+            if "base_url" in cfg:
+                # 直连数据接口（如 static.nanoka.cc 静态 JSON）
+                url = f"{cfg['base_url'].rstrip('/')}/{rel}"
+            else:
+                url = f"https://raw.githubusercontent.com/{cfg['repo']}/{cfg['sha']}/{rel}"
             dest = RAW_DIR / tag / rel
             if fetch_file(url, dest, force):
                 fetched += 1
                 print(f"↓ {name} {rel} ({dest.stat().st_size}B)")
         versions[name] = {
-            "repo": cfg["repo"],
-            "branch": cfg["branch"],
+            "repo": cfg.get("repo", ""),
+            "branch": cfg.get("branch", ""),
             "sha": cfg["sha"],
+            "base_url": cfg.get("base_url", ""),
             "fetched_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
         }
         print(f"{name}: {cfg['files'].__len__()} 个文件，新下载 {fetched}")
