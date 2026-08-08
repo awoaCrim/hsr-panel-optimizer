@@ -86,6 +86,10 @@
         "field": "(default)",
         "note": "非成长属性默认值 1，无上游字段"
       }
+    },
+    "talent_extra": {
+      "followup_on_ally_attack": true,
+      "followup_energy": 5
     }
   },
   "1306": {
@@ -175,6 +179,9 @@
         "field": "(default)",
         "note": "非成长属性默认值 1，无上游字段"
       }
+    },
+    "talent_extra": {
+      "sp_cap_bonus": 2
     }
   },
   "1309": {
@@ -264,6 +271,9 @@
         "field": "(default)",
         "note": "非成长属性默认值 1，无上游字段"
       }
+    },
+    "talent_extra": {
+      "energy_on_ally_attack": 2
     }
   },
   "8007": {
@@ -352,6 +362,40 @@
         "source": "handfill",
         "field": "(default)",
         "note": "非成长属性默认值 1，无上游字段"
+      }
+    },
+    "talent_extra": {
+      "summon": true,
+      "memosprite": {
+        "speed": {
+          "value": 130.0,
+          "source_trust": "D",
+          "validation": "raw",
+          "source": "handfill",
+          "note": "手填待验证（mechanics-spec 1.9 UNKNOWN）"
+        },
+        "atk_inherit": {
+          "value": 1.0,
+          "source_trust": "D",
+          "validation": "raw",
+          "source": "handfill",
+          "note": "手填待验证（mechanics-spec 1.9 UNKNOWN）"
+        },
+        "act_mult": {
+          "value": 1.0,
+          "source_trust": "D",
+          "validation": "raw",
+          "source": "handfill",
+          "note": "手填待验证（mechanics-spec 1.9 UNKNOWN）"
+        },
+        "enhanced_mult": {
+          "value": 1.6,
+          "source_trust": "D",
+          "validation": "raw",
+          "source": "handfill",
+          "note": "手填待验证（mechanics-spec 1.9 UNKNOWN）"
+        },
+        "note": "迷迷攻击=记忆主攻击 100%、行动倍率 100%/强化 160%，均为手填待验证"
       }
     }
   }

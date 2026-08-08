@@ -28,6 +28,9 @@ python -m hsr_sim.data paths            # 列出全部未验证字段（信任�
 - **技能倍率**：basic 槽位 params[9][0]（通用约定）→ B/mapped；**其余槽位参数位语义因角色而异，不猜测**——保留 wiki 值（C），上游参数整体记入 `_upstream_params` 供 P0-2 Mechanics Spec 锁定
 - **SP/能量/延时/拉条**：解包字段语义未锁定（SPMultipleRatio/BPNeed/DelayRatio/回能参数位），维持 ADR-0003 wiki 核对值（C/cross_checked）
 - **红A（1015）**：AvatarSkillConfig 无联动数据（0 条），全部 wiki + override 标记（ADR-0003）
+- **角色机制钩子**（talent_extra）：技能级机制并入 `skills.json` 的 `mechanic` 字段（溯源 C/wiki），
+  角色级机制（追击/召唤/SP 上限/忆灵）并入 `characters.json` 的 `talent_extra`；
+  忆灵数值（速度/倍率）为手填待验证，显式标 D
 - **敌人**：v1 模板值 → D（P1 由 StageConfig/MonsterConfig 替换）
 
 ## 已知差异（extract 交叉核对报告）

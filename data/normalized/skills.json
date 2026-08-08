@@ -36,6 +36,14 @@
         "source": "biligame",
         "version": "biligame-2026-08",
         "note": "wiki 核对（ADR-0003）（联动角色：AvatarSkillConfig 无数据，ADR-0003）；解包字段语义 P0-2 锁"
+      },
+      "toughness": {
+        "value": 10,
+        "source_trust": "C",
+        "validation": "cross_checked",
+        "source": "biligame",
+        "version": "biligame-2026-08",
+        "note": "wiki 核对（ADR-0003）（联动角色：AvatarSkillConfig 无数据，ADR-0003）；解包字段语义 P0-2 锁"
       }
     },
     "skill": {
@@ -81,6 +89,14 @@
         "version": "biligame-2026-08",
         "note": "wiki 核对（ADR-0003）（联动角色：AvatarSkillConfig 无数据，ADR-0003）；解包字段语义 P0-2 锁"
       },
+      "toughness": {
+        "value": 20,
+        "source_trust": "C",
+        "validation": "cross_checked",
+        "source": "biligame",
+        "version": "biligame-2026-08",
+        "note": "wiki 核对（ADR-0003）（联动角色：AvatarSkillConfig 无数据，ADR-0003）；解包字段语义 P0-2 锁"
+      },
       "mult": {
         "value": 3.6,
         "source_trust": "C",
@@ -88,7 +104,17 @@
         "source": "biligame",
         "version": "biligame-2026-08",
         "note": "wiki 核对（ADR-0003）"
-      }
+      },
+      "mechanic": {
+        "buff": {
+          "stat": "dmg_bonus",
+          "value": 1.0,
+          "cap": 2.0,
+          "duration": 0
+        },
+        "extra_action_max": 5
+      },
+      "_mechanic_note": "回路连接：战技伤害 +100%/层（L10）叠 2 层常驻；战技后不结束回合，主动施放 5 次后退出回路（wiki）"
     },
     "ult": {
       "_source": {
@@ -123,6 +149,14 @@
         "version": "biligame-2026-08",
         "note": "wiki 核对（ADR-0003）（联动角色：AvatarSkillConfig 无数据，ADR-0003）；解包字段语义 P0-2 锁"
       },
+      "toughness": {
+        "value": 30,
+        "source_trust": "C",
+        "validation": "cross_checked",
+        "source": "biligame",
+        "version": "biligame-2026-08",
+        "note": "wiki 核对（ADR-0003）（联动角色：AvatarSkillConfig 无数据，ADR-0003）；解包字段语义 P0-2 锁"
+      },
       "mult": {
         "value": 10.0,
         "source_trust": "C",
@@ -130,7 +164,11 @@
         "source": "biligame",
         "version": "biligame-2026-08",
         "note": "wiki 核对（ADR-0003）"
-      }
+      },
+      "mechanic": {
+        "fate_charge": 2
+      },
+      "_mechanic_note": "大招 +2 充能，上限 4"
     },
     "talent": {
       "_source": {
@@ -149,6 +187,14 @@
       ],
       "energy": {
         "value": 5,
+        "source_trust": "C",
+        "validation": "cross_checked",
+        "source": "biligame",
+        "version": "biligame-2026-08",
+        "note": "wiki 核对（ADR-0003）（联动角色：AvatarSkillConfig 无数据，ADR-0003）；解包字段语义 P0-2 锁"
+      },
+      "toughness": {
+        "value": 10,
         "source_trust": "C",
         "validation": "cross_checked",
         "source": "biligame",
@@ -254,6 +300,14 @@
         "version": "biligame-2026-08",
         "note": "wiki 核对（ADR-0003）；解包字段语义 P0-2 锁"
       },
+      "toughness": {
+        "value": 0,
+        "source_trust": "C",
+        "validation": "cross_checked",
+        "source": "biligame",
+        "version": "biligame-2026-08",
+        "note": "wiki 核对（ADR-0003）；解包字段语义 P0-2 锁"
+      },
       "mult": {
         "value": 0.0,
         "source_trust": "C",
@@ -261,7 +315,16 @@
         "source": "biligame",
         "version": "biligame-2026-08",
         "note": "wiki 核对（ADR-0003）"
-      }
+      },
+      "mechanic": {
+        "buff": {
+          "stat": "crit_dmg",
+          "value": 0.93,
+          "target": "advance_target",
+          "duration": 1
+        }
+      },
+      "_mechanic_note": "目标暴伤 +24%花火爆伤+45%（L10，按花火 200% 暴伤折算 0.93）"
     },
     "ult": {
       "_source": {
@@ -421,6 +484,14 @@
         "version": "biligame-2026-08",
         "note": "wiki 核对（ADR-0003）；解包字段语义 P0-2 锁"
       },
+      "toughness": {
+        "value": 0,
+        "source_trust": "C",
+        "validation": "cross_checked",
+        "source": "biligame",
+        "version": "biligame-2026-08",
+        "note": "wiki 核对（ADR-0003）；解包字段语义 P0-2 锁"
+      },
       "mult": {
         "value": 0.0,
         "source_trust": "C",
@@ -428,7 +499,15 @@
         "source": "biligame",
         "version": "biligame-2026-08",
         "note": "wiki 核对（ADR-0003）"
-      }
+      },
+      "mechanic": {
+        "buff": {
+          "stat": "dmg_bonus",
+          "value": 0.5,
+          "duration": 3
+        }
+      },
+      "_mechanic_note": "全队增伤 50%（L10）持续 3 回合"
     },
     "ult": {
       "_source": {
@@ -466,6 +545,14 @@
         "version": "biligame-2026-08",
         "note": "wiki 核对（ADR-0003）；解包字段语义 P0-2 锁"
       },
+      "toughness": {
+        "value": 0,
+        "source_trust": "C",
+        "validation": "cross_checked",
+        "source": "biligame",
+        "version": "biligame-2026-08",
+        "note": "wiki 核对（ADR-0003）；解包字段语义 P0-2 锁"
+      },
       "mult": {
         "value": 0.0,
         "source_trust": "C",
@@ -473,7 +560,19 @@
         "source": "biligame",
         "version": "biligame-2026-08",
         "note": "wiki 核对（ADR-0003）"
-      }
+      },
+      "mechanic": {
+        "advance_all": 1.0,
+        "concert": 2,
+        "additional_mult": 1.2,
+        "buff": {
+          "stat": "concert_atk",
+          "value": 0.228,
+          "duration": 2
+        },
+        "atk_flat": 200
+      },
+      "_mechanic_note": "全队立即行动 + 协奏 2 回合（附加伤害 120% L10，固定双暴 100%/150%）+ 全队攻击 +22.8%+200"
     },
     "talent": {
       "_source": {
@@ -580,6 +679,14 @@
         "version": "biligame-2026-08",
         "note": "wiki 核对（ADR-0003）；解包字段语义 P0-2 锁"
       },
+      "toughness": {
+        "value": 0,
+        "source_trust": "C",
+        "validation": "cross_checked",
+        "source": "biligame",
+        "version": "biligame-2026-08",
+        "note": "wiki 核对（ADR-0003）；解包字段语义 P0-2 锁"
+      },
       "mult": {
         "value": 0.0,
         "source_trust": "C",
@@ -587,6 +694,9 @@
         "source": "biligame",
         "version": "biligame-2026-08",
         "note": "wiki 核对（ADR-0003）"
+      },
+      "mechanic": {
+        "mem_charge": 0.1
       }
     },
     "ult": {
@@ -636,6 +746,10 @@
         "source": "biligame",
         "version": "biligame-2026-08",
         "note": "wiki 核对（ADR-0003）"
+      },
+      "mechanic": {
+        "mem_charge": 0.4,
+        "mem_dmg": 2.4
       }
     },
     "talent": {
@@ -663,7 +777,11 @@
         "source": "biligame",
         "version": "biligame-2026-08",
         "note": "wiki 核对（ADR-0003）"
-      }
+      },
+      "mechanic": {
+        "true_dmg_aura": 0.1
+      },
+      "_mechanic_note": "迷迷在场全队真伤 +10%（手填待验证）"
     }
   }
 }

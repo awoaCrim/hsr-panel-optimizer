@@ -75,6 +75,8 @@ class SimResult:
     enemy_hp_left: Dict[str, float] = field(default_factory=dict)
     ult_count: Dict[str, int] = field(default_factory=dict)
     action_count: Dict[str, int] = field(default_factory=dict)
+    trust_level: str = "trusted"             # trusted / unverified（ADR-0006 6.2）
+    unverified_inputs: List[str] = field(default_factory=list)  # 参与计算的 D/raw 字段路径
 
     @property
     def enemies_killed(self) -> int:
@@ -92,6 +94,7 @@ class Simulator:
         attacker_level: int = 80,
         memosprite_speed: float = 130.0,
         seed: int = 0,
+        unverified_inputs: Optional[List[str]] = None,
     ) -> None:
         self.chars = characters
         self.stats = char_stats
@@ -100,6 +103,7 @@ class Simulator:
         self.target_av = target_av
         self.attacker_level = attacker_level
         self.memosprite_speed = memosprite_speed
+        self._unverified = list(unverified_inputs or [])   # 信任度信封（ADR-0006 6.2）
         self._reset(seed)
 
     def _reset(self, seed: int = 0) -> None:
@@ -609,4 +613,7 @@ class Simulator:
         r.enemy_hp_left = dict(self.enemy_hp)
         r.ult_count = self.ult_count
         r.action_count = self.action_count
+        # 信任度信封：任何 D/raw 输入参与计算 → 结果标注未验证（ADR-0006 6.2）
+        r.unverified_inputs = list(self._unverified)
+        r.trust_level = "unverified" if self._unverified else "trusted"
         return r

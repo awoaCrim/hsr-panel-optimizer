@@ -49,10 +49,20 @@ def cmd_verify(args: argparse.Namespace) -> int:
     team_path = Path(args.team)
     enemy_path = Path(args.enemy)
     rotation_path = Path(args.rotation)
-    char_dir = team_path.parent / "characters"
 
-    characters, stats, speed_targets = load_team(team_path, char_dir)
-    enemies, level, target_av = load_enemies(enemy_path)
+    if args.legacy:
+        # v1.5 手填数据路径（data/characters/ + enemy_elite90.json，冻结）
+        char_dir = team_path.parent / "characters"
+        characters, stats, speed_targets = load_team(team_path, char_dir)
+        enemies, level, target_av = load_enemies(enemy_path)
+        unverified = []
+    else:
+        # 默认：normalized 数据层（P0-3 切换；带溯源与信任度信封）
+        from .data.loader import load_enemies_normalized, load_team_normalized
+        characters, stats, speed_targets, unverified = load_team_normalized(team_path)
+        enemies, level, target_av, unv2 = load_enemies_normalized()
+        unverified = unverified + unv2
+
     rotation = load_rotation(rotation_path)
 
     mem_speed = 130.0
@@ -61,7 +71,8 @@ def cmd_verify(args: argparse.Namespace) -> int:
         if mem:
             mem_speed = mem.get("speed", mem_speed)
 
-    sim = Simulator(characters, stats, enemies, rotation, target_av, level, mem_speed)
+    sim = Simulator(characters, stats, enemies, rotation, target_av, level, mem_speed,
+                    unverified_inputs=unverified)
     result = sim.run()
     report = build_report(
         result,
@@ -103,6 +114,8 @@ def main(argv=None) -> int:
     v.add_argument("--enemy", default=str(DATA_DIR / "enemy_elite90.json"))
     v.add_argument("--rotation", default=str(DATA_DIR / "rotation.json"))
     v.add_argument("--json", action="store_true", help="输出完整 JSON")
+    v.add_argument("--legacy", action="store_true",
+                   help="使用 v1.5 手填数据（data/characters/，冻结）而非 normalized 数据层")
     v.add_argument("--llm", action="store_true", help="LLM 自动迭代（OpenAI 兼容接口，环境变量 HSR_LLM_BASE_URL/API_KEY/MODEL）")
     v.add_argument("--search", action="store_true", help="验证后枚举策略参数空间，输出当前面板下最优战斗策略")
     v.add_argument("--llm-config", default=None, help="LLM 配置 JSON 文件（可选，覆盖环境变量）")

@@ -22,8 +22,9 @@ def test_audit_passes_on_generated_data():
 def test_unverified_are_enemies_and_defaults_only():
     _, unverified = run_audit()
     paths = {p for p, _, _ in unverified}
-    # 敌人模板（D）与 break_effect/energy_regen 默认值（D）
-    assert all(p.startswith("enemies") for p in paths if "break_effect" not in p and "energy_regen" not in p)
+    # 敌人模板（D）与 break_effect/energy_regen 默认值（D）与忆灵手填（D）
+    assert all(p.startswith("enemies") or "memosprite" in p
+               for p in paths if "break_effect" not in p and "energy_regen" not in p)
     defaults = [p for p in paths if "break_effect" in p or "energy_regen" in p]
     assert len(defaults) == 8  # 4 角色 × 2
 

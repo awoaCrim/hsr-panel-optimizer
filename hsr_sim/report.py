@@ -126,6 +126,11 @@ def format_report(report: ValidationReport, lang: str = "zh") -> str:
         f"能量：{'[达标]' if report.constraints[2].met else '[未达]'}",
         "-" * 52,
     ]
+    # 信任度信封（ADR-0006 6.2）：输入含 D/raw 值 → 结果标注未验证
+    if report.result is not None and report.result.trust_level == "unverified":
+        lines.append(f"⚠ 未验证：{len(report.result.unverified_inputs)} 处输入为手填/待核对"
+                     f"（示例：{report.result.unverified_inputs[0]}）——结果仅参考，不可作为游戏真值")
+        lines.append("-" * 52)
     for c in report.constraints:
         lines.append(f"[{'达标' if c.met else '未达'}] {c.name}：{c.detail}")
     if report.diagnostics:

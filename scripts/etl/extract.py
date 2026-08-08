@@ -109,8 +109,29 @@ def build_characters(raw: Dict) -> Dict:
                 note="与 v1.5 手填/ADR-0003 wiki 核对一致",
             )),
             "base_stats": stats,
+            # 角色级机制（技能级钩子在 skills.json 的 mechanic；wiki 核对，溯源 C）
+            "talent_extra": _char_talent_extra(cid),
         }
     return out
+
+
+def _char_talent_extra(cid: str) -> Dict:
+    """角色级天赋钩子（followup/summon/sp_cap/memosprite），来源 = v1.5 手填 wiki 核对。"""
+    legacy = json.loads((LEGACY_DIR / f"{cid}.json").read_text(encoding="utf-8"))
+    te = legacy.get("talent_extra", {})
+    # skill_effects 已并入 skills.json 的 mechanic，这里只保留角色级字段
+    te = {k: v for k, v in te.items() if k != "skill_effects"}
+    # 忆灵数值为手填待验证（mechanics-spec UNKNOWN 清单），显式标 D
+    if "memosprite" in te:
+        m = te["memosprite"]
+        te["memosprite"] = {
+            k: (v if k == "note" else wrapper(v, prov(
+                "handfill", "D", "", "raw",
+                note="手填待验证（mechanics-spec 1.9 UNKNOWN）",
+            )))
+            for k, v in m.items()
+        }
+    return te
 
 
 # ---------------- 技能数值 ----------------
@@ -181,7 +202,7 @@ def build_skills(raw: Dict, characters: Dict) -> Dict:
                 "_note": lslot.get("note", ""),
             })
             for f in ("sp", "energy", "energy_cost", "delay", "advance_pct",
-                      "advance_target", "extra_action", "sp_bonus"):
+                      "advance_target", "extra_action", "sp_bonus", "toughness"):
                 if f in lslot and f not in s:
                     s[f] = wrapper(lslot[f], prov(
                         "biligame", "C", "biligame-2026-08", "cross_checked",
@@ -192,6 +213,13 @@ def build_skills(raw: Dict, characters: Dict) -> Dict:
                     "biligame", "C", "biligame-2026-08", "cross_checked",
                     note="wiki 核对（ADR-0003）",
                 ))
+        # 天赋钩子机制（talent_extra.skill_effects[action] → mechanic；溯源继承 slot 的 C/wiki）
+        for slot_name in slots:
+            se = legacy.get("talent_extra", {}).get("skill_effects", {}).get(slot_name)
+            if se:
+                slots[slot_name]["mechanic"] = {k: v for k, v in se.items() if k != "note"}
+                if se.get("note"):
+                    slots[slot_name]["_mechanic_note"] = se["note"]
         out[cid] = slots
     return out
 

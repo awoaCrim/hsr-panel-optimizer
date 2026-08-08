@@ -45,21 +45,18 @@ def load_character(path: Path) -> CharacterData:
     )
 
 
-def load_team(team_path: Path, char_dir: Path) -> Tuple[Dict[str, CharacterData], Dict[str, Stats], Dict[str, float]]:
-    """加载队伍方案：返回 (角色数据, 面板, 速度断点目标)。
+def assemble_team(team_path: Path, characters: Dict[str, CharacterData]) -> Tuple[Dict[str, Stats], Dict[str, float], Dict[str, List[str]]]:
+    """从队伍方案 JSON 装配面板：返回 (stats, speed_targets, build_errors)。
 
     builds 支持两种形态：
     - {main_stats, substats}：装备配置 → 由 build.py 装配面板（词条预算可审计）
     - {stats}：直接给定最终面板（兼容/调试用）
     """
     d = json.loads(team_path.read_text(encoding="utf-8"))
-    characters: Dict[str, CharacterData] = {}
     stats: Dict[str, Stats] = {}
     build_errors: Dict[str, List[str]] = {}
     for cid, build in d["builds"].items():
-        cpath = char_dir / f"{cid}.json"
-        ch = load_character(cpath)
-        characters[cid] = ch
+        ch = characters[cid]
         if "stats" in build:
             stats[cid] = _stats_from_dict(build["stats"])
         elif "main_stats" in build or "substats" in build:
@@ -74,9 +71,20 @@ def load_team(team_path: Path, char_dir: Path) -> Tuple[Dict[str, CharacterData]
                 stats[cid] = assemble(ch.base_stats, ch.element, cfg)
         else:
             stats[cid] = ch.base_stats
+    return stats, d.get("speed_targets", {}), build_errors
+
+
+def load_team(team_path: Path, char_dir: Path) -> Tuple[Dict[str, CharacterData], Dict[str, Stats], Dict[str, float]]:
+    """加载队伍方案：返回 (角色数据, 面板, 速度断点目标)。"""
+    d = json.loads(team_path.read_text(encoding="utf-8"))
+    characters: Dict[str, CharacterData] = {}
+    for cid in d["builds"]:
+        cpath = char_dir / f"{cid}.json"
+        characters[cid] = load_character(cpath)
+    stats, speed_targets, build_errors = assemble_team(team_path, characters)
     if build_errors:
         raise ValueError(f"面板配置不合法：{json.dumps(build_errors, ensure_ascii=False)}")
-    return characters, stats, d.get("speed_targets", {})
+    return characters, stats, speed_targets
 
 
 def load_enemies(path: Path) -> Tuple[Dict[str, Enemy], int, float]:

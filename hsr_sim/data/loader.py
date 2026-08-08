@@ -90,3 +90,88 @@ def load(normalized_dir: Path = NORMALIZED_DIR) -> NormalizedData:
         doc[f.name.replace(".json", "")] = _strip_provenance(raw)
         _collect_provenance(raw, f.name.replace(".json", ""), {}, provenance)
     return NormalizedData(doc, provenance)
+
+
+# ---------- 模拟器数据层（P0-3 Step B：normalized 直驱，ADR-0006 5.4） ----------
+
+from hsr_sim.loader import _stats_from_dict, assemble_team  # noqa: E402
+from hsr_sim.model import CharacterData, Enemy, SkillData  # noqa: E402
+
+
+def load_characters_normalized(normalized_dir: Path = NORMALIZED_DIR):
+    """从 normalized 构建 CharacterData（技能字段 + mechanic → talent_extra）。
+
+    返回 (characters: Dict[str, CharacterData], unverified_paths)。
+    """
+    nd = load(normalized_dir)
+    chars_data = nd.get("characters") or {}
+    skills_data = nd.get("skills") or {}
+    characters: Dict[str, CharacterData] = {}
+    for cid, cd in chars_data.items():
+        skills = {}
+        for slot, sd in (skills_data.get(cid) or {}).items():
+            skills[slot] = SkillData(
+                mult=sd.get("mult", 0.0), sp=sd.get("sp", 0),
+                energy=sd.get("energy", 0.0), energy_cost=sd.get("energy_cost", 0.0),
+                toughness=sd.get("toughness", 0.0), delay=sd.get("delay", 0.0),
+                advance_pct=sd.get("advance_pct", 0.0),
+                advance_target=sd.get("advance_target", ""),
+                extra_action=sd.get("extra_action", False),
+                sp_bonus=sd.get("sp_bonus", 0),
+                note=sd.get("_note", ""),
+            )
+        talent_extra = {
+            "skill_effects": {
+                slot: dict(s.get("mechanic")) if s.get("mechanic") else None
+                for slot, s in (skills_data.get(cid) or {}).items()
+            }
+        }
+        # 机制说明（note 在 ETL 中单独存放，重建时合并回 mechanic）
+        for slot, s in (skills_data.get(cid) or {}).items():
+            mech = talent_extra["skill_effects"].get(slot)
+            if mech is not None and s.get("_mechanic_note"):
+                mech["note"] = s["_mechanic_note"]
+        talent_extra["skill_effects"] = {
+            k: v for k, v in talent_extra["skill_effects"].items() if v is not None
+        }
+        talent_extra.update(cd.get("talent_extra") or {})
+        characters[cid] = CharacterData(
+            id=cid, name=cd["name"], element=cd["element"], path=cd["path"],
+            base_stats=_stats_from_dict(cd.get("base_stats") or {}),
+            skills=skills, talent_extra=talent_extra,
+            max_energy=cd.get("max_energy", 0.0),
+        )
+    # 信任度信封：仅本层字段（characters.*/skills.*）
+    unverified = [p for p, _, _ in nd.unverified_paths()
+                  if p.startswith(("characters.", "skills."))]
+    return characters, unverified
+
+
+def load_team_normalized(team_path: Path, normalized_dir: Path = NORMALIZED_DIR):
+    """队伍方案 + normalized 角色数据 → (characters, stats, speed_targets, unverified)。"""
+    import json as _json
+
+    characters, unverified = load_characters_normalized(normalized_dir)
+    stats, speed_targets, build_errors = assemble_team(team_path, characters)
+    if build_errors:
+        raise ValueError(f"面板配置不合法：{_json.dumps(build_errors, ensure_ascii=False)}")
+    return characters, stats, speed_targets, unverified
+
+
+def load_enemies_normalized(normalized_dir: Path = NORMALIZED_DIR):
+    """normalized 敌人 → (enemies, level, target_av, unverified)。"""
+    nd = load(normalized_dir)
+    ed = nd.get("enemies") or {}
+    enemies = {
+        eid: Enemy(
+            id=e.get("id", eid), name=e["name"], element=e["element"],
+            hp=e["hp"], atk=e["atk"], defense=e["defense"], speed=e["speed"],
+            toughness=e["toughness"], weaknesses=e.get("weaknesses", []),
+            resistances=e.get("resistances", {}),
+            break_immune=e.get("break_immune", False),
+        )
+        for eid, e in (ed.get("enemies") or {}).items()
+    }
+    # 信任度信封：仅本层字段（enemies.*）
+    unverified = [p for p, _, _ in nd.unverified_paths() if p.startswith("enemies.")]
+    return enemies, ed.get("level", 90), ed.get("target_av", 250.0), unverified
