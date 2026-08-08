@@ -193,6 +193,17 @@ class RehearsalSession:
             raise RehearseError("大招不占行动条：用 ults 参数指定大招时机（D2），skill 只能为 basic/skill")
         if skill not in self.sim.chars[cid].skills:
             raise RehearseError(f"角色 {cid} 无技能 {skill!r}（可选：{list(self.sim.chars[cid].skills)}）")
+        skill_obj = self.sim.chars[cid].skills[skill]
+        # 拉条目标校验（官方目标选择器规则）：advance 技能目标必须是我方队友且不可自拉
+        if skill_obj.advance_pct:
+            allies = [c for c in self.sim.chars if c != cid]
+            if not skill_obj.advance_self and target == cid:
+                raise RehearseError(
+                    f"{cid} 的技能不可选择自己为拉条目标（官方目标选择器排除自身），"
+                    f"可选队友：{allies}")
+            if target and target not in self.sim.chars:
+                raise RehearseError(
+                    f"拉条目标 {target!r} 必须是我方队友（可选：{allies}）")
         if ults is None:
             allowed = set(self.sim.chars)        # 默认：满能即放（与旧行为一致）
         elif isinstance(ults, dict):
@@ -304,11 +315,13 @@ class RehearsalSession:
         skills = [k for k in ("basic", "skill") if k in sim.chars[cid].skills]
         ult_ready = [c for c in sim.chars
                      if sim.energy[c] >= sim.chars[c].skills["ult"].energy_cost]
+        has_advance = any(sim.chars[cid].skills[k].advance_pct for k in skills)
         return {
             "unit": cid,
             "skills": skills,
             "default": "skill" if "skill" in skills else "basic",
             "targets": [eid for eid, hp in sim.enemy_hp.items() if hp > 0.0],
+            "ally_targets": [c for c in sim.chars if c != cid] if has_advance else [],
             "ult_ready": ult_ready,
             "energy_status": "full" if cid in ult_ready else "charging",
         }

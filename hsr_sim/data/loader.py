@@ -116,6 +116,7 @@ def load_characters_normalized(normalized_dir: Path = NORMALIZED_DIR):
                 toughness=sd.get("toughness", 0.0), delay=sd.get("delay", 0.0),
                 advance_pct=sd.get("advance_pct", 0.0),
                 advance_target=sd.get("advance_target", ""),
+                advance_self=sd.get("advance_self", True),
                 extra_action=sd.get("extra_action", False),
                 sp_bonus=sd.get("sp_bonus", 0),
                 note=sd.get("_note", ""),

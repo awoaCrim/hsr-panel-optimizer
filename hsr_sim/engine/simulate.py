@@ -265,10 +265,14 @@ class Simulator:
         # 目标解析：伤害目标（敌人）与友方目标（拉条/buff 对象，如花火拉红A）分离
         dmg_target = self._resolve_target(action.target, skill)
         ally_target = action.target if action.target in self.chars else (skill.advance_target or "")
+        if not skill.advance_self and ally_target == cid:
+            # 官方规则：目标选择器排除自身（花火战技不可自拉）
+            ally_target = ""
 
         # 效果执行（E1 结算链：伤害 → 天赋钩子 → SP → 能量 → 削韧 → 拉条；顺序与 v1.5 等价）
         effects = skill_to_effects(action.action, skill, self.chars[cid].talent_extra)
-        self._apply_effects(cid, effects, dmg_target, ally_target)
+        self._apply_effects(cid, effects, dmg_target, ally_target,
+                            advance_self=skill.advance_self)
         extra_effect = next((e for e in effects if isinstance(e, ExtraActionEffect)), None)
 
         # 行动日志与队列推进
@@ -323,7 +327,8 @@ class Simulator:
             self._apply_effect_toughness(cid, dmg_target, effects)
 
     def _apply_effects(self, cid: str, effects: List[Effect], dmg_target: Optional[str],
-                       ally_target: str, toughness_in_effects: bool = True) -> None:
+                       ally_target: str, toughness_in_effects: bool = True,
+                       advance_self: bool = True) -> None:
         """通用效果执行器（E1 结算链）。效果类型 = 数据，无角色特判（ADR-0007 D2）。"""
         for eff in effects:
             if isinstance(eff, DamageEffect) and dmg_target:
@@ -372,7 +377,10 @@ class Simulator:
                     self._apply_toughness(cid, dmg_target, eff.amount)
             elif isinstance(eff, AdvanceEffect):
                 adv_target = ally_target or cid
-                self.queue.advance(adv_target, eff.pct)
+                if not advance_self and adv_target == cid:
+                    adv_target = ""    # 官方规则：不可自拉（花火战技目标选择器排除自身）
+                if adv_target:
+                    self.queue.advance(adv_target, eff.pct)
         # 协奏轮数递减（v1.5：每次行动结算后 -1）
         if self.concert_rounds > 0:
             self.concert_rounds -= 1

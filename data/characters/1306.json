@@ -29,7 +29,8 @@
       "energy": 30,
       "toughness": 0,
       "advance_pct": 0.5,
-      "note": "梦游鱼：拉条 50%（目标=行动主目标）"
+      "note": "梦游鱼：拉条 50%（目标=队友，官方目标选择器排除自身，不可自拉）",
+      "advance_self": false
     },
     "ult": {
       "mult": 0.0,

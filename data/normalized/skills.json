@@ -300,6 +300,14 @@
         "version": "biligame-2026-08",
         "note": "wiki 核对（ADR-0003）；解包字段语义 P0-2 锁"
       },
+      "advance_self": {
+        "value": false,
+        "source_trust": "C",
+        "validation": "cross_checked",
+        "source": "biligame",
+        "version": "biligame-2026-08",
+        "note": "wiki 核对（ADR-0003）；解包字段语义 P0-2 锁"
+      },
       "toughness": {
         "value": 0,
         "source_trust": "C",

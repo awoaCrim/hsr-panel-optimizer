@@ -218,6 +218,66 @@ class TestRestartAndSetup:
             s.act(skill="basic")
 
 
+class TestAdvanceTargetRules:
+    """官方目标选择器规则：花火战技不可自拉、目标必须为队友。"""
+
+    def _make_sparkle_session(self, seed: int = 0) -> RehearsalSession:
+        chars = {"1015": load_character(DATA_DIR / "characters" / "1015.json"),
+                 "1306": load_character(DATA_DIR / "characters" / "1306.json")}
+        stats = {"1015": Stats(atk=3000.0, speed=145.0, crit_rate=0.8, crit_dmg=1.5),
+                 "1306": Stats(atk=2000.0, speed=162.0, crit_rate=0.05, crit_dmg=0.5)}
+        enemies = {"elite": Enemy(
+            id="elite", name="精英", element="Ice", hp=1e9, atk=1000,
+            defense=1100.0, speed=10.0, toughness=300.0, weaknesses=["Ice"])}
+        sim = Simulator(chars, stats, enemies, Rotation(), target_av=400.0, seed=seed)
+        return RehearsalSession(sim, name="花火规则测试")
+
+    def test_ally_targets_in_decision(self):
+        """有拉条技能的角色：decision.ally_targets 给出可拉队友（排除自己）。"""
+        s = self._make_sparkle_session()
+        state = s.observe()
+        while state["decision"]["unit"] != "1306":
+            s.act(skill="basic", ults={})
+            state = s.observe()
+        assert state["decision"]["ally_targets"] == ["1015"]
+
+    def test_act_rejects_self_advance(self):
+        """花火战技 target=自己：拒绝（官方目标选择器排除自身）。"""
+        s = self._make_sparkle_session()
+        state = s.observe()
+        while state["decision"]["unit"] != "1306":
+            s.act(skill="basic", ults={})
+            state = s.observe()
+        with pytest.raises(RehearseError, match="不可选择自己"):
+            s.act(skill="skill", target="1306")
+
+    def test_act_rejects_enemy_as_advance_target(self):
+        """花火战技 target=敌人：拒绝（拉条目标必须是队友）。"""
+        s = self._make_sparkle_session()
+        state = s.observe()
+        while state["decision"]["unit"] != "1306":
+            s.act(skill="basic", ults={})
+            state = s.observe()
+        with pytest.raises(RehearseError, match="必须是我方队友"):
+            s.act(skill="skill", target="elite")
+
+    def test_advance_target_ally_works(self):
+        """花火拉队友：拉条生效（目标距离归零），自身不被拉。"""
+        s = self._make_sparkle_session()
+        state = s.observe()
+        while state["decision"]["unit"] != "1306":
+            s.act(skill="basic", ults={})
+            state = s.observe()
+        av_self = s.sim.queue.snapshot()["1306"]
+        s.act(skill="skill", target="1015", ults={})
+        av_ally = s.sim.queue.snapshot()["1015"]
+        # 1015 被拉 50%：剩余距离 = (初始 av - 1306 行动耗时) × 0.5
+        av_1015_init = 10000.0 / 145.0
+        assert av_ally == pytest.approx((av_1015_init - av_self) * 0.5, rel=1e-6)
+        # 花火自己未被拉（距离变化 = 时间推进后的正常重置，非 50% 跳变）
+        assert s.sim.queue.snapshot()["1306"] == pytest.approx(av_self, rel=1e-9)
+
+
 class TestSerialization:
     def test_state_roundtrip(self):
         """会话持久化往返：状态、决策、放弃路线、预算计数完整恢复。"""

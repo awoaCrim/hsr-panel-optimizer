@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 from ..rehearse import RehearseError, RehearsalSession, UndoBudgetExceeded
@@ -55,7 +56,8 @@ def _char_summary(session: RehearsalSession) -> str:
                 if sk.energy_cost:
                     parts.append(f"能量{sk.energy_cost}")
                 if sk.advance_pct:
-                    parts.append(f"拉条{sk.advance_pct:.0%}({sk.advance_target or '自身'})")
+                    self_excl = "，不可自拉" if not sk.advance_self else ""
+                    parts.append(f"拉条{sk.advance_pct:.0%}(目标={sk.advance_target or ('队友' + self_excl)})")
                 if sk.extra_action:
                     parts.append("额外行动")
                 skills.append("/".join(parts))
@@ -104,6 +106,29 @@ def _trust_pack(session: RehearsalSession) -> str:
     return "\n".join(parts)
 
 
+def _gear_summary(session: RehearsalSession) -> str:
+    """装备与星魂：数据层未建模光锥/遗器套装/星魂（v1.5 直接给最终面板）——诚实告知。"""
+    cfg = session._config_paths
+    lines = ["光锥 / 遗器套装 / 星魂未建模：数据层直接折算为最终面板（星魂默认 0 命）。",
+             "以下为当前面板的词条构成（builds）："]
+    if cfg is None:
+        lines.append("  （会话未绑定队伍文件，装备构成不可查）")
+        return "\n".join(lines)
+    try:
+        team = json.loads(Path(cfg[0]).read_text(encoding="utf-8"))
+    except Exception:
+        lines.append("  （队伍文件读取失败）")
+        return "\n".join(lines)
+    builds = team.get("builds", {})
+    for cid in session.sim.chars:
+        b = builds.get(cid)
+        if b:
+            lines.append(f"  - {cid}：主词条 {b.get('main_stats', {})}；副词条 {b.get('substats', {})}")
+        else:
+            lines.append(f"  - {cid}：无词条配置")
+    return "\n".join(lines)
+
+
 def build_knowledge_pack(session: RehearsalSession) -> str:
     """D10 知识精简包：机制规则 + 当前队伍/敌人数据 + 信任度信封（动态生成）。"""
     return f"""\
@@ -113,6 +138,9 @@ def build_knowledge_pack(session: RehearsalSession) -> str:
 {MECHANICS_RULES}
 ## 队伍（当前面板）
 {_char_summary(session)}
+
+## 装备与星魂
+{_gear_summary(session)}
 
 ## 敌人
 {_enemy_summary(session)}
@@ -147,8 +175,11 @@ DECISION_CONTRACT = """\
 {state}
 
 ## 你的决策（决策点：{unit}）
-输出 JSON：{{"skill": "<basic|skill>", "target": "<敌人id|留空>", "ults": <null|{{"cid": bool}}>, "note": "<一句话理由>"}}
-- skill 必须来自局面 decision.skills；target 从 decision.targets 选，可留空
+输出 JSON：{{"skill": "<basic|skill>", "target": "<敌人id|队友id|留空>", "ults": <null|{{"cid": bool}}>, "note": "<一句话理由>"}}
+- skill 必须来自局面 decision.skills
+- 伤害目标从 decision.targets 选（敌人），可留空
+- 拉条/增益目标从 decision.ally_targets 选（**必须是队友，不可自拉**——如花火战技），
+  该角色无拉条技能时 ally_targets 为空列表，target 只用于选敌人
 - ults=null 表示放全部满能大招；{{}} 全 hold；{{"cid": true/false}} 逐角色指定
 - note 会进入推演报告决策轨迹，请说明战术意图
 """

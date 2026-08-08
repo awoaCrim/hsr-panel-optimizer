@@ -220,7 +220,7 @@ def build_skills(raw: Dict, characters: Dict) -> Dict:
                 "_note": lslot.get("note", ""),
             })
             for f in ("sp", "energy", "energy_cost", "delay", "advance_pct",
-                      "advance_target", "extra_action", "sp_bonus", "toughness"):
+                      "advance_target", "advance_self", "extra_action", "sp_bonus", "toughness"):
                 if f in lslot and f not in s:
                     s[f] = wrapper(lslot[f], prov(
                         "biligame", "C", "biligame-2026-08", "cross_checked",

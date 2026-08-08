@@ -29,6 +29,7 @@ def _skill_from_dict(d: dict) -> SkillData:
         energy_cost=d.get("energy_cost", 0.0), toughness=d.get("toughness", 0.0),
         delay=d.get("delay", 0.0), advance_pct=d.get("advance_pct", 0.0),
         advance_target=d.get("advance_target", ""), extra_action=d.get("extra_action", False),
+        advance_self=d.get("advance_self", True),
         sp_bonus=d.get("sp_bonus", 0), note=d.get("note", ""),
     )
 

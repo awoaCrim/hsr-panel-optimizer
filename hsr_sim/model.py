@@ -47,6 +47,7 @@ class SkillData:
     delay          行动延时比例（0 = 无延时）
     advance_pct    拉条比例（对 target，0 = 无）
     advance_target 拉条目标 unit_id（空 = 自身）
+    advance_self   官方目标选择器是否允许选择自身（False = 不可自拉，如花火战技）
     extra_action   行动后不结束回合（红A 战技【回路连接】）
     sp_bonus       额外 SP 回复（花火大招 +4）
     note           机制说明/数据来源标注
@@ -60,6 +61,7 @@ class SkillData:
     delay: float = 0.0
     advance_pct: float = 0.0
     advance_target: str = ""
+    advance_self: bool = True
     extra_action: bool = False
     sp_bonus: int = 0
     note: str = ""
