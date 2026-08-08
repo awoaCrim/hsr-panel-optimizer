@@ -3,6 +3,12 @@
 > 配套文档：`game-knowledge.md`。
 > 目标：为"AI 计算全队最佳面板"提供**已验证存在**的数据源字段清单，以及 ETL 提取后的精简 JSON schema。
 > 数据源：**StarRailRes**（`Mar-7th/StarRailRes`，index_min/cn，raw 直连不限流）+ **TurnBasedGameData**（`DimbreathBot/TurnBasedGameData`，ExcelOutput，raw 直连不限流）。
+>
+> **2026-08 实测修正（P0-1 ETL 落地后）**：
+> - `character_promotions.json` 无 `base_hp/base_atk/base_def/base_spd` 字段；实际结构为 `values[i].{hp,atk,def,spd,crit_rate,crit_dmg}.{base,step}`，L80 = base + step×79（详见 `scripts/etl/extract.py`）
+> - `AvatarSkillConfig.json` 是 **6804 条数组**（SkillID × Level），不是按 SkillID 为键的对象；每级一条
+> - 能量回复/SP 精确数值**不在** AvatarSkillConfig 的显式字段中（有 SPMultipleRatio/BPNeed/DelayRatio/StanceDamageDisplay，但语义待 P0-2 锁），当前维持 wiki 值 + C 溯源
+> - 本仓库实现以 `docs/adr/0006`（五层架构）为准；ETL 输出为 `data/normalized/`（带双维溯源），非本文第四节旧目录名
 
 ---
 

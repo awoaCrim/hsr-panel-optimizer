@@ -1,0 +1,14 @@
+{
+  "StarRailRes": {
+    "repo": "Mar-7th/StarRailRes",
+    "branch": "master",
+    "sha": "b95e75c7e1273d819d20c530c0b7e13a3ef19fb4",
+    "fetched_at": "2026-08-08T16:17:47Z"
+  },
+  "TurnBasedGameData": {
+    "repo": "DimbreathBot/TurnBasedGameData",
+    "branch": "main",
+    "sha": "648b08fbdb2e49739ebbf1210c9a189fcfc5e2d7",
+    "fetched_at": "2026-08-08T16:17:47Z"
+  }
+}

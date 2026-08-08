@@ -1,0 +1,68 @@
+{
+  "_source": {
+    "source_trust": "D",
+    "validation": "raw",
+    "source": "handfill",
+    "note": "90 级双精英靶场（v1 手填模板）"
+  },
+  "level": 90,
+  "target_av": 250,
+  "enemies": {
+    "elite_a": {
+      "id": "elite_a",
+      "name": "精英·甲",
+      "element": "Quantum",
+      "_source": {
+        "source_trust": "D",
+        "validation": "raw",
+        "source": "handfill",
+        "note": "v1 模板值；P1 由 StageConfig/MonsterConfig 真实敌人替换"
+      },
+      "hp": 600000,
+      "atk": 1000,
+      "defense": 1000,
+      "speed": 100.0,
+      "toughness": 480,
+      "weaknesses": [
+        "Quantum",
+        "Physical",
+        "Ice"
+      ],
+      "resistances": {
+        "Thunder": 0.2,
+        "Wind": 0.2,
+        "Fire": 0.2,
+        "Imaginary": 0.2
+      },
+      "break_immune": false
+    },
+    "elite_b": {
+      "id": "elite_b",
+      "name": "精英·乙",
+      "element": "Physical",
+      "_source": {
+        "source_trust": "D",
+        "validation": "raw",
+        "source": "handfill",
+        "note": "v1 模板值；P1 由 StageConfig/MonsterConfig 真实敌人替换"
+      },
+      "hp": 500000,
+      "atk": 1000,
+      "defense": 900,
+      "speed": 110.0,
+      "toughness": 360,
+      "weaknesses": [
+        "Quantum",
+        "Physical",
+        "Ice"
+      ],
+      "resistances": {
+        "Thunder": 0.2,
+        "Wind": 0.2,
+        "Fire": 0.2,
+        "Imaginary": 0.2
+      },
+      "break_immune": false
+    }
+  }
+}

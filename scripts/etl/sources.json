@@ -1,0 +1,23 @@
+{
+  "_comment": "上游数据源固定版本（ADR-0006 4.3）。改动 sha 后需全量重跑 fetch。",
+  "StarRailRes": {
+    "repo": "Mar-7th/StarRailRes",
+    "branch": "master",
+    "sha": "b95e75c7e1273d819d20c530c0b7e13a3ef19fb4",
+    "files": [
+      "index_min/cn/characters.json",
+      "index_min/cn/character_promotions.json",
+      "index_min/cn/character_skills.json"
+    ]
+  },
+  "TurnBasedGameData": {
+    "repo": "DimbreathBot/TurnBasedGameData",
+    "branch": "main",
+    "sha": "648b08fbdb2e49739ebbf1210c9a189fcfc5e2d7",
+    "files": [
+      "ExcelOutput/HardLevelGroup.json",
+      "ExcelOutput/MonsterConfig.json",
+      "ExcelOutput/AvatarSkillConfig.json"
+    ]
+  }
+}

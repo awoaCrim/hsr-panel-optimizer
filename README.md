@@ -38,10 +38,24 @@ hsr_sim/
 ├── report.py         # 验证报告（主指标+约束清单+诊断）
 └── cli.py            # CLI（verify；--llm 自动迭代为下一阶段）
 data/
-├── characters/       # 角色技能数值（StarRailRes + AvatarSkillConfig；红A 为 wiki 手填待验证）
+├── characters/       # 角色技能数值（v1.5 手填，已冻结为 legacy；真实数据见 normalized/）
 ├── team_reda.json    # 队伍面板方案（LLM 迭代对象）
-├── enemy_elite90.json# 靶场（90 级双精英 + 2T）
-└── rotation.json     # 循环（基线）
+├── enemy_elite90.json# 靶场（90 级双精英 + 2T，模板值）
+├── rotation.json     # 循环（基线）
+├── normalized/       # ETL 产物：带双维溯源的精简数据（ADR-0006 L1，ETL 生成）
+└── raw/              # 上游原始数据缓存（固定 sha，.gitignore 不跟踪；VERSIONS.json 保留）
+scripts/
+├── etl/              # ETL 管线：fetch（固定版本下载）→ extract（溯源化精简）
+└── ...
+
+## 数据层（P0-1 已实现）
+
+```bash
+python scripts/etl/fetch.py      # 下载固定版本上游数据 → data/raw/
+python scripts/etl/extract.py    # → data/normalized/（带 source_trust × validation 双维溯源）
+python -m hsr_sim.data audit     # 审计门禁：溯源合法 / 版本一致 / 引用完整
+python -m hsr_sim.data paths     # 列出全部未验证字段（信任度信封）
+```
 docs/                 # 游戏规则大纲 + 数据字段清单 + ADR
 CONTEXT.md            # 领域术语表
 ```

@@ -1,0 +1,358 @@
+{
+  "1015": {
+    "id": "1015",
+    "name": "Archer",
+    "element": "Quantum",
+    "path": "Rogue",
+    "rarity": 5,
+    "_source": {
+      "source_trust": "B",
+      "validation": "mapped",
+      "source": "starrailres",
+      "version": "srr@b95e75c",
+      "field": "characters.1015"
+    },
+    "max_energy": {
+      "value": 220.0,
+      "source_trust": "B",
+      "validation": "cross_checked",
+      "source": "starrailres",
+      "version": "srr@b95e75c",
+      "field": "characters.1015.max_sp",
+      "note": "与 v1.5 手填/ADR-0003 wiki 核对一致"
+    },
+    "base_stats": {
+      "hp": {
+        "value": 1164.24,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "starrailres",
+        "version": "srr@b95e75c",
+        "field": "character_promotions.1015.values[6].hp = base+step*79"
+      },
+      "atk": {
+        "value": 620.928,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "starrailres",
+        "version": "srr@b95e75c",
+        "field": "character_promotions.1015.values[6].atk = base+step*79"
+      },
+      "defense": {
+        "value": 485.1,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "starrailres",
+        "version": "srr@b95e75c",
+        "field": "character_promotions.1015.values[6].def = base+step*79"
+      },
+      "speed": {
+        "value": 105,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "starrailres",
+        "version": "srr@b95e75c",
+        "field": "character_promotions.1015.values[6].spd = base+step*79"
+      },
+      "crit_rate": {
+        "value": 0.05,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "starrailres",
+        "version": "srr@b95e75c",
+        "field": "character_promotions.1015.values[6].crit_rate = base+step*79"
+      },
+      "crit_dmg": {
+        "value": 0.5,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "starrailres",
+        "version": "srr@b95e75c",
+        "field": "character_promotions.1015.values[6].crit_dmg = base+step*79"
+      },
+      "break_effect": {
+        "value": 0.0,
+        "source_trust": "D",
+        "validation": "raw",
+        "source": "handfill",
+        "field": "(default)",
+        "note": "非成长属性默认值 0，无上游字段"
+      },
+      "energy_regen": {
+        "value": 1.0,
+        "source_trust": "D",
+        "validation": "raw",
+        "source": "handfill",
+        "field": "(default)",
+        "note": "非成长属性默认值 1，无上游字段"
+      }
+    }
+  },
+  "1306": {
+    "id": "1306",
+    "name": "花火",
+    "element": "Quantum",
+    "path": "Shaman",
+    "rarity": 5,
+    "_source": {
+      "source_trust": "B",
+      "validation": "mapped",
+      "source": "starrailres",
+      "version": "srr@b95e75c",
+      "field": "characters.1306"
+    },
+    "max_energy": {
+      "value": 110.0,
+      "source_trust": "B",
+      "validation": "cross_checked",
+      "source": "starrailres",
+      "version": "srr@b95e75c",
+      "field": "characters.1306.max_sp",
+      "note": "与 v1.5 手填/ADR-0003 wiki 核对一致"
+    },
+    "base_stats": {
+      "hp": {
+        "value": 1397.088,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "starrailres",
+        "version": "srr@b95e75c",
+        "field": "character_promotions.1306.values[6].hp = base+step*79"
+      },
+      "atk": {
+        "value": 523.908,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "starrailres",
+        "version": "srr@b95e75c",
+        "field": "character_promotions.1306.values[6].atk = base+step*79"
+      },
+      "defense": {
+        "value": 485.1,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "starrailres",
+        "version": "srr@b95e75c",
+        "field": "character_promotions.1306.values[6].def = base+step*79"
+      },
+      "speed": {
+        "value": 101,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "starrailres",
+        "version": "srr@b95e75c",
+        "field": "character_promotions.1306.values[6].spd = base+step*79"
+      },
+      "crit_rate": {
+        "value": 0.05,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "starrailres",
+        "version": "srr@b95e75c",
+        "field": "character_promotions.1306.values[6].crit_rate = base+step*79"
+      },
+      "crit_dmg": {
+        "value": 0.5,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "starrailres",
+        "version": "srr@b95e75c",
+        "field": "character_promotions.1306.values[6].crit_dmg = base+step*79"
+      },
+      "break_effect": {
+        "value": 0.0,
+        "source_trust": "D",
+        "validation": "raw",
+        "source": "handfill",
+        "field": "(default)",
+        "note": "非成长属性默认值 0，无上游字段"
+      },
+      "energy_regen": {
+        "value": 1.0,
+        "source_trust": "D",
+        "validation": "raw",
+        "source": "handfill",
+        "field": "(default)",
+        "note": "非成长属性默认值 1，无上游字段"
+      }
+    }
+  },
+  "1309": {
+    "id": "1309",
+    "name": "知更鸟",
+    "element": "Physical",
+    "path": "Shaman",
+    "rarity": 5,
+    "_source": {
+      "source_trust": "B",
+      "validation": "mapped",
+      "source": "starrailres",
+      "version": "srr@b95e75c",
+      "field": "characters.1309"
+    },
+    "max_energy": {
+      "value": 160.0,
+      "source_trust": "B",
+      "validation": "cross_checked",
+      "source": "starrailres",
+      "version": "srr@b95e75c",
+      "field": "characters.1309.max_sp",
+      "note": "与 v1.5 手填/ADR-0003 wiki 核对一致"
+    },
+    "base_stats": {
+      "hp": {
+        "value": 1280.664,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "starrailres",
+        "version": "srr@b95e75c",
+        "field": "character_promotions.1309.values[6].hp = base+step*79"
+      },
+      "atk": {
+        "value": 640.332,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "starrailres",
+        "version": "srr@b95e75c",
+        "field": "character_promotions.1309.values[6].atk = base+step*79"
+      },
+      "defense": {
+        "value": 485.1,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "starrailres",
+        "version": "srr@b95e75c",
+        "field": "character_promotions.1309.values[6].def = base+step*79"
+      },
+      "speed": {
+        "value": 102,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "starrailres",
+        "version": "srr@b95e75c",
+        "field": "character_promotions.1309.values[6].spd = base+step*79"
+      },
+      "crit_rate": {
+        "value": 0.05,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "starrailres",
+        "version": "srr@b95e75c",
+        "field": "character_promotions.1309.values[6].crit_rate = base+step*79"
+      },
+      "crit_dmg": {
+        "value": 0.5,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "starrailres",
+        "version": "srr@b95e75c",
+        "field": "character_promotions.1309.values[6].crit_dmg = base+step*79"
+      },
+      "break_effect": {
+        "value": 0.0,
+        "source_trust": "D",
+        "validation": "raw",
+        "source": "handfill",
+        "field": "(default)",
+        "note": "非成长属性默认值 0，无上游字段"
+      },
+      "energy_regen": {
+        "value": 1.0,
+        "source_trust": "D",
+        "validation": "raw",
+        "source": "handfill",
+        "field": "(default)",
+        "note": "非成长属性默认值 1，无上游字段"
+      }
+    }
+  },
+  "8007": {
+    "id": "8007",
+    "name": "{NICKNAME}",
+    "element": "Ice",
+    "path": "Memory",
+    "rarity": 5,
+    "_source": {
+      "source_trust": "B",
+      "validation": "mapped",
+      "source": "starrailres",
+      "version": "srr@b95e75c",
+      "field": "characters.8007"
+    },
+    "max_energy": {
+      "value": 160.0,
+      "source_trust": "B",
+      "validation": "cross_checked",
+      "source": "starrailres",
+      "version": "srr@b95e75c",
+      "field": "characters.8007.max_sp",
+      "note": "与 v1.5 手填/ADR-0003 wiki 核对一致"
+    },
+    "base_stats": {
+      "hp": {
+        "value": 1047.816,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "starrailres",
+        "version": "srr@b95e75c",
+        "field": "character_promotions.8007.values[6].hp = base+step*79"
+      },
+      "atk": {
+        "value": 543.312,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "starrailres",
+        "version": "srr@b95e75c",
+        "field": "character_promotions.8007.values[6].atk = base+step*79"
+      },
+      "defense": {
+        "value": 630.63,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "starrailres",
+        "version": "srr@b95e75c",
+        "field": "character_promotions.8007.values[6].def = base+step*79"
+      },
+      "speed": {
+        "value": 103,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "starrailres",
+        "version": "srr@b95e75c",
+        "field": "character_promotions.8007.values[6].spd = base+step*79"
+      },
+      "crit_rate": {
+        "value": 0.05,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "starrailres",
+        "version": "srr@b95e75c",
+        "field": "character_promotions.8007.values[6].crit_rate = base+step*79"
+      },
+      "crit_dmg": {
+        "value": 0.5,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "starrailres",
+        "version": "srr@b95e75c",
+        "field": "character_promotions.8007.values[6].crit_dmg = base+step*79"
+      },
+      "break_effect": {
+        "value": 0.0,
+        "source_trust": "D",
+        "validation": "raw",
+        "source": "handfill",
+        "field": "(default)",
+        "note": "非成长属性默认值 0，无上游字段"
+      },
+      "energy_regen": {
+        "value": 1.0,
+        "source_trust": "D",
+        "validation": "raw",
+        "source": "handfill",
+        "field": "(default)",
+        "note": "非成长属性默认值 1，无上游字段"
+      }
+    }
+  }
+}

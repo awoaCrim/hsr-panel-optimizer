@@ -1,0 +1,669 @@
+{
+  "1015": {
+    "basic": {
+      "_source": {
+        "source_trust": "C",
+        "validation": "cross_checked",
+        "source": "biligame",
+        "version": "biligame-2026-08",
+        "note": "ADR-0003 wiki 核对 L10（上游 SkillID 101501）"
+      },
+      "_upstream_ids": [
+        101501
+      ],
+      "_note": "干将•莫邪",
+      "mult": {
+        "value": 1.3,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "starrailres",
+        "version": "srr@b95e75c",
+        "field": "character_skills.101501.params[9][0]",
+        "note": "普攻倍率参数位 [0] 为通用约定，P0-2 交叉验证后提升为 cross_checked"
+      },
+      "sp": {
+        "value": 1,
+        "source_trust": "C",
+        "validation": "cross_checked",
+        "source": "biligame",
+        "version": "biligame-2026-08",
+        "note": "wiki 核对（ADR-0003）（联动角色：AvatarSkillConfig 无数据，ADR-0003）；解包字段语义 P0-2 锁"
+      },
+      "energy": {
+        "value": 20,
+        "source_trust": "C",
+        "validation": "cross_checked",
+        "source": "biligame",
+        "version": "biligame-2026-08",
+        "note": "wiki 核对（ADR-0003）（联动角色：AvatarSkillConfig 无数据，ADR-0003）；解包字段语义 P0-2 锁"
+      }
+    },
+    "skill": {
+      "_source": {
+        "source_trust": "C",
+        "validation": "cross_checked",
+        "source": "biligame",
+        "version": "biligame-2026-08",
+        "note": "ADR-0003 wiki 核对 L10（上游 SkillID 101502）"
+      },
+      "_upstream_ids": [
+        101502
+      ],
+      "_note": "伪•螺旋剑",
+      "_upstream_params": [
+        3.6,
+        1,
+        2,
+        1,
+        5
+      ],
+      "sp": {
+        "value": -1,
+        "source_trust": "C",
+        "validation": "cross_checked",
+        "source": "biligame",
+        "version": "biligame-2026-08",
+        "note": "wiki 核对（ADR-0003）（联动角色：AvatarSkillConfig 无数据，ADR-0003）；解包字段语义 P0-2 锁"
+      },
+      "energy": {
+        "value": 30,
+        "source_trust": "C",
+        "validation": "cross_checked",
+        "source": "biligame",
+        "version": "biligame-2026-08",
+        "note": "wiki 核对（ADR-0003）（联动角色：AvatarSkillConfig 无数据，ADR-0003）；解包字段语义 P0-2 锁"
+      },
+      "extra_action": {
+        "value": true,
+        "source_trust": "C",
+        "validation": "cross_checked",
+        "source": "biligame",
+        "version": "biligame-2026-08",
+        "note": "wiki 核对（ADR-0003）（联动角色：AvatarSkillConfig 无数据，ADR-0003）；解包字段语义 P0-2 锁"
+      },
+      "mult": {
+        "value": 3.6,
+        "source_trust": "C",
+        "validation": "cross_checked",
+        "source": "biligame",
+        "version": "biligame-2026-08",
+        "note": "wiki 核对（ADR-0003）"
+      }
+    },
+    "ult": {
+      "_source": {
+        "source_trust": "C",
+        "validation": "cross_checked",
+        "source": "biligame",
+        "version": "biligame-2026-08",
+        "note": "ADR-0003 wiki 核对 L10（上游 SkillID 101503）"
+      },
+      "_upstream_ids": [
+        101503
+      ],
+      "_note": "无限剑制",
+      "_upstream_params": [
+        10,
+        2,
+        4
+      ],
+      "energy": {
+        "value": 5,
+        "source_trust": "C",
+        "validation": "cross_checked",
+        "source": "biligame",
+        "version": "biligame-2026-08",
+        "note": "wiki 核对（ADR-0003）（联动角色：AvatarSkillConfig 无数据，ADR-0003）；解包字段语义 P0-2 锁"
+      },
+      "energy_cost": {
+        "value": 220.0,
+        "source_trust": "C",
+        "validation": "cross_checked",
+        "source": "biligame",
+        "version": "biligame-2026-08",
+        "note": "wiki 核对（ADR-0003）（联动角色：AvatarSkillConfig 无数据，ADR-0003）；解包字段语义 P0-2 锁"
+      },
+      "mult": {
+        "value": 10.0,
+        "source_trust": "C",
+        "validation": "cross_checked",
+        "source": "biligame",
+        "version": "biligame-2026-08",
+        "note": "wiki 核对（ADR-0003）"
+      }
+    },
+    "talent": {
+      "_source": {
+        "source_trust": "C",
+        "validation": "cross_checked",
+        "source": "biligame",
+        "version": "biligame-2026-08",
+        "note": "ADR-0003 wiki 核对 L10（上游 SkillID 101504）"
+      },
+      "_upstream_ids": [
+        101504
+      ],
+      "_note": "心眼（真）",
+      "_upstream_params": [
+        2
+      ],
+      "energy": {
+        "value": 5,
+        "source_trust": "C",
+        "validation": "cross_checked",
+        "source": "biligame",
+        "version": "biligame-2026-08",
+        "note": "wiki 核对（ADR-0003）（联动角色：AvatarSkillConfig 无数据，ADR-0003）；解包字段语义 P0-2 锁"
+      },
+      "mult": {
+        "value": 2.0,
+        "source_trust": "C",
+        "validation": "cross_checked",
+        "source": "biligame",
+        "version": "biligame-2026-08",
+        "note": "wiki 核对（ADR-0003）"
+      }
+    }
+  },
+  "1306": {
+    "basic": {
+      "_source": {
+        "source_trust": "C",
+        "validation": "cross_checked",
+        "source": "biligame",
+        "version": "biligame-2026-08",
+        "note": "ADR-0003 wiki 核对 L10（上游 SkillID 130601）"
+      },
+      "_upstream_ids": [
+        130601
+      ],
+      "_note": "独角戏",
+      "mult": {
+        "value": 1.4,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "starrailres",
+        "version": "srr@b95e75c",
+        "field": "character_skills.130601.params[9][0]",
+        "note": "普攻倍率参数位 [0] 为通用约定，P0-2 交叉验证后提升为 cross_checked"
+      },
+      "toughness": {
+        "value": 10.0,
+        "source_trust": "A",
+        "validation": "mapped",
+        "source": "datamine",
+        "version": "tbgd@648b08f",
+        "field": "AvatarSkillConfig[130601@L10].StanceDamageDisplay"
+      },
+      "sp": {
+        "value": 1,
+        "source_trust": "C",
+        "validation": "cross_checked",
+        "source": "biligame",
+        "version": "biligame-2026-08",
+        "note": "wiki 核对（ADR-0003）；解包字段语义 P0-2 锁"
+      },
+      "energy": {
+        "value": 20,
+        "source_trust": "C",
+        "validation": "cross_checked",
+        "source": "biligame",
+        "version": "biligame-2026-08",
+        "note": "wiki 核对（ADR-0003）；解包字段语义 P0-2 锁"
+      }
+    },
+    "skill": {
+      "_source": {
+        "source_trust": "C",
+        "validation": "cross_checked",
+        "source": "biligame",
+        "version": "biligame-2026-08",
+        "note": "ADR-0003 wiki 核对 L10（上游 SkillID 130602）"
+      },
+      "_upstream_ids": [
+        130602
+      ],
+      "_note": "梦游鱼",
+      "_upstream_params": [
+        0.24,
+        0.45,
+        1,
+        0.5
+      ],
+      "sp": {
+        "value": -1,
+        "source_trust": "C",
+        "validation": "cross_checked",
+        "source": "biligame",
+        "version": "biligame-2026-08",
+        "note": "wiki 核对（ADR-0003）；解包字段语义 P0-2 锁"
+      },
+      "energy": {
+        "value": 30,
+        "source_trust": "C",
+        "validation": "cross_checked",
+        "source": "biligame",
+        "version": "biligame-2026-08",
+        "note": "wiki 核对（ADR-0003）；解包字段语义 P0-2 锁"
+      },
+      "advance_pct": {
+        "value": 0.5,
+        "source_trust": "C",
+        "validation": "cross_checked",
+        "source": "biligame",
+        "version": "biligame-2026-08",
+        "note": "wiki 核对（ADR-0003）；解包字段语义 P0-2 锁"
+      },
+      "mult": {
+        "value": 0.0,
+        "source_trust": "C",
+        "validation": "cross_checked",
+        "source": "biligame",
+        "version": "biligame-2026-08",
+        "note": "wiki 核对（ADR-0003）"
+      }
+    },
+    "ult": {
+      "_source": {
+        "source_trust": "C",
+        "validation": "cross_checked",
+        "source": "biligame",
+        "version": "biligame-2026-08",
+        "note": "ADR-0003 wiki 核对 L10（上游 SkillID 130603）"
+      },
+      "_upstream_ids": [
+        130603
+      ],
+      "_note": "一人千役",
+      "_upstream_params": [
+        2,
+        4,
+        0.1,
+        2
+      ],
+      "energy": {
+        "value": 5,
+        "source_trust": "C",
+        "validation": "cross_checked",
+        "source": "biligame",
+        "version": "biligame-2026-08",
+        "note": "wiki 核对（ADR-0003）；解包字段语义 P0-2 锁"
+      },
+      "energy_cost": {
+        "value": 110.0,
+        "source_trust": "C",
+        "validation": "cross_checked",
+        "source": "biligame",
+        "version": "biligame-2026-08",
+        "note": "wiki 核对（ADR-0003）；解包字段语义 P0-2 锁"
+      },
+      "sp_bonus": {
+        "value": 4,
+        "source_trust": "C",
+        "validation": "cross_checked",
+        "source": "biligame",
+        "version": "biligame-2026-08",
+        "note": "wiki 核对（ADR-0003）；解包字段语义 P0-2 锁"
+      },
+      "mult": {
+        "value": 0.0,
+        "source_trust": "C",
+        "validation": "cross_checked",
+        "source": "biligame",
+        "version": "biligame-2026-08",
+        "note": "wiki 核对（ADR-0003）"
+      }
+    },
+    "talent": {
+      "_source": {
+        "source_trust": "C",
+        "validation": "cross_checked",
+        "source": "biligame",
+        "version": "biligame-2026-08",
+        "note": "ADR-0003 wiki 核对 L10（上游 SkillID 130604）"
+      },
+      "_upstream_ids": [
+        130604
+      ],
+      "_note": "叙述性诡计",
+      "_upstream_params": [
+        2,
+        0.06,
+        2,
+        3
+      ],
+      "mult": {
+        "value": 0.0,
+        "source_trust": "C",
+        "validation": "cross_checked",
+        "source": "biligame",
+        "version": "biligame-2026-08",
+        "note": "wiki 核对（ADR-0003）"
+      }
+    }
+  },
+  "1309": {
+    "basic": {
+      "_source": {
+        "source_trust": "C",
+        "validation": "cross_checked",
+        "source": "biligame",
+        "version": "biligame-2026-08",
+        "note": "ADR-0003 wiki 核对 L10（上游 SkillID 130901）"
+      },
+      "_upstream_ids": [
+        130901
+      ],
+      "_note": "扑翼白声",
+      "mult": {
+        "value": 1.4,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "starrailres",
+        "version": "srr@b95e75c",
+        "field": "character_skills.130901.params[9][0]",
+        "note": "普攻倍率参数位 [0] 为通用约定，P0-2 交叉验证后提升为 cross_checked"
+      },
+      "toughness": {
+        "value": 10.0,
+        "source_trust": "A",
+        "validation": "mapped",
+        "source": "datamine",
+        "version": "tbgd@648b08f",
+        "field": "AvatarSkillConfig[130901@L10].StanceDamageDisplay"
+      },
+      "sp": {
+        "value": 1,
+        "source_trust": "C",
+        "validation": "cross_checked",
+        "source": "biligame",
+        "version": "biligame-2026-08",
+        "note": "wiki 核对（ADR-0003）；解包字段语义 P0-2 锁"
+      },
+      "energy": {
+        "value": 20,
+        "source_trust": "C",
+        "validation": "cross_checked",
+        "source": "biligame",
+        "version": "biligame-2026-08",
+        "note": "wiki 核对（ADR-0003）；解包字段语义 P0-2 锁"
+      }
+    },
+    "skill": {
+      "_source": {
+        "source_trust": "C",
+        "validation": "cross_checked",
+        "source": "biligame",
+        "version": "biligame-2026-08",
+        "note": "ADR-0003 wiki 核对 L10（上游 SkillID 130902）"
+      },
+      "_upstream_ids": [
+        130902
+      ],
+      "_note": "翎之咏叹调",
+      "_upstream_params": [
+        0.5,
+        3
+      ],
+      "sp": {
+        "value": -1,
+        "source_trust": "C",
+        "validation": "cross_checked",
+        "source": "biligame",
+        "version": "biligame-2026-08",
+        "note": "wiki 核对（ADR-0003）；解包字段语义 P0-2 锁"
+      },
+      "energy": {
+        "value": 30,
+        "source_trust": "C",
+        "validation": "cross_checked",
+        "source": "biligame",
+        "version": "biligame-2026-08",
+        "note": "wiki 核对（ADR-0003）；解包字段语义 P0-2 锁"
+      },
+      "mult": {
+        "value": 0.0,
+        "source_trust": "C",
+        "validation": "cross_checked",
+        "source": "biligame",
+        "version": "biligame-2026-08",
+        "note": "wiki 核对（ADR-0003）"
+      }
+    },
+    "ult": {
+      "_source": {
+        "source_trust": "C",
+        "validation": "cross_checked",
+        "source": "biligame",
+        "version": "biligame-2026-08",
+        "note": "ADR-0003 wiki 核对 L10（上游 SkillID 130903）"
+      },
+      "_upstream_ids": [
+        130903
+      ],
+      "_note": "千音迭奏，群星赋格",
+      "_upstream_params": [
+        0.228,
+        90,
+        200,
+        1.2,
+        1,
+        1.5
+      ],
+      "energy": {
+        "value": 5,
+        "source_trust": "C",
+        "validation": "cross_checked",
+        "source": "biligame",
+        "version": "biligame-2026-08",
+        "note": "wiki 核对（ADR-0003）；解包字段语义 P0-2 锁"
+      },
+      "energy_cost": {
+        "value": 160.0,
+        "source_trust": "C",
+        "validation": "cross_checked",
+        "source": "biligame",
+        "version": "biligame-2026-08",
+        "note": "wiki 核对（ADR-0003）；解包字段语义 P0-2 锁"
+      },
+      "mult": {
+        "value": 0.0,
+        "source_trust": "C",
+        "validation": "cross_checked",
+        "source": "biligame",
+        "version": "biligame-2026-08",
+        "note": "wiki 核对（ADR-0003）"
+      }
+    },
+    "talent": {
+      "_source": {
+        "source_trust": "C",
+        "validation": "cross_checked",
+        "source": "biligame",
+        "version": "biligame-2026-08",
+        "note": "ADR-0003 wiki 核对 L10（上游 SkillID 130904）"
+      },
+      "_upstream_ids": [
+        130904
+      ],
+      "_note": "调性合颂",
+      "_upstream_params": [
+        0.2,
+        2
+      ],
+      "mult": {
+        "value": 0.0,
+        "source_trust": "C",
+        "validation": "cross_checked",
+        "source": "biligame",
+        "version": "biligame-2026-08",
+        "note": "wiki 核对（ADR-0003）"
+      }
+    }
+  },
+  "8007": {
+    "basic": {
+      "_source": {
+        "source_trust": "C",
+        "validation": "cross_checked",
+        "source": "biligame",
+        "version": "biligame-2026-08",
+        "note": "ADR-0003 wiki 核对 L10（上游 SkillID 800701）"
+      },
+      "_upstream_ids": [
+        800701
+      ],
+      "_note": "包在我身上！",
+      "mult": {
+        "value": 1.4,
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "starrailres",
+        "version": "srr@b95e75c",
+        "field": "character_skills.800701.params[9][0]",
+        "note": "普攻倍率参数位 [0] 为通用约定，P0-2 交叉验证后提升为 cross_checked"
+      },
+      "toughness": {
+        "value": 10.0,
+        "source_trust": "A",
+        "validation": "mapped",
+        "source": "datamine",
+        "version": "tbgd@648b08f",
+        "field": "AvatarSkillConfig[800701@L10].StanceDamageDisplay"
+      },
+      "sp": {
+        "value": 1,
+        "source_trust": "C",
+        "validation": "cross_checked",
+        "source": "biligame",
+        "version": "biligame-2026-08",
+        "note": "wiki 核对（ADR-0003）；解包字段语义 P0-2 锁"
+      },
+      "energy": {
+        "value": 20,
+        "source_trust": "C",
+        "validation": "cross_checked",
+        "source": "biligame",
+        "version": "biligame-2026-08",
+        "note": "wiki 核对（ADR-0003）；解包字段语义 P0-2 锁"
+      }
+    },
+    "skill": {
+      "_source": {
+        "source_trust": "C",
+        "validation": "cross_checked",
+        "source": "biligame",
+        "version": "biligame-2026-08",
+        "note": "ADR-0003 wiki 核对 L10（上游 SkillID 800702）"
+      },
+      "_upstream_ids": [
+        800702
+      ],
+      "_note": "就决定是你了！",
+      "_upstream_params": [
+        0.6,
+        0.1
+      ],
+      "sp": {
+        "value": -1,
+        "source_trust": "C",
+        "validation": "cross_checked",
+        "source": "biligame",
+        "version": "biligame-2026-08",
+        "note": "wiki 核对（ADR-0003）；解包字段语义 P0-2 锁"
+      },
+      "energy": {
+        "value": 30,
+        "source_trust": "C",
+        "validation": "cross_checked",
+        "source": "biligame",
+        "version": "biligame-2026-08",
+        "note": "wiki 核对（ADR-0003）；解包字段语义 P0-2 锁"
+      },
+      "mult": {
+        "value": 0.0,
+        "source_trust": "C",
+        "validation": "cross_checked",
+        "source": "biligame",
+        "version": "biligame-2026-08",
+        "note": "wiki 核对（ADR-0003）"
+      }
+    },
+    "ult": {
+      "_source": {
+        "source_trust": "C",
+        "validation": "cross_checked",
+        "source": "biligame",
+        "version": "biligame-2026-08",
+        "note": "ADR-0003 wiki 核对 L10（上游 SkillID 800703）"
+      },
+      "_upstream_ids": [
+        800703
+      ],
+      "_note": "一起上吧，迷迷！",
+      "_upstream_params": [
+        2.4,
+        0.4
+      ],
+      "toughness": {
+        "value": 20.0,
+        "source_trust": "A",
+        "validation": "mapped",
+        "source": "datamine",
+        "version": "tbgd@648b08f",
+        "field": "AvatarSkillConfig[800703@L10].StanceDamageDisplay"
+      },
+      "energy": {
+        "value": 5,
+        "source_trust": "C",
+        "validation": "cross_checked",
+        "source": "biligame",
+        "version": "biligame-2026-08",
+        "note": "wiki 核对（ADR-0003）；解包字段语义 P0-2 锁"
+      },
+      "energy_cost": {
+        "value": 160.0,
+        "source_trust": "C",
+        "validation": "cross_checked",
+        "source": "biligame",
+        "version": "biligame-2026-08",
+        "note": "wiki 核对（ADR-0003）；解包字段语义 P0-2 锁"
+      },
+      "mult": {
+        "value": 0.0,
+        "source_trust": "C",
+        "validation": "cross_checked",
+        "source": "biligame",
+        "version": "biligame-2026-08",
+        "note": "wiki 核对（ADR-0003）"
+      }
+    },
+    "talent": {
+      "_source": {
+        "source_trust": "C",
+        "validation": "cross_checked",
+        "source": "biligame",
+        "version": "biligame-2026-08",
+        "note": "ADR-0003 wiki 核对 L10（上游 SkillID 800704）"
+      },
+      "_upstream_ids": [
+        800704
+      ],
+      "_note": "无所不能的伙伴",
+      "_upstream_params": [
+        130,
+        0.8,
+        10,
+        640
+      ],
+      "mult": {
+        "value": 0.0,
+        "source_trust": "C",
+        "validation": "cross_checked",
+        "source": "biligame",
+        "version": "biligame-2026-08",
+        "note": "wiki 核对（ADR-0003）"
+      }
+    }
+  }
+}
