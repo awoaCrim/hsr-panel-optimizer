@@ -282,6 +282,7 @@ class Simulator:
         return Action(unit_id=cid, action="skill", target=pol.pull_target)
 
     def _character_act(self, cid: str) -> None:
+        self._act_sp_consumed = 0   # 324：同回合消耗 SP 计数（每次行动清零）
         if self.external_action is not None and self.external_action.unit_id == cid:
             # LLM 指挥注入的决策（ADR-0007 3.3）：优先于策略/序列，消费后清空
             action = self.external_action
@@ -336,6 +337,11 @@ class Simulator:
         self.rotation.advance(cid)
         self._track_skill_streak(cid, action.action)
 
+        # 324 直播间：同回合消耗 ≥N SP → 暴伤 buff（持续 duration 回合）
+        if self._act_sp_consumed > 0:
+            for ex in self._equip_effects(cid):
+                if ex["type"] == "sp_consume_cd" and self._act_sp_consumed >= ex["sp_ge"]:
+                    self.buffs.add("crit_dmg", ex["value"], cid, ex["duration"], target=cid)
         if extra_effect is not None:
             # 额外行动链（红A 回路连接）：链内战技次数达上限后强制结束回合
             self.burst_chain[cid] = self.burst_chain.get(cid, 0) + 1
@@ -376,6 +382,31 @@ class Simulator:
                 if ex["type"] == "skill_next_ally_dmg":
                     self.buffs.add("equip_next_ally_dmg", ex["value"], cid, ex["duration"])
                 elif ex["type"] == "skill_team_dmg":
+                    self.buffs.add("dmg_bonus", ex["value"], cid, ex["duration"])
+                elif ex["type"] == "skill_stack_atk":
+                    # 23046：战技后攻击 +X% 叠层（常驻，cap 上限）
+                    self.buffs.add("atk_pct", ex["per_stack"], cid, 0,
+                                   target=cid, cap=ex["per_stack"] * ex["max"])
+                elif ex["type"] == "single_skill_energy" and ally_target in self.chars:
+                    # 23034：对我方单体施放战技/终结技后回能 6
+                    gained = ex["value"] * self._energy_regen(cid)
+                    self.energy[cid] += gained
+                    self._memosprite_charge_from_energy(gained)
+                elif ex["type"] == "target_dmg_stack" and ally_target in self.chars:
+                    # 23034：【圣咏】目标增伤叠层（3 层上限）
+                    self.buffs.add("dmg_bonus", ex["per_stack"], cid, ex["duration"],
+                                   target=ally_target, cap=ex["per_stack"] * ex["max"])
+                elif ex["type"] == "every_n_skill_sp" and ally_target in self.chars:
+                    # 23034：每 2 次单体战技/终结技回 1 SP
+                    n = self.equip_stacks.get(cid, {}).get(ex["src"], 0) + 1
+                    self.equip_stacks.setdefault(cid, {})[ex["src"]] = n
+                    if n >= ex["every"]:
+                        self.equip_stacks[cid][ex["src"]] = 0
+                        self.sp = min(self.sp_max, self.sp + ex["amount"])
+                        self.sp_timeline.append((self.t, self.sp))
+                elif ex["type"] == "mem_present_team_dmg" and \
+                        self.memosprite is not None and self.memosprite["alive"]:
+                    # 127-4：普攻/战技后忆灵在场 → 全队增伤（持续 1 行动）
                     self.buffs.add("dmg_bonus", ex["value"], cid, ex["duration"])
             if ex["type"] == "target_cd_buff" and ally_target and ally_target in self.chars:
                 # 121-4：对单体目标施放战技/大招 → 目标暴伤（可叠 2 层）
@@ -483,6 +514,7 @@ class Simulator:
             elif isinstance(eff, SPChangeEffect):
                 if eff.counts_as_spent:
                     self.sp_spent_count += 1  # 花火天赋：每耗 1 SP 全队增伤
+                    self._act_sp_consumed = self._act_sp_consumed + 1  # 324：同回合消耗 SP 计数
                 self.sp = min(self.sp_max, self.sp + eff.delta)
                 self.sp_timeline.append((self.t, self.sp))
             elif isinstance(eff, EnergyGainEffect):
@@ -543,7 +575,7 @@ class Simulator:
         res = enemy.resistances.get(self.chars[cid].element, 0.0)
         # 星魂 E2（红A）：终结技降低目标元素抗性
         res -= self.buffs.sum_for(f"enemy_res_pen:{self.chars[cid].element}", target)
-        m = self._current_multipliers()
+        m = self._current_multipliers(damager=cid)
         bonus, def_ignore = self._equip_damage(cid, kind, skill_type, target, stats)
         m.dmg_bonus += bonus
         m.def_ignore += def_ignore
@@ -637,6 +669,10 @@ class Simulator:
         s.crit_dmg += self.buffs.sum_for("crit_dmg", cid)
         s.crit_rate += self.buffs.sum_for("crit_rate", cid)   # 记忆主 E1：声援暴击
         s.atk = s.atk * (1.0 + self.buffs.sum_for("atk_pct", cid)) + self.buffs.sum_for("atk_flat", cid)
+        # 装备条件面板：sp_cap_ge_atk（23046：SP 上限≥6 才触发——红A E2 上限 5 不触发）
+        for ex in self._equip_effects(cid):
+            if ex["type"] == "sp_cap_ge_atk" and self.sp_max >= ex["sp_cap_ge"]:
+                s.atk *= (1.0 + ex["value"])
         # 装备条件面板（stat_conditional）：如蕉乐园召唤在场暴伤
         for ex in self._equip_effects(cid):
             if ex["type"] == "stat_conditional" and ex.get("cond") == "memosprite_present":
@@ -645,11 +681,23 @@ class Simulator:
                         s.crit_dmg += ex["value"]
         return s
 
-    def _current_multipliers(self) -> Multipliers:
+    def _current_multipliers(self, damager: str = "") -> Multipliers:
         m = Multipliers()
-        m.dmg_bonus = self.buffs.sum_for("dmg_bonus")
+        m.dmg_bonus = self.buffs.sum_for("dmg_bonus", damager)
+        # 22006 飞向粉色的明天：记忆主装备时全队增伤（常驻，per-attacker）
+        for cid, ch in self.chars.items():
+            for ex in ch.equipment_effects:
+                if ex["type"] == "mem_team_dmg":
+                    m.dmg_bonus += ex["value"]
+                    break
         # 花火天赋：每耗 1 SP 全队增伤 3%（叠 3 层）
         m.dmg_bonus += 0.03 * min(self.sp_spent_count, 3)
+        # 花火 E2：天赋每层额外全队无视防御（谜诡 3 层）
+        for cid, ch in self.chars.items():
+            for ex in ch.equipment_effects:
+                if ex["type"] == "talent_def_ignore":
+                    m.def_ignore += ex["per_layer"] * min(self.sp_spent_count, 3)
+                    break
         # 知更鸟 E1：协奏期间全属性抗性穿透 24%
         if self.concert_rounds > 0:
             for c in self.chars.values():
@@ -678,7 +726,12 @@ class Simulator:
             if talent.get("followup_on_ally_attack"):
                 self._archer_followup(other_id, target)
             if talent.get("energy_on_ally_attack"):
-                self.energy[other_id] += talent["energy_on_ally_attack"] * self._energy_regen(other_id)
+                gained = talent["energy_on_ally_attack"] * self._energy_regen(other_id)
+                # 知更鸟 E2：天赋回能额外 +1
+                for ex in self._equip_effects(other_id):
+                    if ex["type"] == "talent_energy_bonus":
+                        gained += ex["value"] * self._energy_regen(other_id)
+                self.energy[other_id] += gained
         # 知更鸟协奏附加伤害：任何我方攻击后
         if self.concert_rounds > 0:
             robin = next(
@@ -806,7 +859,7 @@ class Simulator:
     def _mem_deal(self, eid: str, mult: float) -> float:
         """迷迷单段伤害（攻击 = 忆师攻击，继承比例待实测；段级暴击判定）。"""
         owner_stats = self._effective_stats(self.memosprite_owner)
-        m = self._current_multipliers()
+        m = self._current_multipliers(damager=self.memosprite_owner)
         noncrit = noncrit_damage(
             mult, owner_stats.atk, owner_stats, m,
             self.enemies[eid].defense,

@@ -102,6 +102,18 @@ def assemble_team(team_path: Path, characters: Dict[str, CharacterData],
     build_errors: Dict[str, List[str]] = {}
     for cid, build in d["builds"].items():
         ch = characters[cid]
+        # 装备机制效果装配（stats 直填与词条装配共用）：光锥/套装/星魂 + 等级应用
+        resolved = resolve_equipment(
+            {"light_cone": build.get("light_cone", ""),
+             "relic_sets": build.get("relic_sets", []),
+             "eidolon": build.get("eidolon", 0), "cid": cid}, equipment)
+        ch.equipment_effects = resolved["effects"]
+        _apply_rank_levels(ch)   # 等级类星魂：技能等级 +N → 倍率取等级表
+        # 行迹技能等级（真实配置）：显式等级 → mult 取等级表对应值（如红A 普攻 L6）
+        for slot, lv in (build.get("skill_levels") or {}).items():
+            sk = ch.skills.get(slot)
+            if sk and sk.mult_levels and 1 <= lv <= len(sk.mult_levels):
+                sk.mult = sk.mult_levels[lv - 1]
         if "stats" in build:
             stats[cid] = _stats_from_dict(build["stats"])
         elif "main_stats" in build or "substats" in build:
@@ -116,13 +128,6 @@ def assemble_team(team_path: Path, characters: Dict[str, CharacterData],
                 stats[cid] = ch.base_stats
             else:
                 stats[cid] = assemble(ch.base_stats, ch.element, cfg, equipment)
-                # 装备机制效果（光锥被动/套装/星魂，供模拟器执行）
-                resolved = resolve_equipment(
-                    {"light_cone": build.get("light_cone", ""),
-                     "relic_sets": build.get("relic_sets", []),
-                     "eidolon": build.get("eidolon", 0), "cid": cid}, equipment)
-                ch.equipment_effects = resolved["effects"]
-                _apply_rank_levels(ch)   # 等级类星魂：技能等级 +N → 倍率取等级表
         else:
             stats[cid] = ch.base_stats
     return stats, d.get("speed_targets", {}), build_errors

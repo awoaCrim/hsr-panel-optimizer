@@ -2242,13 +2242,47 @@
       },
       "base_stats": {
         "value": {
-          "atk": 476
+          "hp": 846.72,
+          "atk": 476.28,
+          "def": 396.9
         },
         "source_trust": "B",
         "validation": "cross_checked",
         "source": "nanoka-wiki",
         "version": "nanoka-4.4.54",
         "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      },
+      "effect": {
+        "value": {
+          "name": "凝望",
+          "desc": "使装备者的暴击伤害提高<color=#f29e38ff><unbreak>#1[i]%</unbreak></color>。开拓者•记忆装备时，使我方全体目标造成的伤害提高<color=#f29e38ff><unbreak>#2[i]%</unbreak></color>，强化普攻【明天，一同写下！】造成的伤害提高<color=#f29e38ff><unbreak>#3[i]%</unbreak></color>。",
+          "level_1_params": [
+            0.12,
+            0.08,
+            0.6
+          ],
+          "exec": [
+            {
+              "type": "stat",
+              "stat": "crit_dmg",
+              "value": 0.24
+            },
+            {
+              "type": "mem_team_dmg",
+              "value": 0.16
+            },
+            {
+              "type": "enhance_basic_dmg",
+              "value": 1.0,
+              "exec_skip": "强化普攻未接入（忆灵技）"
+            }
+          ]
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "精炼 1 数值（与 TBGD EquipmentSkillConfig ParamList 交叉一致）"
       }
     },
     "22007": {
@@ -3233,13 +3267,50 @@
       },
       "base_stats": {
         "value": {
-          "atk": 476
+          "hp": 1164.2399999999998,
+          "atk": 476.28,
+          "def": 529.2
         },
         "source_trust": "B",
         "validation": "cross_checked",
         "source": "nanoka-wiki",
         "version": "nanoka-4.4.54",
         "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      },
+      "effect": {
+        "value": {
+          "name": "再启程",
+          "desc": "当装备者对我方单体角色施放战技或终结技后，装备者恢复<color=#f29e38ff><unbreak>#1[f1]</unbreak></color>点能量，同时使技能目标获得1层【圣咏】，持续<unbreak>#4[i]</unbreak>回合，最多叠加<unbreak>#3[i]</unbreak>层，每层【圣咏】使持有者造成的伤害提高<color=#f29e38ff><unbreak>#2[i]%</unbreak></color>。装备者每对我方单体角色施放<unbreak>#5[i]</unbreak>次战技或终结技后，恢复1个战技点。",
+          "level_1_params": [
+            6,
+            0.15,
+            3,
+            3,
+            2
+          ],
+          "exec": [
+            {
+              "type": "single_skill_energy",
+              "value": 6.0
+            },
+            {
+              "type": "target_dmg_stack",
+              "per_stack": 0.15,
+              "max": 3,
+              "duration": 3
+            },
+            {
+              "type": "every_n_skill_sp",
+              "every": 2,
+              "amount": 1
+            }
+          ]
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "精炼 1 数值（与 TBGD EquipmentSkillConfig ParamList 交叉一致）"
       }
     },
     "23035": {
@@ -3509,13 +3580,50 @@
       },
       "base_stats": {
         "value": {
-          "atk": 582
+          "hp": 952.56,
+          "atk": 582.1199999999999,
+          "def": 529.2
         },
         "source_trust": "B",
         "validation": "cross_checked",
         "source": "nanoka-wiki",
         "version": "nanoka-4.4.54",
         "note": "与 TBGD EquipmentConfig/StarRailRes promotions 交叉一致"
+      },
+      "effect": {
+        "value": {
+          "name": "赤原猎兵",
+          "desc": "使装备者的暴击率提高<color=#f29e38ff><unbreak>#1[i]%</unbreak></color>。进入战斗时，若我方的战技点上限大于等于<unbreak>#2[i]</unbreak>点，使装备者的攻击力提高<color=#f29e38ff><unbreak>#3[i]%</unbreak></color>。装备者每次施放战技后，使装备者的攻击力提高<color=#f29e38ff><unbreak>#4[i]%</unbreak></color>，最多叠加<unbreak>#5[i]</unbreak>次。",
+          "level_1_params": [
+            0.16,
+            6,
+            0.4,
+            0.1,
+            4
+          ],
+          "exec": [
+            {
+              "type": "stat",
+              "stat": "crit_rate",
+              "value": 0.16
+            },
+            {
+              "type": "sp_cap_ge_atk",
+              "sp_cap_ge": 6,
+              "value": 0.4
+            },
+            {
+              "type": "skill_stack_atk",
+              "per_stack": 0.1,
+              "max": 4
+            }
+          ]
+        },
+        "source_trust": "B",
+        "validation": "cross_checked",
+        "source": "nanoka-wiki",
+        "version": "nanoka-4.4.54",
+        "note": "精炼 1 数值（与 TBGD EquipmentSkillConfig ParamList 交叉一致）"
       }
     },
     "23047": {
@@ -4773,6 +4881,13 @@
           "desc": "攻击力提高<unbreak>#1[i]%</unbreak>。",
           "params": [
             0.12
+          ],
+          "exec": [
+            {
+              "type": "stat",
+              "stat": "atk_pct",
+              "value": 0.12
+            }
           ]
         },
         "source_trust": "B",
@@ -5028,6 +5143,13 @@
           "desc": "暴击率提高<unbreak>#1[i]%</unbreak>。",
           "params": [
             0.08
+          ],
+          "exec": [
+            {
+              "type": "stat",
+              "stat": "crit_rate",
+              "value": 0.08
+            }
           ]
         },
         "source_trust": "B",
@@ -5042,6 +5164,13 @@
           "params": [
             0.24,
             0.15
+          ],
+          "exec": [
+            {
+              "type": "mem_present_team_dmg",
+              "value": 0.15,
+              "duration": 1
+            }
           ]
         },
         "source_trust": "B",
@@ -5899,6 +6028,19 @@
             3,
             0.32,
             3
+          ],
+          "exec": [
+            {
+              "type": "stat",
+              "stat": "crit_dmg",
+              "value": 0.16
+            },
+            {
+              "type": "sp_consume_cd",
+              "sp_ge": 3,
+              "value": 0.32,
+              "duration": 3
+            }
           ]
         },
         "source_trust": "B",
@@ -6190,6 +6332,12 @@
             "desc": "天赋每层效果额外使我方目标造成伤害时无视目标<unbreak>#1[i]%</unbreak>的防御力。",
             "param_list": [
               0.08
+            ],
+            "exec": [
+              {
+                "type": "talent_def_ignore",
+                "per_layer": 0.08
+              }
             ]
           },
           "source_trust": "B",
@@ -6290,6 +6438,16 @@
             "param_list": [
               0.16,
               1
+            ],
+            "exec": [
+              {
+                "type": "talent_energy_bonus",
+                "value": 1.0
+              },
+              {
+                "type": "exec_skip",
+                "note": "E2 协奏全队速度+16%：行动条重排未实现，标注跳过"
+              }
             ]
           },
           "source_trust": "B",
@@ -6471,6 +6629,12 @@
             "desc": "终结技的暴击率固定为<unbreak>100%</unbreak>。",
             "param_list": [
               1
+            ],
+            "exec": [
+              {
+                "type": "exec_skip",
+                "note": "E6 终结技暴击率固定 100%（忆灵技伤害机制待查）"
+              }
             ]
           },
           "source_trust": "B",

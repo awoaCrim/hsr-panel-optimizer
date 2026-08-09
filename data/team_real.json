@@ -1,0 +1,129 @@
+{
+  "_note": "米游社战绩自动转换（scripts/mihoyo_to_team.py）；行迹属性加成未计入（待截图）",
+  "builds": {
+    "1015": {
+      "note": "Archer 星魂2 光锥 理想燃烧的地狱(精1)；暴击/暴伤=基础+遗器+光锥+套装反推（行迹属性加成未计入）",
+      "stats": {
+        "atk": 2629,
+        "speed": 107,
+        "crit_rate": 0.88,
+        "crit_dmg": 1.785,
+        "hp": 3135,
+        "defense": 1069,
+        "energy_regen": 1.194
+      },
+      "light_cone": "23046",
+      "relic_sets": [
+        {
+          "id": "108",
+          "pieces": 4
+        },
+        {
+          "id": "324",
+          "pieces": 2
+        }
+      ],
+      "eidolon": 2,
+      "skill_levels": {
+        "basic": 6,
+        "skill": 10,
+        "ult": 10,
+        "talent": 10
+      }
+    },
+    "8007": {
+      "note": "开拓者 星魂6 光锥 飞向粉色的明天(精5)；暴击/暴伤=基础+遗器+光锥+套装反推（行迹属性加成未计入）",
+      "stats": {
+        "atk": 1686,
+        "speed": 162,
+        "crit_rate": 0.395,
+        "crit_dmg": 1.987,
+        "hp": 3964,
+        "defense": 1301,
+        "energy_regen": 1.244
+      },
+      "light_cone": "22006",
+      "relic_sets": [
+        {
+          "id": "127",
+          "pieces": 4
+        },
+        {
+          "id": "308",
+          "pieces": 2
+        }
+      ],
+      "eidolon": 6,
+      "skill_levels": {
+        "basic": 7,
+        "skill": 5,
+        "ult": 12,
+        "talent": 8
+      }
+    },
+    "1306": {
+      "note": "花火 星魂2 光锥 回到大地的飞行(精1)；暴击/暴伤=基础+遗器+光锥+套装反推（行迹属性加成未计入）",
+      "stats": {
+        "atk": 1492,
+        "speed": 160,
+        "crit_rate": 0.108,
+        "crit_dmg": 1.516,
+        "hp": 5664,
+        "defense": 1162,
+        "energy_regen": 1.244
+      },
+      "light_cone": "23034",
+      "relic_sets": [
+        {
+          "id": "121",
+          "pieces": 4
+        },
+        {
+          "id": "308",
+          "pieces": 2
+        }
+      ],
+      "eidolon": 2,
+      "skill_levels": {
+        "basic": 6,
+        "skill": 10,
+        "ult": 10,
+        "talent": 10
+      }
+    },
+    "1309": {
+      "note": "知更鸟 星魂2 光锥 夜色流光溢彩(精1)；暴击/暴伤=基础+遗器+光锥+套装反推（行迹属性加成未计入）",
+      "stats": {
+        "atk": 4549,
+        "speed": 127,
+        "crit_rate": 0.075,
+        "crit_dmg": 0.5,
+        "hp": 3961,
+        "defense": 1122,
+        "energy_regen": 1.244
+      },
+      "light_cone": "23026",
+      "relic_sets": [
+        {
+          "id": "120",
+          "pieces": 2
+        },
+        {
+          "id": "102",
+          "pieces": 2
+        },
+        {
+          "id": "308",
+          "pieces": 2
+        }
+      ],
+      "eidolon": 2,
+      "skill_levels": {
+        "basic": 5,
+        "skill": 10,
+        "ult": 10,
+        "talent": 10
+      }
+    }
+  }
+}

@@ -360,6 +360,21 @@ LC_EXEC = {
     "21010": [  # 论剑：同一目标每次命中伤害+8%（叠 5 层）；换目标清零
         {"type": "hit_stack_dmg", "per_stack": 0.08, "max": 5},
     ],
+    "23046": [  # 理想燃烧的地狱（红A 真实）：暴击+16%；开局 SP 上限≥6 → 攻击+40%；战技后攻击+10%（4层）
+        {"type": "stat", "stat": "crit_rate", "value": 0.16},
+        {"type": "sp_cap_ge_atk", "sp_cap_ge": 6, "value": 0.40},
+        {"type": "skill_stack_atk", "per_stack": 0.10, "max": 4},
+    ],
+    "23034": [  # 回到大地的飞行（花火 真实）：单体战技/终结技后回 6 能量；目标【圣咏】增伤 15%/层×3（3回合）；每 2 次回 1 SP
+        {"type": "single_skill_energy", "value": 6.0},
+        {"type": "target_dmg_stack", "per_stack": 0.15, "max": 3, "duration": 3},
+        {"type": "every_n_skill_sp", "every": 2, "amount": 1},
+    ],
+    "22006": [  # 飞向粉色的明天（记忆主 真实，精5）：暴伤+24%；开拓者•记忆：全队增伤+16%；强化普攻+100%（未接入，标注）
+        {"type": "stat", "stat": "crit_dmg", "value": 0.24},
+        {"type": "mem_team_dmg", "value": 0.16},
+        {"type": "enhance_basic_dmg", "value": 1.0, "exec_skip": "强化普攻未接入（忆灵技）"},
+    ],
 }
 RS_EXEC = {
     "108": {"2": [{"type": "element_dmg", "element": "Quantum", "value": 0.10}],
@@ -384,6 +399,11 @@ RS_EXEC = {
     "318": {"2": [{"type": "stat", "stat": "crit_dmg", "value": 0.16},
                     {"type": "stat_conditional", "stat": "crit_dmg", "value": 0.32,
                      "cond": "memosprite_present"}]},
+    "127": {"2": [{"type": "stat", "stat": "crit_rate", "value": 0.08}],
+            "4": [{"type": "mem_present_team_dmg", "value": 0.15, "duration": 1}]},
+    "324": {"2": [{"type": "stat", "stat": "crit_dmg", "value": 0.16},
+                    {"type": "sp_consume_cd", "sp_ge": 3, "value": 0.32, "duration": 3}]},
+    "120": {"2": [{"type": "stat", "stat": "atk_pct", "value": 0.12}]},
 }
 
 
@@ -402,11 +422,14 @@ RANK_EXEC = {
         "5": [{"type": "skill_level", "skill": "ult", "delta": 2, "cap": 15},
                {"type": "skill_level", "skill": "talent", "delta": 2, "cap": 15}],
     },
-    "1306": {  # 花火
+    "1306": {  # 花火（真实 E2）
+        "2": [{"type": "talent_def_ignore", "per_layer": 0.08}],
         "4": [{"type": "ult_sp_refund_extra", "amount": 1, "sp_cap_bonus": 1}],
     },
-    "1309": {  # 知更鸟
+    "1309": {  # 知更鸟（真实 E2）
         "1": [{"type": "concert_res_pen", "value": 0.24}],
+        "2": [{"type": "talent_energy_bonus", "value": 1.0},
+               {"type": "exec_skip", "note": "E2 协奏全队速度+16%：行动条重排未实现，标注跳过"}],
     },
     "8007": {  # 记忆主
         "1": [{"type": "mems_support_crit", "value": 0.10}],
@@ -415,6 +438,7 @@ RANK_EXEC = {
         "5": [{"type": "skill_level", "skill": "ult", "delta": 2, "cap": 15},
                {"type": "skill_level", "skill": "basic", "delta": 1, "cap": 10},
                {"type": "memo_level", "skill_delta": 1}],
+        "6": [{"type": "exec_skip", "note": "E6 终结技暴击率固定 100%（忆灵技伤害机制待查）"}],
     },
 }
 

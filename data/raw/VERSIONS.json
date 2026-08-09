@@ -4,20 +4,20 @@
     "branch": "master",
     "sha": "b95e75c7e1273d819d20c530c0b7e13a3ef19fb4",
     "base_url": "",
-    "fetched_at": "2026-08-09T10:33:49Z"
+    "fetched_at": "2026-08-09T11:42:22Z"
   },
   "TurnBasedGameData": {
     "repo": "DimbreathBot/TurnBasedGameData",
     "branch": "main",
     "sha": "648b08fbdb2e49739ebbf1210c9a189fcfc5e2d7",
     "base_url": "",
-    "fetched_at": "2026-08-09T10:34:12Z"
+    "fetched_at": "2026-08-09T11:42:22Z"
   },
   "Nanoka": {
     "repo": "",
     "branch": "",
     "sha": "4.4.54",
     "base_url": "https://static.nanoka.cc/hsr/4.4.54",
-    "fetched_at": "2026-08-09T10:34:12Z"
+    "fetched_at": "2026-08-09T11:42:28Z"
   }
 }
