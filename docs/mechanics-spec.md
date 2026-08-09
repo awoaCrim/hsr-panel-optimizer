@@ -104,9 +104,10 @@ super_break = (3767.5533 / 10) × 有效削韧 × (1 + BE) × (1 + 超击破倍�
 | 0 命忆灵技等级基准 | 待实测（fribbels 用 L6；E5 为 7 级） | T4 实测清单 |
 | 迷迷攻击继承比例 | 待实测（技能描述 of Mem's ATK） | T4 实测清单 |
 | 击破效果数值（纠缠/减速等） | 未实现 | T4 实测后实现 |
-| 回能参数位（AvatarSkillConfig ParamList / EnergyBarConfig） | 未锁 | 解包核对（P0-2 后续） |
-| SP 语义（SPMultipleRatio/BPNeed/BPAdd） | 未锁 | 解包核对 |
-| DelayRatio 语义（basic 显示 1.0） | 未锁 | 解包核对 |
+| ~~回能参数位~~ | **已核对（本次解包）**：回能 = 全局常量（普攻 20 / 战技 30 / 大招 5 / 追击 5），不在技能配置中；红A 大招能量 220 与 StarRailRes max_sp 交叉 ✓；红A（联动）wiki 溯源（ADR-0003） | 已锁（红A） |
+| ~~SP 语义~~ | **已核对**：SPMultipleRatio 0.5 = 普攻回 1 SP；BPNeed 1 = 战技耗 1 SP；大招/天赋 BPNeed -1 不耗（全队 3 角色解包一致，红A wiki） | 已锁 |
+| ~~DelayRatio~~ | **已核对**：我方技能 DelayRatio = 1（无行动延迟）；官方击破/减速延迟机制未实现（记入敌人 AI 扩展） | 部分（击破延迟待敌人 AI） |
+| ~~削韧参数位~~ | **已核对**：正确参数位 = StanceDamageDisplay（非 ShowStanceList 显示字段）；全队与 TBGD 一致（红A wiki）；记忆主大招 TBGD 显示 20 vs wiki 无削韧——不确定不猜，保持 0 待实测 | 已锁（8007 ult 待实测） |
 | buff 持续时间时钟（行动次数 vs 回合） | 行动次数（现有） | T3 对账 |
 | 敌人 AI 行动模式（行动序列/延时/伤害） | 未实现 | P1 真实敌人时实现 |
 
