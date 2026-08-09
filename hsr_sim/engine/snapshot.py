@@ -29,6 +29,7 @@ class BattleSnapshot:
     concert_additional_mult: float = 0.72
     memosprite: Optional[dict] = None
     memosprite_owner: str = ""
+    enemy_wave: int = 0                     # 多波次（D8）：当前波次索引
     skill_streak: Dict[str, int] = field(default_factory=dict)  # 连续战技计数（星魂 E1）
     char_hp: Dict[str, float] = field(default_factory=dict)      # 我方 HP（生存）
     char_hp_max: Dict[str, float] = field(default_factory=dict)

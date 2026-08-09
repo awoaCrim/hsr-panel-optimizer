@@ -1,0 +1,73 @@
+{
+  "note": "最新忘却之庭·星启模式 第12关 第2节点（StageConfig 30124122 合金机铠·帕姆王）。数据源：TBGD StageConfig/MonsterConfig/MonsterTemplateConfig + HardLevelGroup 3 Lv95（HP×375.4385/ATK×34.75065/DEF×5.47619/SPD×1.32）。技能倍率=MonsterSkillConfig ParamList[0]（分布推断，待实测）；技能削韧字段未解包标注 UNKNOWN。target_av：星启3节点共享轮数未知（棱彩星=剩余33轮以上），单节点按1000AV≈10轮近似（待实测）。",
+  "level": 95,
+  "target_av": 1000,
+  "waves": [
+    {
+      "note": "波次1：破晓战队·苍翼 + 破晓战队·灰烬（成对出场）",
+      "enemies": {
+        "cywing": {
+          "id": "5013040",
+          "name": "破晓战队·苍翼",
+          "element": "Quantum",
+          "hp": 523737,
+          "atk": 625.5,
+          "defense": 1150,
+          "speed": 158.4,
+          "toughness": 480,
+          "weaknesses": ["Physical", "Fire", "Imaginary"],
+          "resistances": {"Quantum": 0.8, "Ice": 0.2, "Thunder": 0.2, "Wind": 0.2},
+          "skills": [
+            {"name": "破晓战刃", "mult": 4.0, "damage_type": "Quantum", "ai_cd": 1, "sp_hit": 10,
+             "note": "MonsterSkillConfig 501304001 ParamList[0]=4"},
+            {"name": "破晓剑影舞", "mult": 8.0, "damage_type": "Quantum", "ai_cd": 2, "sp_hit": 10,
+             "note": "MonsterSkillConfig 501304004 ParamList[0]=8"}
+          ]
+        },
+        "cyash": {
+          "id": "5013070",
+          "name": "破晓战队·灰烬",
+          "element": "Physical",
+          "hp": 523737,
+          "atk": 625.5,
+          "defense": 1150,
+          "speed": 158.4,
+          "toughness": 480,
+          "weaknesses": ["Fire", "Quantum", "Imaginary"],
+          "resistances": {"Physical": 0.8, "Ice": 0.2, "Thunder": 0.2, "Wind": 0.2},
+          "skills": [
+            {"name": "破晓战刃", "mult": 4.0, "damage_type": "Physical", "ai_cd": 1, "sp_hit": 10,
+             "note": "MonsterSkillConfig 501307001 ParamList[0]=4"},
+            {"name": "破晓剑影舞", "mult": 8.0, "damage_type": "Physical", "ai_cd": 2, "sp_hit": 10,
+             "note": "MonsterSkillConfig 501307004 ParamList[0]=8"}
+          ]
+        }
+      }
+    },
+    {
+      "note": "波次2：合金机铠·帕姆王（Boss）",
+      "enemies": {
+        "pamking": {
+          "id": "5014020",
+          "name": "合金机铠·帕姆王",
+          "element": "Quantum",
+          "hp": 1309342,
+          "atk": 625.5,
+          "defense": 1150,
+          "speed": 158.4,
+          "toughness": 720,
+          "weaknesses": ["Fire", "Thunder", "Imaginary"],
+          "resistances": {"Physical": 0.2, "Ice": 0.2, "Wind": 0.2, "Quantum": 0.2},
+          "skills": [
+            {"name": "灵魂修正剪", "mult": 3.0, "damage_type": "Quantum", "ai_cd": 1, "sp_hit": 10,
+             "note": "MonsterSkillConfig 501402001 ParamList[0]=3"},
+            {"name": "无死角洗涤", "mult": 3.0, "damage_type": "Quantum", "ai_cd": 2, "sp_hit": 10,
+             "note": "MonsterSkillConfig 501402002 ParamList[0]=3"},
+            {"name": "饱和式大扫除！", "mult": 5.0, "damage_type": "Quantum", "ai_cd": 3, "sp_hit": 15,
+             "note": "MonsterSkillConfig 501402006 ParamList[0]=5（大招）"}
+          ]
+        }
+      }
+    }
+  ]
+}

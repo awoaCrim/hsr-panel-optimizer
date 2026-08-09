@@ -100,12 +100,16 @@ class Simulator:
         unverified_inputs: Optional[List[str]] = None,
         initial_sp: Optional[float] = None,
         initial_energy: Optional[Dict[str, float]] = None,
+        waves: Optional[List[Dict[str, Enemy]]] = None,
     ) -> None:
         self.chars = characters
         self.stats = char_stats
         self._initial_sp = 4.0 if initial_sp is None else initial_sp
         self._initial_energy = dict(initial_energy or {})
-        self.enemies = enemies
+        # 多波次（D8，混沌回忆结构）：waves 缺省 = 单波次
+        self._waves = list(waves) if waves else [enemies]
+        self.enemy_wave = 0
+        self.enemies = self._waves[0]
         self.rotation = rotation
         self.target_av = target_av
         self.attacker_level = attacker_level
@@ -118,6 +122,9 @@ class Simulator:
         self.seed = seed
         self.rng = random.Random(seed)          # E12：RNG 入状态（暴击判定等随机源）
         self._snapshots: List[BattleSnapshot] = []
+        # 多波次（D8）：重启回到第 1 波
+        self.enemy_wave = 0
+        self.enemies = self._waves[0]
 
         self.queue = ActionQueue()
         for cid in self.chars:
@@ -584,6 +591,9 @@ class Simulator:
                                  enemy_broken=self.toughness[target] <= 0.0)
         total = 0.0
         for _ in range(hits):
+            # 目标死亡/波次切换后，剩余段不再执行（官方多段技能目标死亡中断语义）
+            if target not in self.enemy_hp or self.enemy_hp[target] <= 0.0:
+                break
             # 暴击判定（E12：RNG 入事件流，段级独立 roll）
             crit = self.rng.random() < min(stats.crit_rate, 1.0)
             dmg = noncrit * (1.0 + stats.crit_dmg) if crit else noncrit
@@ -608,7 +618,8 @@ class Simulator:
                                        ex.get("duration", 1), target=cid)
                         self.equip_stacks.setdefault(cid, {})[ex["src"]] = ex.get("cooldown", 3)
             # 击杀触发（星海巡航：击杀后攻击+20% 2回合）
-            if prev_hp > 0.0 and self.enemy_hp[target] <= 0.0:
+            # .get：击杀瞬间波次已切换，目标不在当前 enemy_hp（多波次 D8）
+            if prev_hp > 0.0 and self.enemy_hp.get(target, 0.0) <= 0.0:
                 for ex in self._equip_effects(cid):
                     if ex["type"] == "on_kill_atk":
                         self.buffs.add("atk_pct", ex["value"], cid, ex["duration"], target=cid)
@@ -779,6 +790,9 @@ class Simulator:
 
     # ---------- 削韧 / 击破 ----------
     def _apply_toughness(self, cid: str, target: str, amount: float) -> None:
+        # 多波次（D8）：目标已死亡/波次切换后不再削韧
+        if target not in self.enemy_hp or self.enemy_hp[target] <= 0.0:
+            return
         elem = self.chars[cid].element
         enemy = self.enemies[target]
         has_weakness = elem in enemy.weaknesses or \
@@ -948,6 +962,7 @@ class Simulator:
             concert_additional_mult=getattr(self, "_concert_additional_mult", 0.72),
             memosprite=dict(self.memosprite) if self.memosprite else None,
             memosprite_owner=self.memosprite_owner,
+            enemy_wave=self.enemy_wave,
             skill_streak=dict(self.skill_streak),
             char_hp=dict(self.char_hp), char_hp_max=dict(self.char_hp_max),
             enemy_cd={eid: dict(c) for eid, c in self.enemy_cd.items()},
@@ -981,6 +996,9 @@ class Simulator:
         self._concert_additional_mult = snap.concert_additional_mult
         self.memosprite = dict(snap.memosprite) if snap.memosprite else None
         self.memosprite_owner = snap.memosprite_owner
+        # 多波次：敌人引用随波次恢复（enemy_hp/toughness/enemy_cd 由快照重建）
+        self.enemy_wave = snap.enemy_wave
+        self.enemies = self._waves[self.enemy_wave]
         self.skill_streak = dict(snap.skill_streak)
         self.char_hp = dict(snap.char_hp)
         self.char_hp_max = dict(snap.char_hp_max)
@@ -1026,6 +1044,27 @@ class Simulator:
                 true = amount * pct
                 self.damage_events.append(DamageEvent(self.t, source, target, true, "true"))
                 self.enemy_hp[target] = max(0.0, self.enemy_hp[target] - true)
+        # 死亡移除 + 多波次推进（D8）：目标死亡即移出行动队列；全灭 → 下一波入场
+        if self.enemy_hp[target] <= 0.0:
+            self.queue.remove(target)
+        if not any(hp > 0.0 for hp in self.enemy_hp.values()):
+            for eid in list(self.enemies):
+                self.queue.remove(eid)
+            if self.enemy_wave + 1 < len(self._waves):
+                self._spawn_wave(self.enemy_wave + 1)
+
+    def _spawn_wave(self, idx: int) -> None:
+        """多波次推进：新一波敌人入场（HP/韧性/冷却重置、行动条满速入队）。"""
+        self.enemy_wave = idx
+        self.enemies = self._waves[idx]
+        self.enemy_hp = {eid: e.hp for eid, e in self.enemies.items()}
+        self.toughness = {eid: e.toughness for eid, e in self.enemies.items()}
+        self.enemy_cd = {eid: {i: 0 for i in range(len(e.skills))}
+                         for eid, e in self.enemies.items()}
+        for eid, e in self.enemies.items():
+            self.queue.add(eid, e.speed)
+        self.log.append(ActionLog(self.t, "WAVE", f"wave_{idx + 1}",
+                                  detail=f"第{idx + 1}波敌人入场"))
 
     def _result(self) -> SimResult:
         r = SimResult(t_end=self.t)

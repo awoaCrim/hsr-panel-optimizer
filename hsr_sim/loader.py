@@ -192,7 +192,20 @@ def load_team(team_path: Path, char_dir: Path) -> Tuple[Dict[str, CharacterData]
 
 def load_enemies(path: Path) -> Tuple[Dict[str, Enemy], int, float]:
     d = json.loads(path.read_text(encoding="utf-8"))
-    enemies = {
+    enemies = _parse_enemies(d.get("enemies", {}) if "waves" not in d else d["waves"][0].get("enemies", {}))
+    return enemies, d.get("level", 90), d.get("target_av", 250.0)
+
+
+def load_enemy_waves(path: Path) -> List[Dict[str, Enemy]]:
+    """多波次关卡：返回 [波次1敌人, 波次2敌人, ...]（单波次文件 = 单元素列表）。"""
+    d = json.loads(path.read_text(encoding="utf-8"))
+    if "waves" in d:
+        return [_parse_enemies(w.get("enemies", {})) for w in d["waves"]]
+    return [_parse_enemies(d.get("enemies", {}))]
+
+
+def _parse_enemies(entries: Dict) -> Dict[str, Enemy]:
+    return {
         eid: Enemy(
             id=e.get("id", eid), name=e["name"], element=e["element"],
             hp=e["hp"], atk=e["atk"], defense=e["defense"], speed=e["speed"],
@@ -203,9 +216,8 @@ def load_enemies(path: Path) -> Tuple[Dict[str, Enemy], int, float]:
                                     ("name", "mult", "damage_type", "ai_cd", "sp_hit")})
                     for sk in e.get("skills", [])],
         )
-        for eid, e in d["enemies"].items()
+        for eid, e in entries.items()
     }
-    return enemies, d.get("level", 90), d.get("target_av", 250.0)
 
 
 def load_substat_counts(team_path: Path) -> Dict[str, float]:
