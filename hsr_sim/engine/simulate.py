@@ -19,7 +19,7 @@ from typing import Dict, List, Optional, Set, Tuple
 from ..model import Action, CharacterData, CharacterPolicy, Enemy, Rotation, Stats
 from .av_queue import ActionQueue
 from .buffs import BuffManager
-from .damage import Multipliers, break_damage, expected_damage, flat_damage
+from .damage import Multipliers, break_damage, expected_damage, flat_damage, noncrit_damage
 from .snapshot import BattleSnapshot
 from .effects import (
     AdvanceAllEffect,
@@ -341,6 +341,12 @@ class Simulator:
 
     def _track_skill_streak(self, cid: str, action: str) -> None:
         """星魂 E1（红A）：单个回合内连续 3 次战技 → 回 2 SP（普攻/其他动作打断计数）。"""
+        # 如泥酣眠 CD 递减（装备者行动 = 1 回合）
+        for ex in self._equip_effects(cid):
+            if ex["type"] == "no_crit_crit":
+                cd = self.equip_stacks.get(cid, {}).get(ex["src"], 0)
+                if cd > 0:
+                    self.equip_stacks.setdefault(cid, {})[ex["src"]] = cd - 1
         streak = self.skill_streak.get(cid, 0)
         if action == "skill":
             streak += 1
@@ -508,17 +514,20 @@ class Simulator:
         return alive[0] if alive else None
 
     def _deal_damage(self, cid: str, target: str, mult: float, kind: str = "normal",
-                     skill_type: str = "") -> float:
+                     skill_type: str = "", hits: int = 1) -> float:
+        """段级伤害结算（②段级判定）：每段独立 roll 暴击（RNG 入事件流）。
+
+        hits = 段数（默认 1；忆灵普攻 4 段、AOE 每目标 1 段）。
+        每段：非暴击基础 ×（暴击 ? 1+暴伤 : 1）；段事件逐条记录；
+        条件触发（论剑叠层/如泥酣眠/击杀）按段判定（官方语义）。
+        技能总削韧仍按技能结算一次（官方削韧不按段）。
+        """
         stats = self._effective_stats(cid)
-        # 装备条件暴击（目标血量条件 + 未暴击触发近似）
+        # 装备条件暴击（目标血量条件）——作用于本次技能全部段
         for ex in self._equip_effects(cid):
             if ex["type"] == "hp_le_crit" and \
                     self.enemy_hp[target] <= ex["hp_le"] * self.enemies[target].hp:
                 stats.crit_rate += ex["crit_rate"]
-            elif ex["type"] == "no_crit_crit_approx":
-                # 如泥酣眠：未暴击→暴击率+36% 1回合（CD 3）。期望值模型近似：
-                # 无条件折算 +36%×(1-当前暴击率)（每次伤害独立触发；近似项，见 docs）
-                stats.crit_rate += ex["value"] * max(0.0, 1.0 - stats.crit_rate)
         enemy = self.enemies[target]
         res = enemy.resistances.get(self.chars[cid].element, 0.0)
         # 星魂 E2（红A）：终结技降低目标元素抗性
@@ -527,25 +536,39 @@ class Simulator:
         bonus, def_ignore = self._equip_damage(cid, kind, skill_type, target, stats)
         m.dmg_bonus += bonus
         m.def_ignore += def_ignore
-        dmg = expected_damage(mult, stats.atk, stats, m, enemy.defense, res, self.attacker_level,
-                              enemy_broken=self.toughness[target] <= 0.0)
-        prev_hp = self.enemy_hp[target]
-        self._record_damage(cid, target, dmg, kind)
-        # 论剑叠层（同一目标每次伤害+1 层；换目标清零）
-        for ex in self._equip_effects(cid):
-            if ex["type"] == "hit_stack_dmg":
-                if self.equip_hit_target.get(cid) != target:
-                    self.equip_hit_target[cid] = target
-                    self.equip_stacks.setdefault(cid, {})[ex["src"]] = 0
-                else:
-                    n = self.equip_stacks.get(cid, {}).get(ex["src"], 0)
-                    self.equip_stacks.setdefault(cid, {})[ex["src"]] = min(n + 1, ex["max"])
-        # 击杀触发（星海巡航：击杀后攻击+20% 2回合）
-        if prev_hp > 0.0 and self.enemy_hp[target] <= 0.0:
+        noncrit = noncrit_damage(mult, stats.atk, stats, m, enemy.defense, res,
+                                 self.attacker_level,
+                                 enemy_broken=self.toughness[target] <= 0.0)
+        total = 0.0
+        for _ in range(hits):
+            # 暴击判定（E12：RNG 入事件流，段级独立 roll）
+            crit = self.rng.random() < min(stats.crit_rate, 1.0)
+            dmg = noncrit * (1.0 + stats.crit_dmg) if crit else noncrit
+            total += dmg
+            prev_hp = self.enemy_hp[target]
+            self._record_damage(cid, target, dmg, kind)
+            # 论剑叠层（同目标每次命中 +1 层；换目标清零）——段级精确（原按 act 计层近似）
             for ex in self._equip_effects(cid):
-                if ex["type"] == "on_kill_atk":
-                    self.buffs.add("atk_pct", ex["value"], cid, ex["duration"], target=cid)
-        return dmg
+                if ex["type"] == "hit_stack_dmg":
+                    if self.equip_hit_target.get(cid) != target:
+                        self.equip_hit_target[cid] = target
+                        self.equip_stacks.setdefault(cid, {})[ex["src"]] = 0
+                    else:
+                        n = self.equip_stacks.get(cid, {}).get(ex["src"], 0)
+                        self.equip_stacks.setdefault(cid, {})[ex["src"]] = min(n + 1, ex["max"])
+                elif ex["type"] == "no_crit_crit":
+                    # 如泥酣眠：段未暴击 → 暴击率 +value 持续 1 回合（CD cooldown 回合）
+                    cd = self.equip_stacks.get(cid, {}).get(ex["src"], 0)
+                    if not crit and cd <= 0:
+                        self.buffs.add("crit_rate", ex["value"], cid,
+                                       ex.get("duration", 1), target=cid)
+                        self.equip_stacks.setdefault(cid, {})[ex["src"]] = ex.get("cooldown", 3)
+            # 击杀触发（星海巡航：击杀后攻击+20% 2回合）
+            if prev_hp > 0.0 and self.enemy_hp[target] <= 0.0:
+                for ex in self._equip_effects(cid):
+                    if ex["type"] == "on_kill_atk":
+                        self.buffs.add("atk_pct", ex["value"], cid, ex["duration"], target=cid)
+        return total
 
     def _equip_damage(self, cid: str, kind: str, skill_type: str, target: str,
                       stats) -> Tuple[float, float]:
@@ -768,15 +791,19 @@ class Simulator:
         self.queue.reset_after_action("MEM")
 
     def _mem_deal(self, eid: str, mult: float) -> float:
-        """迷迷单目标伤害（攻击 = 忆师攻击，继承比例待实测）。"""
+        """迷迷单段伤害（攻击 = 忆师攻击，继承比例待实测；段级暴击判定）。"""
         owner_stats = self._effective_stats(self.memosprite_owner)
-        return expected_damage(
-            mult, owner_stats.atk, owner_stats, self._current_multipliers(),
+        m = self._current_multipliers()
+        noncrit = noncrit_damage(
+            mult, owner_stats.atk, owner_stats, m,
             self.enemies[eid].defense,
             self.enemies[eid].resistances.get("Ice", 0.0),
             self.attacker_level,
             enemy_broken=self.toughness[eid] <= 0.0,
         )
+        if self.rng.random() < min(owner_stats.crit_rate, 1.0):
+            return noncrit * (1.0 + owner_stats.crit_dmg)
+        return noncrit
 
     def _mems_support_target(self) -> str:
         """声援目标：官方为玩家决策；v1.5 自动默认主C（队伍第一个角色），P1 LLM 指挥时由决策指定。"""

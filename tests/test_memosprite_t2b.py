@@ -7,7 +7,7 @@
 - 大招：充能 40% + 迷迷立即行动
 
 场景：单记忆主（8007）vs 90 级精英（def 1100，Ice 弱点，韧性 300）。
-记忆主：atk=1800, speed=145, cr=5%, cd=50%（元素增伤 0）。
+记忆主：atk=1800, speed=145, cr=0%（段级判定：非暴击确定性），cd=50%（元素增伤 0）。
 """
 import pytest
 
@@ -16,12 +16,12 @@ from hsr_sim.loader import DATA_DIR, load_character
 from hsr_sim.model import Action, Enemy, Rotation, Stats
 
 DEF_M = 1000.0 / 2100.0          # 80 级 vs 1100 防
-CRIT = 1.0 + 0.05 * 0.5          # 1.025
+CRIT = 1.0                       # cr=0%（非暴击确定性）
 
 
 def _make():
     chars = {"8007": load_character(DATA_DIR / "characters" / "8007.json")}
-    stats = {"8007": Stats(atk=1800.0, speed=145.0, crit_rate=0.05, crit_dmg=0.5)}
+    stats = {"8007": Stats(atk=1800.0, speed=145.0, crit_rate=0.0, crit_dmg=0.5)}
     enemies = {"elite": Enemy(
         id="elite", name="精英", element="Ice",
         hp=1e9, atk=1000, defense=1100.0, speed=10.0, toughness=300.0,
@@ -65,7 +65,7 @@ class TestMemospriteBasic:
         """多段随机单体目标由 RNG 决定（E12）：不同 seed 目标序列不同（双敌场景）。"""
         def run(seed):
             chars = {"8007": load_character(DATA_DIR / "characters" / "8007.json")}
-            stats = {"8007": Stats(atk=1800.0, speed=145.0, crit_rate=0.05, crit_dmg=0.5)}
+            stats = {"8007": Stats(atk=1800.0, speed=145.0, crit_rate=0.0, crit_dmg=0.5)}
             enemies = {
                 "a": Enemy(id="a", name="甲", element="Ice", hp=1e9, atk=1000,
                            defense=1100.0, speed=10.0, toughness=300.0, weaknesses=["Ice"]),
@@ -78,11 +78,9 @@ class TestMemospriteBasic:
             n0 = len(sim.damage_events)
             sim.run_step()
             return [e.target for e in sim.damage_events[n0:] if e.kind == "normal"][:4]
-        seq_a = run(1)
-        seq_b = run(2)
-        assert len(seq_a) == 4
-        assert set(seq_a) <= {"a", "b"}
-        assert seq_a != seq_b  # 不同 seed 目标序列不同（随机性生效）
+        seqs = {tuple(run(s)) for s in range(8)}
+        assert all(len(q) == 4 and set(q) <= {"a", "b"} for q in seqs)
+        assert len(seqs) > 1  # 存在不同 seed 目标序列（随机性生效）
 
 
 class TestMemospriteEnhanced:

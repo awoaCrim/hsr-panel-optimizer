@@ -65,6 +65,23 @@ def crit_expectation(crit_rate: float, crit_dmg: float) -> float:
     return 1.0 + min(crit_rate, 1.0) * crit_dmg
 
 
+def noncrit_damage(
+    mult: float,
+    atk: float,
+    stats: Stats,
+    multipliers: Multipliers,
+    enemy_defense: float,
+    resistance: float,
+    attacker_level: int = DEFAULT_ATTACKER_LEVEL,
+    enemy_broken: bool = False,
+) -> float:
+    """非暴击基础伤害（段级判定的基础值；暴击项按段 roll）。"""
+    import dataclasses
+    s = dataclasses.replace(stats, crit_rate=0.0)   # crit_expectation = 1
+    return expected_damage(mult, atk, s, multipliers, enemy_defense, resistance,
+                           attacker_level, enemy_broken)
+
+
 def broken_multiplier(enemy_broken: bool) -> float:
     """韧性未破 ×0.9，击破后 ×1.0（mechanics-spec 1.1）。"""
     return 1.0 if enemy_broken else BROKEN_MULT

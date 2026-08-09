@@ -5,7 +5,8 @@
 不引用 v1.5 golden、不复制实现公式。
 
 场景：单红A（1015）vs 90 级精英（防御 1100 = 200+10×90，抗性 0，韧性 30，速度 10 不插队）。
-红A：atk=2800, speed=134, cr=75%, cd=150%，序列模式 basic 连打。
+红A：atk=2800, speed=134, cr=0%（段级判定：非暴击确定性，可精确手算），cd=150%，序列模式 basic 连打。
+段级暴击判定正确性由 TestSegmentedCrit（crit_rate=0/1 极端 + 统计均值）单独验证。
 """
 import pytest
 
@@ -17,17 +18,18 @@ from hsr_sim.model import Action, Enemy, Rotation, Stats
 # ---- 手算常量（mechanics-spec 定值） ----
 AV_BASIC = 10000.0 / 134.0                       # 74.626865...：134 速单次行动值
 DEF_M_90 = 1000.0 / (1100.0 + 1000.0)             # 80 级攻方 vs 90 级敌防 1100（1.2）
-CRIT = 1.0 + 0.75 * 1.5                           # 2.125（1.4）
+CRIT = 1.0                                          # cr=0%（非暴击确定性）
 RAW = 1.3 * 2800.0                                # basic 倍率 × 攻击（1.1）
 DAMAGE_UNBROKEN = RAW * CRIT * DEF_M_90 * 0.9     # 韧性未破 ×0.9
 DAMAGE_BROKEN = RAW * CRIT * DEF_M_90             # 击破后 ×1.0
+CRIT_AVG = 1.0 + 0.75 * 1.5                       # 2.125：段级统计测试用
 BREAK_DMG = (BREAK_BASE_DAMAGE * 0.5 * (0.5 + 30.0 / 120.0)
              * DEF_M_90)                          # 量子击破：3767.5533×0.5×(0.5+30/120)×def（1.5）
 
 
 def _make():
     chars = {"1015": load_character(DATA_DIR / "characters" / "1015.json")}
-    stats = {"1015": Stats(atk=2800.0, speed=134.0, crit_rate=0.75, crit_dmg=1.5)}
+    stats = {"1015": Stats(atk=2800.0, speed=134.0, crit_rate=0.0, crit_dmg=1.5)}
     enemies = {"elite": Enemy(
         id="elite", name="精英", element="Quantum",
         hp=1e9, atk=1000, defense=1100.0, speed=10.0, toughness=30.0,
@@ -124,7 +126,7 @@ class TestEnergyCostOracle:
     def test_skill_sp_energy(self):
         """战技：SP -1、能量 +30、伤害 mult 3.6（未破 ×0.9）。"""
         chars = {"1015": load_character(DATA_DIR / "characters" / "1015.json")}
-        stats = {"1015": Stats(atk=2800.0, speed=134.0, crit_rate=0.75, crit_dmg=1.5)}
+        stats = {"1015": Stats(atk=2800.0, speed=134.0, crit_rate=0.0, crit_dmg=1.5)}
         enemies = {"elite": Enemy(
             id="elite", name="精英", element="Quantum",
             hp=1e9, atk=1000, defense=1100.0, speed=10.0, toughness=30.0,
@@ -137,3 +139,48 @@ class TestEnergyCostOracle:
         assert sim.sp == pytest.approx(3.0)            # 4 - 1
         assert sim.energy["1015"] == pytest.approx(30.0)
         assert sim.toughness["elite"] == pytest.approx(10.0)   # 削韧 20
+
+
+class TestSegmentedCrit:
+    """② 段级判定正确性：crit_rate=0/1 极端可手算 + 多 seed 均值 ≈ 期望。"""
+
+    def _make(self, crit_rate):
+        chars = {"1015": load_character(DATA_DIR / "characters" / "1015.json")}
+        stats = {"1015": Stats(atk=2800.0, speed=134.0, crit_rate=crit_rate, crit_dmg=1.5)}
+        enemies = {"elite": Enemy(
+            id="elite", name="精英", element="Quantum",
+            hp=1e9, atk=1000, defense=1100.0, speed=10.0, toughness=300.0,
+            weaknesses=["Quantum"])}
+        rot = Rotation(actions={"1015": [Action(unit_id="1015", action="basic")] * 12})
+        return Simulator(chars, stats, enemies, rot, target_av=400.0)
+
+    def test_crit_zero_never_crits(self):
+        """crit_rate=0：永不暴击 → 伤害 = 非暴击基础（段级 roll 正确）。"""
+        sim = self._make(0.0)
+        sim.run_step()
+        noncrit = 1.3 * 2800.0 * DEF_M_90 * 0.9
+        assert sim.damage_events[-1].amount == pytest.approx(noncrit, rel=1e-9)
+
+    def test_crit_one_always_crits(self):
+        """crit_rate=1：每段必暴击 → 伤害 = 基础 ×（1+暴伤）。"""
+        sim = self._make(1.0)
+        sim.run_step()
+        crit_dmg = 1.3 * 2800.0 * (1.0 + 1.5) * DEF_M_90 * 0.9
+        assert sim.damage_events[-1].amount == pytest.approx(crit_dmg, rel=1e-9)
+
+    def test_multi_seed_mean_approaches_expectation(self):
+        """多 seed 段级均值 ≈ 期望（大数定律；暴击率 75% 的统计验证）。"""
+        from hsr_sim.engine.damage import expected_damage
+        from hsr_sim.engine.damage import Multipliers
+        hits = []
+        for seed in range(120):
+            sim = self._make(0.75)
+            sim._reset(seed)
+            sim.run_step()
+            hits.append(sim.damage_events[-1].amount)
+        exp = expected_damage(1.3, 2800.0,
+                              Stats(atk=2800.0, speed=134.0, crit_rate=0.75, crit_dmg=1.5),
+                              Multipliers(), 1100.0, 0.0, enemy_broken=False)
+        mean = sum(hits) / len(hits)
+        # 120 seed：暴击数 σ≈4.7 → 伤害均值波动 <1.5%（3σ）；3% 容差
+        assert mean == pytest.approx(exp, rel=0.03)

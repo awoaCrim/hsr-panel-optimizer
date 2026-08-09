@@ -352,7 +352,7 @@ LC_EXEC = {
     ],
     "23012": [  # 如泥酣眠（红A 专武）：暴伤+30%；普攻/战技未暴击→暴击率+36% 1回合（CD 3回合）
         {"type": "stat", "stat": "crit_dmg", "value": 0.30},
-        {"type": "no_crit_crit_approx", "value": 0.36},
+        {"type": "no_crit_crit", "value": 0.36, "duration": 1, "cooldown": 3},
     ],
     "21010": [  # 论剑：同一目标每次命中伤害+8%（叠 5 层）；换目标清零
         {"type": "hit_stack_dmg", "per_stack": 0.08, "max": 5},

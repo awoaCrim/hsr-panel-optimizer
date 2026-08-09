@@ -203,19 +203,19 @@ class TestNewLightCones:
         assert sim.equip_stacks["1015"].get("lc:21010", 0) == 0
 
     def test_hp_le_crit(self):
-        """星海巡航：目标 HP≤50% → 暴击率 +8%（_deal_damage 内生效）。"""
-        sim = _mk(["1015"], {"1015": {"light_cone": "24001"}})
-        sim.enemy_hp["elite"] = 0.4e9     # 40% HP
-        sim.external_action = Action(unit_id="1015", action="basic", target="elite")
-        before = sim.damage_events[-1].amount if sim.damage_events else 0.0
-        sim.run_step()
-        # 条件暴击已计入伤害（HP≤50% 时 crit_rate 更高 → 伤害更高）
-        d_hi = sim.damage_events[-1].amount
-        sim.enemy_hp["elite"] = 0.9e9     # 90% HP（条件不触发）
-        sim.external_action = Action(unit_id="1015", action="basic", target="elite")
-        sim.run_step()
-        d_lo = sim.damage_events[-1].amount
-        assert d_hi > d_lo   # 半血目标伤害更高
+        """星海巡航：目标 HP≤50% → 暴击率 +8%（段级下用多 seed 均值验证）。"""
+        def mean_dmg(hp_ratio, seed0):
+            tot = 0.0
+            for s in range(seed0, seed0 + 30):
+                sim = _mk(["1015"], {"1015": {"light_cone": "24001"}}, seed=s)
+                sim.enemy_hp["elite"] = hp_ratio * 1e9
+                sim.external_action = Action(unit_id="1015", action="basic", target="elite")
+                sim.run_step()
+                tot += sim.damage_events[-1].amount
+            return tot / 30.0
+        d_hi = mean_dmg(0.4, 0)     # 40% HP（条件触发：暴击率 0.5+0.08+0.08）
+        d_lo = mean_dmg(0.9, 100)   # 90% HP（不触发：暴击率 0.5+0.08）
+        assert d_hi > d_lo * 1.005
 
     def test_on_kill_atk(self):
         """星海巡航：击杀后攻击 +20% 2 回合。"""
@@ -225,18 +225,13 @@ class TestNewLightCones:
         sim.run_step()
         assert sim.buffs.sum_for("atk_pct", "1015") == pytest.approx(0.20)
 
-    def test_no_crit_crit_approx(self):
-        """如泥酣眠：未暴击→暴击率 +36%（期望值近似：+36%×(1-暴击率)）。"""
-        sim = _mk(["1015"], {})
+    def test_no_crit_crit(self):
+        """如泥酣眠（段级精确）：crit_rate=0 → 首段必不暴击 → 触发暴击 buff + CD 3。"""
+        sim = _mk(["1015"], {"1015": {"light_cone": "23012"}})
+        sim.stats["1015"] = Stats(atk=2000.0, speed=150.0, crit_rate=0.0, crit_dmg=1.0)
         sim.external_action = Action(unit_id="1015", action="basic", target="elite")
         sim.run_step()
-        d0 = sim.damage_events[-1].amount
-        # 追加近似效果（模拟装配）：暴击率 0.5 → 增量 0.36×0.5=0.18
-        sim.chars["1015"].equipment_effects.append(
-            {"type": "no_crit_crit_approx", "value": 0.36, "src": "lc:23012"})
-        sim.enemy_hp["elite"] = 1e9
-        sim.external_action = Action(unit_id="1015", action="basic", target="elite")
-        sim.run_step()
-        d1 = sim.damage_events[-1].amount
-        # crit_mult: 1+0.5×1.0=1.5 → 1+(0.5+0.18)×1.0=1.68
-        assert d1 / d0 == pytest.approx(1.68 / 1.5, rel=1e-6)
+        assert sim.buffs.sum_for("crit_rate", "1015") == pytest.approx(0.36)   # 已触发
+        assert sim.equip_stacks["1015"].get("lc:23012", 0) == 2                # CD 3（触发回合已递减 1）
+        noncrit = 1.3 * 2000.0 * (1000.0 / 2100.0) * 0.9
+        assert sim.damage_events[-1].amount == pytest.approx(noncrit, rel=1e-9)
