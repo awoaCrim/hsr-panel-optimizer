@@ -74,9 +74,10 @@ def test_knowledge_pack_non_attack_skills_are_explicit():
     assert "不会触发协奏附加伤害" in pack
     state = s.observe()
     compact = _compact_state(state)
-    assert state["sp"] == {"value": 4.0, "max": 7.0, "timeline_tail": [[0.0, 4.0]]}
-    assert compact["sp"] == {"value": 4.0, "max": 7.0}
-    assert "战技点：当前 4 / 上限 7" in pack
+    assert state["sp"] == {"value": 4.0, "max": 9.0, "timeline_tail": [[0.0, 4.0]]}
+    assert compact["sp"] == {"value": 4.0, "max": 9.0}
+    assert "战技点：当前 4 / 上限 9" in pack
+    assert "在场使战技点上限+2" in pack
     # 开局推进到知更鸟决策点，验证结构化目标契约也不是敌人目标。
     while state["phase"] == "decision" and state["decision"]["unit"] != "1309":
         d = state["decision"]

@@ -47,7 +47,7 @@ class TestBasicAttackOracle:
             assert sim.t == pytest.approx(AV_BASIC * n, rel=1e-9)
 
     def test_damage_sp_energy_unbroken(self):
-        """前两次普攻：未破韧伤害 ×0.9、削韧 10、SP +1（触顶 5）、能量 +20。"""
+        """前两次普攻：未破韧伤害 ×0.9、削韧 10、SP +1（红A行迹上限 7）、能量 +20。"""
         sim = _make()
         sim.run_step()   # 第 1 次
         e = sim.damage_events[-1]
@@ -59,7 +59,7 @@ class TestBasicAttackOracle:
         sim.run_step()   # 第 2 次
         assert sim.damage_events[-1].amount == pytest.approx(DAMAGE_UNBROKEN, rel=1e-9)
         assert sim.toughness["elite"] == pytest.approx(10.0)
-        assert sim.sp == pytest.approx(5.0)          # 触顶
+        assert sim.sp == pytest.approx(6.0)          # 4 + 1 + 1；红A额外能力行迹使上限为 7
         assert sim.energy["1015"] == pytest.approx(40.0)
 
     def test_break_sequence(self):

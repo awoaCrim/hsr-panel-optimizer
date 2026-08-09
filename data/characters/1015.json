@@ -3,7 +3,7 @@
   "name": "红A",
   "element": "Quantum",
   "path": "Rogue",
-  "note": "倍率/削韧/能量经 biligame wiki 交叉核对（2026-08）：能量上限 220 确认；倍率修正为 L10（战技 360%/大招 1000%，此前误用数据表 L15）；能量/削韧为 wiki 值待 TurnBasedGameData 回填（ADR-0003）；80级白值 = P0基础 + step×127（2026-08 wiki 核对修正）",
+  "note": "倍率/削韧/能量经 biligame wiki 交叉核对（2026-08）：能量上限 220 确认；倍率修正为 L10（战技 360%/大招 1000%，此前误用数据表 L15）；能量/削韧为 wiki 值待 TurnBasedGameData 回填（ADR-0003）；80级白值 = P0基础 + step×127（2026-08 wiki 核对修正）；额外能力行迹「投影魔术」战技点上限+2由 TBGD AvatarSkillTreeConfigLD PointID 1015101 与 Nanoka 4.4.54 交叉核对",
   "base_stats": {
     "hp": 1164.2,
     "atk": 620.9,
@@ -46,6 +46,7 @@
     }
   },
   "talent_extra": {
+    "sp_cap_bonus": 2,
     "followup_on_ally_attack": true,
     "followup_energy": 5,
     "skill_effects": {

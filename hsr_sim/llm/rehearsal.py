@@ -72,6 +72,8 @@ def _char_summary(session: RehearsalSession) -> str:
                 skills.append("/".join(parts))
         te = c.talent_extra
         extra = []
+        if te.get("sp_cap_bonus"):
+            extra.append(f"在场使战技点上限+{te['sp_cap_bonus']:g}")
         if te.get("followup_on_ally_attack"):
             extra.append("队友攻击后消耗充能追击")
         if te.get("energy_on_ally_attack"):

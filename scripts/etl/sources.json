@@ -22,6 +22,7 @@
       "ExcelOutput/HardLevelGroup.json",
       "ExcelOutput/MonsterConfig.json",
       "ExcelOutput/AvatarSkillConfig.json",
+      "ExcelOutput/AvatarSkillTreeConfigLD.json",
       "ExcelOutput/EquipmentConfig.json",
       "ExcelOutput/EquipmentSkillConfig.json",
       "ExcelOutput/AvatarRankConfig.json",

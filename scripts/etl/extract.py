@@ -28,6 +28,14 @@ CHARS = ["1015", "1306", "1309", "8007"]
 TYPE_TEXT_TO_SLOT = {"普攻": "basic", "战技": "skill", "终结技": "ult", "天赋": "talent"}
 L80_LEVEL = 80  # 星铁角色等级上限（评审修正：攻击者等级 = 80，非 90）
 
+# 额外能力行迹的结构化角色机制映射。PointID/参数位来自 TBGD；中文语义由 Nanoka 同 ID 文本交叉核对。
+TRACE_EXTRA_FIELDS = {
+    "1015": [
+        {"point_id": 1015101, "field": "sp_cap_bonus", "param_index": 0,
+         "expected": 2, "name": "投影魔术"},
+    ],
+}
+
 
 def load_raw() -> Dict:
     """按 VERSIONS.json 定位 raw 文件并加载。"""
@@ -121,6 +129,24 @@ def _char_talent_extra(cid: str, raw: Dict) -> Dict:
     te = legacy.get("talent_extra", {})
     # skill_effects 已并入 skills.json 的 mechanic，这里只保留角色级字段
     te = {k: v for k, v in te.items() if k != "skill_effects"}
+    # 额外能力行迹：执行语义需显式映射，但数值直接取官方解包，不从描述猜终值。
+    trace_rows = raw["TurnBasedGameData/ExcelOutput/AvatarSkillTreeConfigLD.json"]
+    for rule in TRACE_EXTRA_FIELDS.get(cid, []):
+        entry = next((r for r in trace_rows if r.get("PointID") == rule["point_id"]), None)
+        if entry is None:
+            raise ValueError(f"缺额外能力行迹 PointID={rule['point_id']}")
+        raw_param = entry["ParamList"][rule["param_index"]]
+        value = raw_param.get("Value") if isinstance(raw_param, dict) else raw_param
+        if value != rule["expected"]:
+            raise ValueError(
+                f"额外能力行迹 {rule['point_id']} 参数漂移：{value} != {rule['expected']}"
+            )
+        te[rule["field"]] = wrapper(value, prov(
+            "datamine", "A", tb_ver(raw), "cross_checked",
+            field=(f"AvatarSkillTreeConfigLD[PointID={rule['point_id']}]."
+                   f"ParamList[{rule['param_index']}].Value"),
+            note=f"额外能力行迹「{rule['name']}」；Nanoka 4.4.54 同 PointID 中文描述交叉核对",
+        ))
     # 忆灵数值溯源（docs/research/memory-trailblazer-mem.md 定值）：
     # speed/HP 继承 = 解包（AvatarSkillConfig 800704 params）；倍率 = StarRailRes 忆灵技 params（1800701）+ HoneyHunter/fribbels 交叉；
     # 充能/声援 = 米游社/游民星空实测帖（C）；等级基准（0 命忆灵技 L6）待实测

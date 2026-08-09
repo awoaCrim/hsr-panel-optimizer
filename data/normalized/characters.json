@@ -88,6 +88,15 @@
       }
     },
     "talent_extra": {
+      "sp_cap_bonus": {
+        "value": 2,
+        "source_trust": "A",
+        "validation": "cross_checked",
+        "source": "datamine",
+        "version": "tbgd@648b08f",
+        "field": "AvatarSkillTreeConfigLD[PointID=1015101].ParamList[0].Value",
+        "note": "额外能力行迹「投影魔术」；Nanoka 4.4.54 同 PointID 中文描述交叉核对"
+      },
       "followup_on_ally_attack": true,
       "followup_energy": 5
     }

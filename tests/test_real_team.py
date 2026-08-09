@@ -39,7 +39,7 @@ class TestRealPanel:
         assert chars["1309"].skills["skill"].mult == pytest.approx(0.0)
 
     def test_skill_point_cap(self, real):
-        """真实队伍：标准开局 4 点；基础上限 5 + 花火天赋 2 = 7。"""
+        """真实队伍：开局 4；基础 5 + 红A额外能力行迹 2 + 花火天赋 2 = 上限 9。"""
         from hsr_sim.engine.simulate import Simulator
         from hsr_sim.loader import load_enemies
         from hsr_sim.model import Rotation
@@ -48,7 +48,15 @@ class TestRealPanel:
         enemies, level, target_av = load_enemies(DATA_DIR / "enemy_elite90.json")
         sim = Simulator(chars, stats, enemies, Rotation(), target_av, level)
         assert sim.sp == pytest.approx(4.0)
-        assert sim.sp_max == pytest.approx(7.0)
+        assert sim.sp_max == pytest.approx(9.0)
+        assert chars["1015"].talent_extra["sp_cap_bonus"] == 2
+
+        # 单独上阵红A也有上限 7，因此其专武的“战技点上限≥6”开战攻击加成成立。
+        archer_only = Simulator({"1015": chars["1015"]}, {"1015": stats["1015"]},
+                                enemies, Rotation(), target_av, level)
+        assert archer_only.sp_max == pytest.approx(7.0)
+        effective = archer_only._effective_stats("1015")
+        assert effective.atk == pytest.approx(stats["1015"].atk * 1.40)
 
     def test_memosprite_level(self, real):
         """记忆主 E5 忆灵技+1 → 迷迷 L7（行迹忆灵技 7 级一致）。"""

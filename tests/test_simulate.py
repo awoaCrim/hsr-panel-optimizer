@@ -40,13 +40,20 @@ class TestSpTracking:
     def test_basic_gains_sp_skill_loses(self):
         sim = Simulator(_characters(), _stats(), _enemies(),
                         _rot({"1015": [("1015", "basic"), ("1015", "skill")]}), target_av=500)
-        # 花火天赋 SP 上限 +2（5+2=7）
-        assert sim.sp_max == pytest.approx(7.0)
+        # 基础 5 + 红A额外能力行迹「投影魔术」2 + 花火天赋 2 = 9。
+        assert sim.sp_max == pytest.approx(9.0)
         # 动作级验证：开局 4 → 普攻 +1 → 5；战技 -1 → 4
         sim._character_act("1015")   # basic
         assert sim.sp == pytest.approx(5.0)
         sim._character_act("1015")   # skill
         assert sim.sp == pytest.approx(4.0)
+
+    def test_archer_alone_adds_two_to_cap(self):
+        """红A额外能力行迹「投影魔术」：在场时使战技点上限提高 2 点。"""
+        chars = _characters()
+        sim = Simulator({"1015": chars["1015"]}, {"1015": _stats()["1015"]},
+                        _enemies(), Rotation(), target_av=500)
+        assert sim.sp_max == pytest.approx(7.0)
 
     def test_sp_never_below_zero_with_basic_rotation(self):
         sim = Simulator(_characters(), _stats(), _enemies(),
@@ -140,7 +147,7 @@ class TestUltImmediate:
         av_before = sim.queue.snapshot()["1306"]
         sim._try_immediate_ults()
         assert sim.ult_count["1306"] == 1
-        assert sim.sp == pytest.approx(7.0)          # 大招回 4 SP（开局 4+4=8，触顶 7）
+        assert sim.sp == pytest.approx(8.0)          # 大招回 4 SP（开局 4+4=8，未触及上限 9）
         assert sim.energy["1306"] == pytest.approx(5 * 1.19)  # 释放后剩 5×充能
         # 行动条未被重置（大招不占行动条）
         assert sim.queue.snapshot()["1306"] == av_before

@@ -8,6 +8,7 @@
 > - `character_promotions.json` 无 `base_hp/base_atk/base_def/base_spd` 字段；实际结构为 `values[i].{hp,atk,def,spd,crit_rate,crit_dmg}.{base,step}`，L80 = base + step×79（详见 `scripts/etl/extract.py`）
 > - `AvatarSkillConfig.json` 是 **6804 条数组**（SkillID × Level），不是按 SkillID 为键的对象；每级一条
 > - 能量回复/SP 精确数值**不在** AvatarSkillConfig 的显式字段中（有 SPMultipleRatio/BPNeed/DelayRatio/StanceDamageDisplay，但语义待 P0-2 锁），当前维持 wiki 值 + C 溯源
+> - 角色额外能力行迹来自 `AvatarSkillTreeConfigLD.json`；红A `PointID=1015101` 的参数为 2，Nanoka 同 ID 文本交叉核对为“在场时战技点上限+2”
 > - 本仓库实现以 `docs/adr/0006`（五层架构）为准；ETL 输出为 `data/normalized/`（带双维溯源），非本文第四节旧目录名
 
 ---
