@@ -28,12 +28,27 @@ class TestRealPanel:
         assert stats["8007"].speed == pytest.approx(162)
 
     def test_trace_levels_applied(self, real):
-        """行迹技能等级：红A 普攻 L6、记忆主 战技 L5/大招 L12（E5+2）。"""
+        """显式行迹等级只覆盖真实伤害倍率；辅助参数位不得伪装成角色直伤。"""
         chars, _, _ = real
-        assert chars["1015"].skills["basic"].mult == pytest.approx(1.0)   # L6
-        assert chars["1015"].skills["skill"].mult == pytest.approx(3.6)   # L10
-        assert chars["8007"].skills["skill"].mult == pytest.approx(0.42)  # L5
-        assert chars["8007"].skills["ult"].mult == pytest.approx(2.64)    # L12
+        assert chars["1015"].skills["basic"].mult == pytest.approx(1.0)   # L6 伤害倍率
+        assert chars["1015"].skills["skill"].mult == pytest.approx(3.6)   # L10 伤害倍率
+        # 8007 战技 params[0]=迷迷治疗比例、大招 params[0]=机制参数，不是记忆主直伤倍率。
+        assert chars["8007"].skills["skill"].mult == pytest.approx(0.0)
+        assert chars["8007"].skills["ult"].mult == pytest.approx(0.0)
+        # 知更鸟战技 params[0]=全队增伤，绝不能装配成 50% 直伤。
+        assert chars["1309"].skills["skill"].mult == pytest.approx(0.0)
+
+    def test_skill_point_cap(self, real):
+        """真实队伍：标准开局 4 点；基础上限 5 + 花火天赋 2 = 7。"""
+        from hsr_sim.engine.simulate import Simulator
+        from hsr_sim.loader import load_enemies
+        from hsr_sim.model import Rotation
+
+        chars, stats, _ = real
+        enemies, level, target_av = load_enemies(DATA_DIR / "enemy_elite90.json")
+        sim = Simulator(chars, stats, enemies, Rotation(), target_av, level)
+        assert sim.sp == pytest.approx(4.0)
+        assert sim.sp_max == pytest.approx(7.0)
 
     def test_memosprite_level(self, real):
         """记忆主 E5 忆灵技+1 → 迷迷 L7（行迹忆灵技 7 级一致）。"""
@@ -70,6 +85,48 @@ class TestRealPanel:
         assert "start_advance" in t       # 翁瓦克 2 件（速度 127 ≥ 120 → 开局拉条）
         assert "basic_dmg" not in t       # 无快枪手 4 件（3 件不够）
         assert "ult_dmg" not in t         # 无勇烈 4 件（2 件不够）
+
+
+class TestRobinSkillSemantics:
+    """知更鸟战技是全队增伤，不是攻击；不得触发任何“攻击后”链。"""
+
+    def test_skill_has_no_enemy_target_or_damage(self, real):
+        from hsr_sim.engine.simulate import Simulator
+        from hsr_sim.model import Enemy, Rotation
+        from hsr_sim.rehearse import RehearseError, RehearsalSession
+
+        chars, stats, _ = real
+        selected = {cid: chars[cid] for cid in ("1309", "1015")}
+        selected_stats = {cid: stats[cid] for cid in selected}
+        # 知更鸟先行动；红A带 1 充能用于证明非攻击战技不会触发追击。
+        selected_stats["1309"].speed = 200.0
+        enemy = Enemy(id="elite", name="精英", element="Ice", hp=1e9, atk=1000,
+                      defense=1100.0, speed=10.0, toughness=300.0,
+                      weaknesses=["Physical"])
+        sim = Simulator(selected, selected_stats, {"elite": enemy}, Rotation(), 400.0, seed=0)
+        sim.fate_charge["1015"] = 1.0
+        sim.concert_rounds = 2
+        session = RehearsalSession(sim, name="知更鸟战技语义")
+        state = session.observe()
+
+        option = state["decision"]["skill_options"]["skill"]
+        assert option["is_attack"] is False
+        assert option["target_type"] == "none"
+        with pytest.raises(RehearseError, match="无需选择目标"):
+            session.act(skill="skill", target="elite", ults={})
+
+        hp_before = sim.enemy_hp["elite"]
+        toughness_before = sim.toughness["elite"]
+        ally_energy_before = sim.energy["1015"]
+        result = session.act(skill="skill", target="", ults={})
+        assert result["damage_delta"] == pytest.approx(0.0)
+        assert sim.enemy_hp["elite"] == hp_before
+        assert sim.toughness["elite"] == toughness_before
+        assert sim.fate_charge["1015"] == pytest.approx(1.0)
+        assert sim.energy["1015"] == ally_energy_before
+        assert sim.energy["1309"] > 0.0             # 仅技能自身常规回能
+        assert sim.buffs.sum_for("dmg_bonus") >= 0.5 # 全队增伤正常施加
+        assert sim.damage_events == []
 
 
 class TestMihoyoConverter:

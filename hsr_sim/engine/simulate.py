@@ -324,8 +324,8 @@ class Simulator:
             self.skill_used[cid] = self.skill_used.get(cid, 0) + 1
 
         self.buffs.tick_owner(cid)
-        # 目标解析：伤害目标（敌人）与友方目标（拉条/buff 对象，如花火拉红A）分离
-        dmg_target = self._resolve_target(action.target, skill)
+        # 目标解析：只有实际伤害技能才绑定敌人；非攻击技能不得携带幽灵敌方目标。
+        dmg_target = self._resolve_target(action.target, skill) if skill.mult > 0.0 else None
         ally_target = action.target if action.target in self.chars else (skill.advance_target or "")
         if not skill.advance_self and ally_target == cid:
             # 官方规则：目标选择器排除自身（花火战技不可自拉）
@@ -443,7 +443,7 @@ class Simulator:
 
     def _execute_ult(self, cid: str, skill) -> None:
         """执行大招：伤害/特效/能量扣除/SP，不占用行动条（不 reset、不推进时间）。"""
-        dmg_target = self._resolve_target("", skill)
+        dmg_target = self._resolve_target("", skill) if skill.mult > 0.0 else None
         ally_target = ""
         # v1.5 顺序保留：ult 的削韧在行动日志之后（toughness_in_effects=False，log 后补）
         effects = skill_to_effects("ult", skill, self.chars[cid].talent_extra)

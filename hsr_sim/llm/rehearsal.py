@@ -26,6 +26,8 @@ MECHANICS_RULES = """\
 2. 大招时机：能量满的角色可放可等——ults=null 放全部满能；ults={} 全 hold；
    ults={"<cid>": true/false} 逐角色指定。大招不占行动条，在行动连锁末尾即时释放。
 自动执行：追击 / 协奏 / 真伤（声援） / 击破 / 忆灵（迷迷）行动 / 敌人 AI / 回能。
+非攻击技能不会造成伤害/削韧，也不会触发协奏附加伤害、队友攻击追击或“队友攻击后”回能；
+不得根据技能说明中的增益/治疗参数虚构攻击倍率或敌方目标。
 
 ## 生存（① 敌人 AI）
 敌人会攻击我方（技能见敌人段），伤害 = 敌攻击×倍率×我方防御减免，受击回能。
@@ -54,7 +56,10 @@ def _char_summary(session: RehearsalSession) -> str:
         for k in ("basic", "skill", "ult"):
             sk = c.skills.get(k)
             if sk:
-                parts = [f"{k}:倍率{sk.mult}"]
+                is_attack = sk.mult > 0.0
+                parts = [f"{k}:倍率{sk.mult}" if is_attack else f"{k}:非攻击"]
+                if sk.toughness and is_attack:
+                    parts.append(f"削韧{sk.toughness}")
                 if sk.sp:
                     parts.append(f"SP{sk.sp:+.0f}")
                 if sk.energy_cost:
@@ -70,7 +75,7 @@ def _char_summary(session: RehearsalSession) -> str:
         if te.get("followup_on_ally_attack"):
             extra.append("队友攻击后消耗充能追击")
         if te.get("energy_on_ally_attack"):
-            extra.append(f"队友攻击回能{te['energy_on_ally_attack']}")
+            extra.append(f"队友攻击后仅自身回能{te['energy_on_ally_attack']}（不是全队回能）")
         if te.get("summon"):
             m = te.get("memosprite", {})
             extra.append(f"召唤迷迷(速{m.get('speed', 130)}；普攻{m.get('basic_hits', 4)}段"
@@ -81,6 +86,11 @@ def _char_summary(session: RehearsalSession) -> str:
             extra.append("协奏（每次我方攻击后附加固定双暴伤害）")
         if se.get("skill", {}).get("advance"):
             extra.append(f"战技拉条{se['skill']['advance'].get('pct', 0):.0%}")
+        skill_buff = se.get("skill", {}).get("buff")
+        if skill_buff:
+            scope = "全队" if not skill_buff.get("target") else "指定队友"
+            extra.append(f"战技{scope}{skill_buff.get('stat')}+{skill_buff.get('value', 0):.0%}"
+                         f"/持续{skill_buff.get('duration', 1)}回合")
         lines.append(f"- {cid} {c.name}（{c.element}）：速{s.speed} 攻{s.atk:.0f} "
                      f"双暴{s.crit_rate:.0%}/{s.crit_dmg:.0%} 充能{s.energy_regen:.0%} | "
                      + "; ".join(skills) + (f" | {', '.join(extra)}" if extra else ""))
@@ -207,6 +217,10 @@ def build_knowledge_pack(session: RehearsalSession) -> str:
 ## 队伍（当前面板）
 {_char_summary(session)}
 
+## 队伍资源
+- 战技点：当前 {session.sim.sp:g} / 上限 {session.sim.sp_max:g}（基础上限 5；角色天赋/星魂可提高上限）。
+  当前值与上限是不同概念，规划时必须使用本局上限，不能自行按常规 5 点推断。
+
 ## 装备与星魂
 {_gear_summary(session)}
 
@@ -226,7 +240,7 @@ def _compact_state(state: Dict[str, Any]) -> Dict[str, Any]:
         "t": state["t"],
         "queue": state["queue"],
         "energy": {c: v["value"] for c, v in state["energy"].items()},
-        "sp": state["sp"]["value"],
+        "sp": {"value": state["sp"]["value"], "max": state["sp"]["max"]},
         "enemies": {eid: {k: e[k] for k in ("hp_pct", "toughness", "broken")}
                     for eid, e in state["enemies"].items()},
         "memosprite": state.get("memosprite"),
@@ -245,9 +259,11 @@ DECISION_CONTRACT = """\
 ## 你的决策（决策点：{unit}）
 输出 JSON：{{"skill": "<basic|skill>", "target": "<敌人id|队友id|留空>", "ults": <null|{{"cid": bool}}>, "note": "<一句话理由>"}}
 - skill 必须来自局面 decision.skills
-- 伤害目标从 decision.targets 选（敌人），可留空
-- 拉条/增益目标从 decision.ally_targets 选（**必须是队友，不可自拉**——如花火战技），
-  该角色无拉条技能时 ally_targets 为空列表，target 只用于选敌人
+- 根据所选 skill 的 decision.skill_options[skill].target_type 决定 target：
+  enemy → 从 decision.targets 选敌人（可留空让模拟器默认）；
+  ally → 从 decision.ally_targets 选队友并遵守不可自拉；
+  none → target 必须留空，禁止给非攻击/无目标技能虚构敌方目标
+- decision.skill_options[skill].is_attack=false 时，该技能不造成伤害/削韧，且不触发任何“攻击后”链
 - ults=null 表示放全部满能大招；{{}} 全 hold；{{"cid": true/false}} 逐角色指定
 - note 会进入推演报告决策轨迹，请说明战术意图
 """

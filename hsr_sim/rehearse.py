@@ -210,6 +210,10 @@ class RehearsalSession:
         if skill not in self.sim.chars[cid].skills:
             raise RehearseError(f"角色 {cid} 无技能 {skill!r}（可选：{list(self.sim.chars[cid].skills)}）")
         skill_obj = self.sim.chars[cid].skills[skill]
+        target_type = self._skill_target_type(skill_obj)
+        if target_type == "none" and target:
+            raise RehearseError(
+                f"{cid} 的 {skill} 是非攻击/无目标技能，无需选择目标（target 必须留空）")
         # 拉条目标校验（官方目标选择器规则）：advance 技能目标必须是我方队友且不可自拉
         if skill_obj.advance_pct:
             allies = [c for c in self.sim.chars if c != cid]
@@ -324,6 +328,15 @@ class RehearsalSession:
             "wave_count": len(sim._waves),
         }
 
+    @staticmethod
+    def _skill_target_type(skill_obj) -> str:
+        """把现有技能结构映射为官方选择器类别：敌方 / 我方 / 无目标。"""
+        if skill_obj.advance_pct:
+            return "ally"
+        if skill_obj.mult > 0.0:
+            return "enemy"
+        return "none"
+
     def _decision_point(self) -> Optional[Dict[str, Any]]:
         sim = self.sim
         nxt = sim.queue.next()
@@ -336,13 +349,21 @@ class RehearsalSession:
         ult_ready = [c for c in sim.chars
                      if not (sim.char_hp_max.get(c, 0.0) > 0.0 and sim.char_hp.get(c, 1.0) <= 0.0)
                      and sim.energy[c] >= sim.chars[c].skills["ult"].energy_cost]
-        has_advance = any(sim.chars[cid].skills[k].advance_pct for k in skills)
+        skill_options = {
+            k: {
+                "is_attack": sim.chars[cid].skills[k].mult > 0.0,
+                "target_type": self._skill_target_type(sim.chars[cid].skills[k]),
+            }
+            for k in skills
+        }
+        has_ally_target = any(o["target_type"] == "ally" for o in skill_options.values())
         return {
             "unit": cid,
             "skills": skills,
+            "skill_options": skill_options,
             "default": "skill" if "skill" in skills else "basic",
             "targets": [eid for eid, hp in sim.enemy_hp.items() if hp > 0.0],
-            "ally_targets": [c for c in sim.chars if c != cid] if has_advance else [],
+            "ally_targets": [c for c in sim.chars if c != cid] if has_ally_target else [],
             "ult_ready": ult_ready,
             "energy_status": "full" if cid in ult_ready else "charging",
         }
@@ -661,8 +682,13 @@ def _demo_pilot(session: RehearsalSession, max_acts: int = 200) -> RehearsalSess
     acts = 0
     while state["phase"] == "decision" and acts < max_acts:
         d = state["decision"]
-        # 拉条/增益技能 → 目标取队友；伤害技能 → 目标取第一个敌人
-        target = d["ally_targets"][0] if d.get("ally_targets") else (d["targets"][0] if d["targets"] else "")
+        option = d["skill_options"][d["default"]]
+        if option["target_type"] == "ally":
+            target = d["ally_targets"][0] if d["ally_targets"] else ""
+        elif option["target_type"] == "enemy":
+            target = d["targets"][0] if d["targets"] else ""
+        else:
+            target = ""
         session.act(skill=d["default"], target=target, note="demo")
         acts += 1
         state = session.observe()

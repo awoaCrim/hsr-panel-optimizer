@@ -108,12 +108,11 @@ def assemble_team(team_path: Path, characters: Dict[str, CharacterData],
              "relic_sets": build.get("relic_sets", []),
              "eidolon": build.get("eidolon", 0), "cid": cid}, equipment)
         ch.equipment_effects = resolved["effects"]
-        _apply_rank_levels(ch)   # 等级类星魂：技能等级 +N → 倍率取等级表
-        # 行迹技能等级（真实配置）：显式等级 → mult 取等级表对应值（如红A 普攻 L6）
+        _apply_rank_levels(ch)   # 等级类星魂：仅真实伤害倍率通过基准校验后更新
+        # 行迹技能等级（真实配置）：Param[0] 等级表不必然是伤害倍率。
+        # 仅原本有直伤的技能覆盖 mult；已识别的机制参数按结构化字段更新。
         for slot, lv in (build.get("skill_levels") or {}).items():
-            sk = ch.skills.get(slot)
-            if sk and sk.mult_levels and 1 <= lv <= len(sk.mult_levels):
-                sk.mult = sk.mult_levels[lv - 1]
+            _apply_explicit_skill_level(ch, slot, int(lv))
         if "stats" in build:
             stats[cid] = _stats_from_dict(build["stats"])
         elif "main_stats" in build or "substats" in build:
@@ -133,11 +132,39 @@ def assemble_team(team_path: Path, characters: Dict[str, CharacterData],
     return stats, d.get("speed_targets", {}), build_errors
 
 
-def _apply_rank_levels(ch: CharacterData) -> None:
-    """等级类星魂（E3/E5）：技能等级 +N → mult 取等级表对应值。
+def _apply_explicit_skill_level(ch: CharacterData, slot: str, level: int) -> None:
+    """应用显式行迹等级，区分伤害倍率与复用 Param[0] 的机制参数。
 
-    安全校验：等级表 L10 与当前 mult 一致才应用（防参数位错位——
-    非倍率的 params[0]（如花火战技暴伤）静默跳过）；基础等级 = 10（满级）。
+    StarRailRes `params[*][0]` 对攻击技能通常是伤害倍率，但辅助技能可能是增伤、
+    治疗或其他机制值。只有静态 `mult > 0` 的技能才能写回伤害倍率；否则保持
+    `mult=0`，并仅更新能与 L10 基准明确对上的已结构化机制字段。
+    """
+    sk = ch.skills.get(slot)
+    if sk is None or not sk.mult_levels or not (1 <= level <= len(sk.mult_levels)):
+        return
+    value = sk.mult_levels[level - 1]
+    if sk.mult > 0.0:
+        sk.mult = value
+        return
+    if len(sk.mult_levels) < 10:
+        return
+    baseline = sk.mult_levels[9]
+    mechanic = ch.talent_extra.get("skill_effects", {}).get(slot) or {}
+    buff = mechanic.get("buff")
+    if isinstance(buff, dict) and isinstance(buff.get("value"), (int, float)) \
+            and abs(float(buff["value"]) - baseline) <= 1e-9:
+        buff["value"] = value
+    # 记忆主战技 Param[0] = 迷迷治疗比例，不是角色伤害倍率。
+    if isinstance(mechanic.get("mem_heal"), (int, float)) \
+            and abs(float(mechanic["mem_heal"]) - baseline) <= 1e-9:
+        mechanic["mem_heal"] = value
+
+
+def _apply_rank_levels(ch: CharacterData) -> None:
+    """等级类星魂（E3/E5）：仅真实伤害倍率 +N 后取等级表。
+
+    安全校验：等级表 L10 与当前 `mult` 一致才应用；辅助技能 Param[0]
+    （如花火/知更鸟增益、记忆主治疗）不是伤害倍率，必须保持 `mult=0`。
     """
     def apply_level(sk, delta: int, cap: int) -> None:
         if not sk.mult_levels or len(sk.mult_levels) < 10:

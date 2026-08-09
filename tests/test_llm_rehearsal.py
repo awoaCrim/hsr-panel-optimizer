@@ -6,7 +6,7 @@
 import pytest
 
 from hsr_sim.engine.simulate import Simulator
-from hsr_sim.llm.rehearsal import build_knowledge_pack, run_rehearsal
+from hsr_sim.llm.rehearsal import _compact_state, build_knowledge_pack, run_rehearsal
 from hsr_sim.loader import DATA_DIR, load_character
 from hsr_sim.model import Enemy, Rotation, Stats
 from hsr_sim.rehearse import RehearsalSession
@@ -59,6 +59,38 @@ def test_knowledge_pack_advance_and_gear():
     assert "野穗伴行的快枪手" in pack    # 红A 快枪手套（搜索最优）
     assert "星魂 5 命" in pack   # 红A E5（含等级类 E3/E5）
     assert "词条" in pack             # builds 词条构成
+
+
+def test_knowledge_pack_non_attack_skills_are_explicit():
+    """辅助技能必须明确标注非攻击；禁止 LLM 虚构伤害、削韧和攻击后触发。"""
+    from pathlib import Path
+    from hsr_sim.rehearse import RehearsalSession as RS
+    s = RS.from_files(team=Path("data/team_real.json"),
+                      enemy=Path("data/enemy_starforge12b.json"))
+    pack = build_knowledge_pack(s)
+    assert "1309 知更鸟" in pack
+    assert "skill:非攻击" in pack
+    assert "非攻击技能不会造成伤害/削韧" in pack
+    assert "不会触发协奏附加伤害" in pack
+    state = s.observe()
+    compact = _compact_state(state)
+    assert state["sp"] == {"value": 4.0, "max": 7.0, "timeline_tail": [[0.0, 4.0]]}
+    assert compact["sp"] == {"value": 4.0, "max": 7.0}
+    assert "战技点：当前 4 / 上限 7" in pack
+    # 开局推进到知更鸟决策点，验证结构化目标契约也不是敌人目标。
+    while state["phase"] == "decision" and state["decision"]["unit"] != "1309":
+        d = state["decision"]
+        option = d["skill_options"][d["default"]]
+        if option["target_type"] == "ally":
+            target = d["ally_targets"][0] if d["ally_targets"] else ""
+        elif option["target_type"] == "enemy":
+            target = d["targets"][0] if d["targets"] else ""
+        else:
+            target = ""
+        s.act(skill=d["default"], target=target, ults={})
+        state = s.observe()
+    assert state["decision"]["skill_options"]["skill"]["is_attack"] is False
+    assert state["decision"]["skill_options"]["skill"]["target_type"] == "none"
 
 
 def test_full_run_to_terminal():

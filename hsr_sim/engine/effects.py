@@ -169,8 +169,8 @@ def skill_to_effects(action_name: str, skill: SkillData, talent_extra: Dict) -> 
     if skill.energy_cost:
         effs.append(EnergyCostEffect(amount=skill.energy_cost))
 
-    # 5. 削韧
-    if skill.toughness > 0.0:
+    # 5. 削韧：只有实际攻击技能可削韧；非攻击机制技的解包参数不得生成幽灵削韧。
+    if skill.mult > 0.0 and skill.toughness > 0.0:
         effs.append(ToughnessEffect(amount=skill.toughness))
 
     # 6. 拉条

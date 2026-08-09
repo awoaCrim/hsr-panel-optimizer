@@ -120,8 +120,13 @@ class SimRunner:
         self._publish("executing_demo", session, {"state": state, "act": 1})
         while state["phase"] == "decision" and acts < max_acts and not self._stop_event.is_set():
             decision = state["decision"]
-            target = (decision["ally_targets"][0] if decision.get("ally_targets")
-                      else (decision["targets"][0] if decision["targets"] else ""))
+            option = decision["skill_options"][decision["default"]]
+            if option["target_type"] == "ally":
+                target = decision["ally_targets"][0] if decision["ally_targets"] else ""
+            elif option["target_type"] == "enemy":
+                target = decision["targets"][0] if decision["targets"] else ""
+            else:
+                target = ""
             self._publish("executing_action", session, {
                 "state": state, "unit": decision["unit"], "skill": decision["default"],
                 "target": target, "note": "demo", "act": acts + 1,
