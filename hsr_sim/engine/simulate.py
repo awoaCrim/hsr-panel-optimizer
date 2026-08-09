@@ -95,9 +95,13 @@ class Simulator:
         memosprite_speed: float = 130.0,
         seed: int = 0,
         unverified_inputs: Optional[List[str]] = None,
+        initial_sp: Optional[float] = None,
+        initial_energy: Optional[Dict[str, float]] = None,
     ) -> None:
         self.chars = characters
         self.stats = char_stats
+        self._initial_sp = 4.0 if initial_sp is None else initial_sp
+        self._initial_energy = dict(initial_energy or {})
         self.enemies = enemies
         self.rotation = rotation
         self.target_av = target_av
@@ -121,7 +125,7 @@ class Simulator:
         # 运行时状态
         self.t = 0.0
         self._steps = 0
-        self.sp = 4.0
+        self.sp = self._initial_sp
         self.sp_max = 5.0
         for cid, c in self.chars.items():
             self.sp_max += c.talent_extra.get("sp_cap_bonus", 0)
@@ -129,7 +133,8 @@ class Simulator:
             for ex in c.equipment_effects:
                 if ex["type"] == "ult_sp_refund_extra":
                     self.sp_max += ex.get("sp_cap_bonus", 0)
-        self.energy: Dict[str, float] = {cid: 0.0 for cid in self.chars}
+        self.energy: Dict[str, float] = {
+            cid: self._initial_energy.get(cid, 0.0) for cid in self.chars}
         self.toughness: Dict[str, float] = {eid: e.toughness for eid, e in self.enemies.items()}
         self.enemy_hp: Dict[str, float] = {eid: e.hp for eid, e in self.enemies.items()}
         self.buffs = BuffManager()

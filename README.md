@@ -10,8 +10,24 @@
 python -m hsr_sim.cli verify                # 验证默认方案（红A队 / 90级双精英 / 2T）
 python -m hsr_sim.cli verify --json         # 结构化输出（LLM 迭代的输入格式）
 python -m hsr_sim.cli verify --llm          # LLM 自动迭代（最多 5 轮，见下）
+python -m hsr_sim.webui                     # WebUI（队伍配置/装备库/推演控制台）
+python -m hsr_sim.rehearse --demo           # 推演会话演示（LLM 指挥接口）
 python -m pytest tests/                     # 对账测试（手算用例）
 ```
+
+## WebUI（队伍配置 + 推演控制台）
+
+```bash
+python -m hsr_sim.webui --port 8000 --llm-config "G:/tmp/hsr_llm.json"
+# 浏览器打开 http://127.0.0.1:8000
+```
+
+三个页面：
+- **队伍配置**：4 角色完整配置（面板/光锥+精1效果/套装 2·4 件/星魂/词条/信任度信封）
+- **装备库**：169 光锥 / 60 套装 / 星魂 搜索浏览（已接入模拟效果标注）
+- **推演控制台**：demo 或 LLM 指挥模式启动推演，实时决策轨迹/事件流/报告（--llm-config 缺省时 LLM 模式不可用）
+
+开局状态（SP/能量）在关卡文件配置：`data/enemy_elite90.json` 的 `initial_sp`（默认 4，标准战斗规则）与 `initial_energy`（默认全 0；末日幻影/模拟宇宙等模式可覆盖）。
 
 ## LLM 自动迭代（--llm）
 

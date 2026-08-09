@@ -65,6 +65,11 @@ def cmd_verify(args: argparse.Namespace) -> int:
 
     rotation = load_rotation(rotation_path)
 
+    # 开局状态（标准规则 SP 4/能量 0；关卡配置可覆盖）
+    _ed = json.loads(enemy_path.read_text(encoding="utf-8"))
+    initial_sp = _ed.get("initial_sp", 4.0)
+    initial_energy = _ed.get("initial_energy", {})
+
     mem_speed = 130.0
     for c in characters.values():
         mem = c.talent_extra.get("memosprite")
@@ -72,7 +77,8 @@ def cmd_verify(args: argparse.Namespace) -> int:
             mem_speed = mem.get("speed", mem_speed)
 
     sim = Simulator(characters, stats, enemies, rotation, target_av, level, mem_speed,
-                    unverified_inputs=unverified)
+                    unverified_inputs=unverified, initial_sp=initial_sp,
+                    initial_energy=initial_energy)
     result = sim.run()
     report = build_report(
         result,

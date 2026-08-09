@@ -115,6 +115,10 @@ class RehearsalSession:
             characters, stats, _speed_targets, unverified = load_team_normalized(team)
             enemies, level, target_av, unv2 = load_enemies_normalized()
             unverified = unverified + unv2
+        # 开局状态（标准规则 SP 4/能量 0；关卡配置可覆盖——末日幻影/模拟宇宙等）
+        _ed = json.loads(enemy.read_text(encoding="utf-8"))
+        initial_sp = _ed.get("initial_sp", 4.0)
+        initial_energy = _ed.get("initial_energy", {})
         rotation = load_rotation(rotation_path)
         mem_speed = 130.0
         for c in characters.values():
@@ -122,7 +126,8 @@ class RehearsalSession:
             if mem:
                 mem_speed = mem.get("speed", mem_speed)
         sim = Simulator(characters, stats, enemies, rotation, target_av, level, mem_speed,
-                        unverified_inputs=unverified, seed=seed)
+                        unverified_inputs=unverified, seed=seed,
+                        initial_sp=initial_sp, initial_energy=initial_energy)
         session = cls(sim, name=name, undo_budget=undo_budget, per_step_budget=per_step_budget,
                       history=history)
         session._config_paths = (team, enemy, rotation_path, legacy)
