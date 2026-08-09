@@ -51,6 +51,9 @@ class DamageEvent:
     target: str
     amount: float
     kind: str  # normal / followup / additional / break
+    # ④ 对账：非暴击基准（暴击判定不可复现，实战值应匹配 {noncrit, noncrit×(1+暴伤)} 端点）
+    noncrit: float = 0.0
+    crit_dmg_mult: float = 0.0   # 1+暴伤（暴击端点倍率；0 = 无暴击概念）
 
 
 @dataclass
@@ -511,8 +514,9 @@ class Simulator:
     def _mem_damage_all(self, mult: float) -> None:
         for eid, hp in list(self.enemy_hp.items()):
             if hp > 0.0:
-                dmg = self._mem_deal(eid, mult)
-                self._record_damage("MEM", eid, dmg, "normal")
+                dmg, nc, cdm = self._mem_deal(eid, mult)
+                self._record_damage("MEM", eid, dmg, "normal",
+                                    noncrit=nc, crit_dmg_mult=cdm)
 
     def _resolve_target(self, target_id: str, skill) -> Optional[str]:
         if target_id and target_id in self.enemy_hp:
@@ -553,7 +557,8 @@ class Simulator:
             dmg = noncrit * (1.0 + stats.crit_dmg) if crit else noncrit
             total += dmg
             prev_hp = self.enemy_hp[target]
-            self._record_damage(cid, target, dmg, kind)
+            self._record_damage(cid, target, dmg, kind,
+                                noncrit=noncrit, crit_dmg_mult=1.0 + stats.crit_dmg)
             # 论剑叠层（同目标每次命中 +1 层；换目标清零）——段级精确（原按 act 计层近似）
             for ex in self._equip_effects(cid):
                 if ex["type"] == "hit_stack_dmg":
@@ -781,9 +786,10 @@ class Simulator:
                 if not alive:
                     break
                 target = self.rng.choice(alive)
-                dmg = self._mem_deal(target, mult)
+                dmg, nc, cdm = self._mem_deal(target, mult)
                 if dmg > 0.0:
-                    self._record_damage("MEM", target, dmg, "normal")
+                    self._record_damage("MEM", target, dmg, "normal",
+                                        noncrit=nc, crit_dmg_mult=cdm)
             if alive:
                 self._mem_damage_all(cfg.get("basic_aoe_mult", 0.90))
             # 123-4：忆灵攻击时装备者暴伤提升（迷迷共享装备者面板）
@@ -808,9 +814,10 @@ class Simulator:
             self.attacker_level,
             enemy_broken=self.toughness[eid] <= 0.0,
         )
+        cd_mult = 1.0 + owner_stats.crit_dmg
         if self.rng.random() < min(owner_stats.crit_rate, 1.0):
-            return noncrit * (1.0 + owner_stats.crit_dmg)
-        return noncrit
+            return noncrit * cd_mult, noncrit, cd_mult
+        return noncrit, noncrit, cd_mult
 
     def _mems_support_target(self) -> str:
         """声援目标：官方为玩家决策；v1.5 自动默认主C（队伍第一个角色），P1 LLM 指挥时由决策指定。"""
@@ -952,8 +959,11 @@ class Simulator:
         self._reset(self.seed)
 
     # ---------- 记录与结果 ----------
-    def _record_damage(self, source: str, target: str, amount: float, kind: str) -> None:
-        self.damage_events.append(DamageEvent(self.t, source, target, amount, kind))
+    def _record_damage(self, source: str, target: str, amount: float, kind: str,
+                      noncrit: float = 0.0, crit_dmg_mult: float = 0.0) -> None:
+        """记录伤害事件；段级伤害携带非暴击基准（④ 对账端点）。"""
+        self.damage_events.append(DamageEvent(self.t, source, target, amount, kind,
+                                              noncrit=noncrit, crit_dmg_mult=crit_dmg_mult))
         self.enemy_hp[target] = max(0.0, self.enemy_hp[target] - amount)
         # 声援真伤（research 定值）：声援目标每段伤害后附加真伤 = 该段伤害 × 比例
         # 真伤本身不再触发真伤；不削韧、不算行动、独立乘区

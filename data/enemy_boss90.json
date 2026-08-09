@@ -1,0 +1,43 @@
+{
+  "_note": "混沌回忆 boss 结构靶场（④ 多关卡）：单 boss 高防/高韧性/快速度",
+  "level": 90,
+  "target_av": 400.0,
+  "initial_sp": 4.0,
+  "initial_energy": {},
+  "enemies": {
+    "boss": {
+      "id": "boss",
+      "name": "玄鹿·boss",
+      "element": "Ice",
+      "hp": 1200000,
+      "atk": 1400,
+      "defense": 1400.0,
+      "speed": 120.0,
+      "toughness": 480.0,
+      "weaknesses": [
+        "Quantum",
+        "Ice"
+      ],
+      "resistances": {
+        "Wind": 0.4
+      },
+      "skills": [
+        {
+          "name": "重击",
+          "mult": 3.5,
+          "damage_type": "Physical",
+          "ai_cd": 2,
+          "sp_hit": 10,
+          "note": "MonsterSkillConfig 高倍率技能（④ 测试关卡）"
+        },
+        {
+          "name": "普攻",
+          "mult": 2.0,
+          "damage_type": "Ice",
+          "ai_cd": 1,
+          "sp_hit": 10
+        }
+      ]
+    }
+  }
+}

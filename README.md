@@ -29,6 +29,14 @@ python -m hsr_sim.webui --port 8000 --llm-config "G:/tmp/hsr_llm.json"
 
 开局状态（SP/能量）在关卡文件配置：`data/enemy_elite90.json` 的 `initial_sp`（默认 4，标准战斗规则）与 `initial_energy`（默认全 0；末日幻影/模拟宇宙等模式可覆盖）。
 
+## 多关卡 + 实战对账（④）
+
+- 多关卡：`data/enemy_boss90.json`（单 boss 高防）/ `enemy_trash90.json`（三小怪波）
+  `python scripts/search_builds.py --enemy enemy_boss90.json`（装备搜索按关卡评估）
+- 实战录像对账：`python scripts/compare_replay.py replay.json`（replay 格式见脚本 docstring：
+  实战面板 + 装备 + 行动序列 + 每 act 伤害/大招声明）——伤害按"端点区间"诚实对账：
+  暴击判定不可复现，但每段伤害 ∈ {非暴击, 非暴击×(1+暴伤)} 端点区间内 = 公式一致
+
 ## LLM 自动迭代（--llm）
 
 ```bash

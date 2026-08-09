@@ -1,0 +1,78 @@
+{
+  "_note": "小怪波靶场（④ 多关卡）：3 低韧性快速小怪",
+  "level": 90,
+  "target_av": 300.0,
+  "initial_sp": 4.0,
+  "initial_energy": {},
+  "enemies": {
+    "mob_a": {
+      "id": "mob_a",
+      "name": "扑满·甲",
+      "element": "Quantum",
+      "hp": 180000,
+      "atk": 700,
+      "defense": 900.0,
+      "speed": 105.0,
+      "toughness": 60.0,
+      "weaknesses": [
+        "Quantum",
+        "Physical"
+      ],
+      "skills": [
+        {
+          "name": "撞击",
+          "mult": 1.5,
+          "damage_type": "Physical",
+          "ai_cd": 1,
+          "sp_hit": 10
+        }
+      ]
+    },
+    "mob_b": {
+      "id": "mob_b",
+      "name": "扑满·乙",
+      "element": "Quantum",
+      "hp": 180000,
+      "atk": 700,
+      "defense": 900.0,
+      "speed": 105.0,
+      "toughness": 60.0,
+      "weaknesses": [
+        "Quantum",
+        "Physical"
+      ],
+      "skills": [
+        {
+          "name": "撞击",
+          "mult": 1.5,
+          "damage_type": "Physical",
+          "ai_cd": 1,
+          "sp_hit": 10
+        }
+      ]
+    },
+    "mob_c": {
+      "id": "mob_c",
+      "name": "扑满·丙",
+      "element": "Quantum",
+      "hp": 180000,
+      "atk": 700,
+      "defense": 900.0,
+      "speed": 105.0,
+      "toughness": 60.0,
+      "weaknesses": [
+        "Quantum",
+        "Physical"
+      ],
+      "skills": [
+        {
+          "name": "撞击",
+          "mult": 1.5,
+          "damage_type": "Physical",
+          "ai_cd": 1,
+          "sp_hit": 10
+        }
+      ]
+    }
+  }
+}

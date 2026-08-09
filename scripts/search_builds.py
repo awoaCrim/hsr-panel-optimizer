@@ -3,7 +3,8 @@
 评估：demo pilot 决策跑完整局（seed=0 双精英 90），指标 = 击杀数 → 总伤害 → 用时。
 数据：normalized（equipment.json 全部 exec 接入）。
 
-用法：python scripts/search_builds.py [--top N]
+用法：python scripts/search_builds.py [--top N] [--enemy <文件>] [--seed N] [--quiet]
+   --enemy：关卡文件（默认 enemy_elite90.json；④ 多关卡排序稳定性验证）
 """
 from __future__ import annotations
 
@@ -55,11 +56,20 @@ def main() -> int:
     top_n = 20
     if "--top" in sys.argv:
         top_n = int(sys.argv[sys.argv.index("--top") + 1])
+    enemy_file = "enemy_elite90.json"
+    if "--enemy" in sys.argv:
+        enemy_file = sys.argv[sys.argv.index("--enemy") + 1]
+    seed = 0
+    if "--seed" in sys.argv:
+        seed = int(sys.argv[sys.argv.index("--seed") + 1])
 
     chars, unverified = load_characters_normalized(NORMALIZED_DIR)
     equipment = load_equipment(NORMALIZED_DIR)
     enemies, level, target_av, unv2 = load_enemies_normalized()
-    _ed = json.loads((DATA_DIR / "enemy_elite90.json").read_text(encoding="utf-8"))
+    # ④ 多关卡：legacy 敌人文件直接加载（技能/速度/开局状态）
+    from hsr_sim.loader import load_enemies
+    enemies, level, target_av = load_enemies(DATA_DIR / enemy_file)
+    _ed = json.loads((DATA_DIR / enemy_file).read_text(encoding="utf-8"))
     initial_sp = _ed.get("initial_sp", 4.0)
     initial_energy = _ed.get("initial_energy", {})
 
@@ -102,7 +112,7 @@ def main() -> int:
         _apply_rank_levels(ch)
 
         sim = Simulator(chars, stats, enemies, Rotation(), target_av, level, 130.0,
-                        unverified_inputs=unverified + unv2, seed=0,
+                        unverified_inputs=unverified + unv2, seed=seed,
                         initial_sp=initial_sp, initial_energy=initial_energy)
         session = RehearsalSession(sim)
         _demo_pilot(session, max_acts=200)
