@@ -370,14 +370,29 @@ class RehearsalSession:
                              "cost": sim.chars[cid].skills["ult"].energy_cost,
                              "full": sim.energy[cid] >= sim.chars[cid].skills["ult"].energy_cost}
                        for cid in sim.chars},
+            "allies": {cid: {
+                "name": sim.chars[cid].name,
+                "hp": round(sim.char_hp[cid], 1),
+                "hp_max": round(sim.char_hp_max[cid], 1),
+                "hp_pct": round(sim.char_hp[cid] / sim.char_hp_max[cid] * 100, 1)
+                if sim.char_hp_max[cid] > 0.0 else 0.0,
+                "energy": round(sim.energy[cid], 3),
+                "energy_cost": sim.chars[cid].skills["ult"].energy_cost,
+                "energy_full": sim.energy[cid] >= sim.chars[cid].skills["ult"].energy_cost,
+                "alive": sim.char_hp[cid] > 0.0,
+            } for cid in sim.chars},
             "sp": {"value": round(sim.sp, 3), "max": sim.sp_max,
                    "timeline_tail": [[round(t, 3), sp] for t, sp in sim.sp_timeline[-5:]]},
             "wave": {"index": sim.enemy_wave + 1, "total": len(sim._waves)},
-            "enemies": {eid: {"hp": round(sim.enemy_hp[eid], 1),
-                              "hp_pct": round(sim.enemy_hp[eid] / sim.enemies[eid].hp * 100, 1),
-                              "toughness": round(sim.toughness[eid], 1),
-                              "broken": sim.toughness[eid] <= 0.0}
-                        for eid in sim.enemies},
+            "enemies": {eid: {
+                "name": sim.enemies[eid].name,
+                "hp": round(sim.enemy_hp[eid], 1),
+                "hp_max": round(sim.enemies[eid].hp, 1),
+                "hp_pct": round(sim.enemy_hp[eid] / sim.enemies[eid].hp * 100, 1),
+                "toughness": round(sim.toughness[eid], 1),
+                "toughness_max": round(sim.enemies[eid].toughness, 1),
+                "broken": sim.toughness[eid] <= 0.0,
+            } for eid in sim.enemies},
             "memosprite": ({"charge": round(sim.memosprite["charge"], 1),
                             "alive": sim.memosprite["alive"],
                             "owner": sim.memosprite_owner}

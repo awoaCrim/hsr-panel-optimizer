@@ -98,6 +98,18 @@ from hsr_sim.loader import _stats_from_dict, assemble_team  # noqa: E402
 from hsr_sim.model import CharacterData, Enemy, EnemySkill, SkillData  # noqa: E402
 
 
+def _resolved_character_name(cid: str, raw_name: str) -> str:
+    """normalized 可能保留主角名占位符；优先回退到本地已解析角色名。"""
+    if raw_name and not (raw_name.startswith("{") and raw_name.endswith("}")):
+        return raw_name
+    local = DATA_DIR / "characters" / f"{cid}.json"
+    if local.exists():
+        name = json.loads(local.read_text(encoding="utf-8")).get("name", "")
+        if name and not (name.startswith("{") and name.endswith("}")):
+            return name
+    return raw_name
+
+
 def load_characters_normalized(normalized_dir: Path = NORMALIZED_DIR):
     """从 normalized 构建 CharacterData（技能字段 + mechanic → talent_extra）。
 
@@ -138,7 +150,8 @@ def load_characters_normalized(normalized_dir: Path = NORMALIZED_DIR):
         }
         talent_extra.update(cd.get("talent_extra") or {})
         characters[cid] = CharacterData(
-            id=cid, name=cd["name"], element=cd["element"], path=cd["path"],
+            id=cid, name=_resolved_character_name(cid, cd["name"]),
+            element=cd["element"], path=cd["path"],
             base_stats=_stats_from_dict(cd.get("base_stats") or {}),
             skills=skills, talent_extra=talent_extra,
             max_energy=cd.get("max_energy", 0.0),

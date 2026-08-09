@@ -15,7 +15,7 @@ from __future__ import annotations
 import json
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Callable, Dict, List, Optional
 
 from ..rehearse import RehearseError, RehearsalSession, UndoBudgetExceeded
 from .client import LLMClient
@@ -280,11 +280,18 @@ class RehearsalResult:
 
 
 def run_rehearsal(client: LLMClient, session: RehearsalSession,
-                  max_acts: int = 40, verbose: bool = False) -> RehearsalResult:
+                  max_acts: int = 40, verbose: bool = False,
+                  on_progress: Optional[Callable[[str, RehearsalSession, Dict[str, Any]], None]] = None,
+                  should_stop: Optional[Callable[[], bool]] = None) -> RehearsalResult:
     """LLM 自主指挥一整局推演（D10：每步 act + 自评）。
 
     非法决策自动重试（≤3 次/步，错误反馈给 LLM）；回退预算由会话强制。
+    on_progress 在模型请求/动作执行/自评边界发布实时状态（WebUI 不再等整局结束）。
     """
+    def publish(activity: str, **detail: Any) -> None:
+        if on_progress is not None:
+            on_progress(activity, session, detail)
+
     knowledge = build_knowledge_pack(session)
     result = RehearsalResult()
     state = session.observe()
@@ -292,7 +299,12 @@ def run_rehearsal(client: LLMClient, session: RehearsalSession,
         print(f"开局：t={state['t']} 队列={state['queue']['entries']}")
 
     while state["phase"] != "terminal" and result.acts < max_acts:
+        if should_stop is not None and should_stop():
+            result.stop_reason = "用户停止"
+            break
         decision = state["decision"]
+        publish("waiting_llm_decision", state=state, unit=decision["unit"],
+                act=result.acts + 1, llm_calls=result.llm_calls)
         # ---- 决策调用 ----
         msgs = [
             {"role": "system", "content": knowledge},
@@ -302,10 +314,15 @@ def run_rehearsal(client: LLMClient, session: RehearsalSession,
         ]
         d = client.chat_json(msgs)
         result.llm_calls += 1
+        if should_stop is not None and should_stop():
+            result.stop_reason = "用户停止"
+            break
         skill = d.get("skill", decision["default"])
         target = d.get("target", "")
         ults = d.get("ults")
         note = d.get("note", "")
+        publish("executing_action", state=state, unit=decision["unit"], skill=skill,
+                target=target, ults=ults, note=note, llm_calls=result.llm_calls)
         # ---- 执行（非法决策重试 ≤3 次） ----
         for attempt in range(3):
             try:
@@ -322,9 +339,18 @@ def run_rehearsal(client: LLMClient, session: RehearsalSession,
                 ]
                 d = client.chat_json(msgs)
                 result.llm_calls += 1
+                if should_stop is not None and should_stop():
+                    result.stop_reason = "用户停止"
+                    break
                 skill = d.get("skill", decision["default"])
                 target = d.get("target", "")
                 ults = d.get("ults")
+                note = d.get("note", "")
+                publish("executing_action", state=state, unit=decision["unit"], skill=skill,
+                        target=target, ults=ults, note=note, retry=attempt + 1,
+                        llm_calls=result.llm_calls)
+        if result.stop_reason == "用户停止":
+            break
         result.acts += 1
         if verbose:
             print(f"  act#{result.acts} t={act_result['t']:>7.2f} {decision['unit']} {skill}"
@@ -332,6 +358,10 @@ def run_rehearsal(client: LLMClient, session: RehearsalSession,
                   + (f" [{note}]" if note else ""))
         # ---- 自评调用 ----
         state = session.observe()
+        publish("waiting_llm_evaluation", state=state, act=result.acts,
+                decision={"unit": decision["unit"], "skill": skill, "target": target,
+                          "ults": ults, "note": note},
+                act_result=act_result, llm_calls=result.llm_calls)
         ev_msgs = [
             {"role": "system", "content": knowledge},
             {"role": "user", "content": EVAL_CONTRACT.format(
@@ -340,8 +370,13 @@ def run_rehearsal(client: LLMClient, session: RehearsalSession,
         ]
         ev = client.chat_json(ev_msgs)
         result.llm_calls += 1
+        if should_stop is not None and should_stop():
+            result.stop_reason = "用户停止"
+            break
         verdict = ev.get("verdict", "continue")
         reason = ev.get("reason", "")
+        publish("applying_evaluation", state=state, act=result.acts,
+                verdict=verdict, reason=reason, llm_calls=result.llm_calls)
         try:
             if verdict == "undo":
                 session.undo(reason=reason)
@@ -364,10 +399,14 @@ def run_rehearsal(client: LLMClient, session: RehearsalSession,
             # 预算耗尽：LLM 只能继续（verdict 视为 continue），直到物理终止
         state = session.observe()
 
-    if result.acts >= max_acts:
+    if not result.stop_reason and should_stop is not None and should_stop():
+        result.stop_reason = "用户停止"
+    elif result.acts >= max_acts:
         result.stop_reason = f"达到步数上限 {max_acts}"
     elif state["phase"] == "terminal":
         result.stop_reason = f"物理终止：{state['terminal_reason']}"
     result.report = session.report()
     result.report_dict = session.report_dict()
+    publish("finished", state=state, stop_reason=result.stop_reason,
+            acts=result.acts, llm_calls=result.llm_calls)
     return result

@@ -3,6 +3,8 @@
 标准战斗规则：SP 4、能量 0（可配置——末日幻影/模拟宇宙等模式有不同开局规则）。
 """
 import json
+import threading
+import time
 import pytest
 
 from hsr_sim.engine.simulate import Simulator
@@ -65,6 +67,7 @@ class TestWebuiApi:
         assert red["relic_sets"][0]["pieces"] == 4
         assert {int(r["rank"]) for r in red["ranks"]} == {1, 2}
         memory = next(c for c in d["characters"] if c["id"] == "8007")
+        assert memory["name"] == "记忆主"       # normalized {NICKNAME} 占位符必须解析
         assert memory["light_cone"]["refinement"] == 5
         assert "main_stats" in red and "substats" in red
         assert isinstance(d["trust"]["unverified"], list)
@@ -92,6 +95,54 @@ class TestWebuiApi:
         assert session.sim.target_av == pytest.approx(1000)
         assert len(session.sim._waves) == 2
         assert set(session.sim._waves[1]) == {"pamking"}
+
+    def test_runner_publishes_live_act_before_llm_evaluation_returns(self):
+        """回归：LLM 请求进行中也要实时发布阶段；act 不得等整局结束才出现在 WebUI。"""
+        from hsr_sim.webui import (DEFAULT_ENEMY, DEFAULT_TEAM, SimRunner,
+                                   _make_session_factory, _stage_registry)
+
+        class BlockingClient:
+            def __init__(self):
+                self.entered = [threading.Event(), threading.Event()]
+                self.release = [threading.Event(), threading.Event()]
+                self.calls = 0
+
+            def chat_json(self, messages, temperature=0.2):
+                i = self.calls
+                self.calls += 1
+                self.entered[i].set()
+                assert self.release[i].wait(5), "测试未放行 LLM 请求"
+                return ({"skill": "basic", "ults": {}, "note": "实时测试"}
+                        if i == 0 else {"verdict": "stop", "reason": "测试结束"})
+
+        stages, default = _stage_registry(DEFAULT_ENEMY)
+        factory = _make_session_factory(DEFAULT_TEAM, stages, default,
+                                        DATA_DIR / "rotation.json", False)
+        client = BlockingClient()
+        runner = SimRunner(factory, client)
+        runner.start("llm", seed=0, max_acts=2, stage_id=default)
+        try:
+            assert client.entered[0].wait(5)
+            waiting = runner.status()
+            assert waiting["running"]
+            assert waiting["activity"] == "waiting_llm_decision"
+            assert waiting["state"]["decision"] is not None
+
+            client.release[0].set()
+            assert client.entered[1].wait(5)
+            evaluating = runner.status()
+            assert evaluating["activity"] == "waiting_llm_evaluation"
+            assert len(evaluating["trail"]) == 1
+            assert evaluating["trail"][0]["note"] == "实时测试"
+            assert evaluating["state"]["progression"]["acts"] == 1
+            assert evaluating["state"]["allies"]["8007"]["name"] == "记忆主"
+            assert evaluating["state"]["enemies"]["cywing"]["name"] == "破晓战队·苍翼"
+        finally:
+            client.release[0].set()
+            client.release[1].set()
+            deadline = time.time() + 5
+            while runner.status()["running"] and time.time() < deadline:
+                time.sleep(0.01)
 
     def test_equipment_search(self):
         from hsr_sim.webui import build_equipment_payload
