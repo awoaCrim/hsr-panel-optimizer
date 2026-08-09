@@ -345,6 +345,18 @@ LC_EXEC = {
         {"type": "stat", "stat": "speed_pct", "value": 0.06},
         {"type": "skill_team_dmg", "value": 0.08, "duration": 3},
     ],
+    "24001": [  # 星海巡航（黑塔商店免费）：暴击+8%；HP≤50% 目标暴击额外+8%；击杀后攻击+20% 2回合
+        {"type": "stat", "stat": "crit_rate", "value": 0.08},
+        {"type": "hp_le_crit", "hp_le": 0.5, "crit_rate": 0.08},
+        {"type": "on_kill_atk", "value": 0.20, "duration": 2},
+    ],
+    "23012": [  # 如泥酣眠（红A 专武）：暴伤+30%；普攻/战技未暴击→暴击率+36% 1回合（CD 3回合）
+        {"type": "stat", "stat": "crit_dmg", "value": 0.30},
+        {"type": "no_crit_crit_approx", "value": 0.36},
+    ],
+    "21010": [  # 论剑：同一目标每次命中伤害+8%（叠 5 层）；换目标清零
+        {"type": "hit_stack_dmg", "per_stack": 0.08, "max": 5},
+    ],
 }
 RS_EXEC = {
     "108": {"2": [{"type": "element_dmg", "element": "Quantum", "value": 0.10}],

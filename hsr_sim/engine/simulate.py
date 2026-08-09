@@ -157,7 +157,12 @@ class Simulator:
         # 装备效果运行时（光锥被动/套装；exec DSL，见 build.resolve_equipment）
         self.equip_stacks: Dict[str, Dict[str, int]] = {}   # cid -> effect_id -> 层数
         self.equip_ult_count: Dict[str, int] = {}           # cid -> 大招计数（ult_sp_refund）
+        self.equip_hit_target: Dict[str, str] = {}          # cid -> 上次攻击目标（论剑叠层）
         self.skill_streak: Dict[str, int] = {}              # 连续战技计数（星魂 E1）
+        self._start_effects_applied = False
+        # 装备效果运行时状态随 _reset 清理（restart 一致性）
+        for _attr in ("equip_stacks", "equip_ult_count", "equip_hit_target", "skill_streak"):
+            getattr(self, _attr).clear()
         self._start_effects_applied = False
         # LLM 指挥通道（ADR-0007 3.3）：
         self.external_action: Optional[Action] = None    # 决策注入（优先于 policy/序列；消费后清空）
@@ -505,6 +510,15 @@ class Simulator:
     def _deal_damage(self, cid: str, target: str, mult: float, kind: str = "normal",
                      skill_type: str = "") -> float:
         stats = self._effective_stats(cid)
+        # 装备条件暴击（目标血量条件 + 未暴击触发近似）
+        for ex in self._equip_effects(cid):
+            if ex["type"] == "hp_le_crit" and \
+                    self.enemy_hp[target] <= ex["hp_le"] * self.enemies[target].hp:
+                stats.crit_rate += ex["crit_rate"]
+            elif ex["type"] == "no_crit_crit_approx":
+                # 如泥酣眠：未暴击→暴击率+36% 1回合（CD 3）。期望值模型近似：
+                # 无条件折算 +36%×(1-当前暴击率)（每次伤害独立触发；近似项，见 docs）
+                stats.crit_rate += ex["value"] * max(0.0, 1.0 - stats.crit_rate)
         enemy = self.enemies[target]
         res = enemy.resistances.get(self.chars[cid].element, 0.0)
         # 星魂 E2（红A）：终结技降低目标元素抗性
@@ -515,7 +529,22 @@ class Simulator:
         m.def_ignore += def_ignore
         dmg = expected_damage(mult, stats.atk, stats, m, enemy.defense, res, self.attacker_level,
                               enemy_broken=self.toughness[target] <= 0.0)
+        prev_hp = self.enemy_hp[target]
         self._record_damage(cid, target, dmg, kind)
+        # 论剑叠层（同一目标每次伤害+1 层；换目标清零）
+        for ex in self._equip_effects(cid):
+            if ex["type"] == "hit_stack_dmg":
+                if self.equip_hit_target.get(cid) != target:
+                    self.equip_hit_target[cid] = target
+                    self.equip_stacks.setdefault(cid, {})[ex["src"]] = 0
+                else:
+                    n = self.equip_stacks.get(cid, {}).get(ex["src"], 0)
+                    self.equip_stacks.setdefault(cid, {})[ex["src"]] = min(n + 1, ex["max"])
+        # 击杀触发（星海巡航：击杀后攻击+20% 2回合）
+        if prev_hp > 0.0 and self.enemy_hp[target] <= 0.0:
+            for ex in self._equip_effects(cid):
+                if ex["type"] == "on_kill_atk":
+                    self.buffs.add("atk_pct", ex["value"], cid, ex["duration"], target=cid)
         return dmg
 
     def _equip_damage(self, cid: str, kind: str, skill_type: str, target: str,
@@ -549,6 +578,10 @@ class Simulator:
                 if ex.get("weakness_extra") and self.chars[cid].element in \
                         self.enemies[target].weaknesses:
                     def_ignore += ex["weakness_extra"]
+            elif t == "hit_stack_dmg":
+                # 论剑：同目标命中叠层（近似：按 act 计层，战技多段未逐段模拟）
+                n = self.equip_stacks.get(cid, {}).get(ex["src"], 0)
+                bonus += n * ex["per_stack"]
             elif t == "ult_dmg" and kind == "ult":
                 bonus += ex["value"]     # 红A E4：终结技伤害提高 150%
         # 23003 战技后增伤（下一个行动的队友，buff 存在期间其他角色攻击都吃——近似）

@@ -96,9 +96,9 @@ class TestLoadTeamWithBuilds:
         from pathlib import Path
         from hsr_sim.loader import DATA_DIR, load_substat_counts, load_team
         chars, stats, targets = load_team(DATA_DIR / "team_reda.json", DATA_DIR / "characters")
-        # 红A：105+25+2×2.4 = 134.8
-        assert stats["1015"].speed == pytest.approx(134.8)
-        assert stats["1015"].crit_dmg == pytest.approx(0.50 + 0.648 + 5 * 0.0648)
+        # 红A：快枪手4（速度+6%）：(105+25+2×2.4)×1.06 = 142.888
+        assert stats["1015"].speed == pytest.approx(142.888)
+        assert stats["1015"].crit_dmg == pytest.approx(0.50 + 16 * 0.0648)   # 高暴伤词条 16
         counts = load_substat_counts(DATA_DIR / "team_reda.json")
         assert counts["1015"] == 30.0
         assert all(c <= 30 for c in counts.values())

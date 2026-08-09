@@ -164,3 +164,79 @@ class TestStartAdvance:
         av0 = sim.queue.snapshot()["1306"]
         sim._apply_start_effects()
         assert sim.queue.snapshot()["1306"] == pytest.approx(av0 * 0.6)
+
+
+class TestNewLightCones:
+    """候选光锥（装备搜索新增映射）：星海巡航 / 如泥酣眠 / 论剑。"""
+
+    def test_data_mapped(self):
+        """数据层：3 个候选光锥 effect.exec 已入档。"""
+        from hsr_sim.data.loader import load_equipment
+        eq = load_equipment()
+        for lid, n in (("24001", "星海巡航"), ("23012", "如泥酣眠"), ("21010", "论剑")):
+            e = (eq["light_cones"][lid].get("effect") or {})
+            v = e.get("value", e) if isinstance(e, dict) else e
+            assert v.get("exec"), f"{n} 无 exec"
+
+    def test_hit_stack_dmg(self):
+        """论剑：同目标连续命中叠层 8%/层（5 层）；换目标清零。"""
+        sim = _mk(["1015"], {"1015": {"light_cone": "21010"}})
+        sim.external_action = Action(unit_id="1015", action="basic", target="elite")
+        sim.run_step()
+        stacks = sim.equip_stacks["1015"].get("lc:21010", 0)
+        assert stacks == 0    # 第一击无加成（命中后叠 1 层）
+        sim.external_action = Action(unit_id="1015", action="basic", target="elite")
+        sim.run_step()
+        bonus, _ = sim._equip_damage("1015", "normal", "basic", "elite", sim._effective_stats("1015"))
+        assert bonus == pytest.approx(1 * 0.08)   # 第 2 击后 1 层
+        sim.external_action = Action(unit_id="1015", action="basic", target="elite")
+        sim.run_step()
+        assert sim.equip_stacks["1015"].get("lc:21010", 0) == 2   # 第 3 击后 2 层
+        # 换目标清零（新增目标）
+        sim.enemies["elite2"] = Enemy(id="elite2", name="B", element="Ice", hp=1e9,
+                                      atk=1000, defense=1100.0, speed=10.0,
+                                      toughness=300.0, weaknesses=["Quantum"])
+        sim.toughness["elite2"] = 300.0
+        sim.enemy_hp["elite2"] = 1e9
+        sim.external_action = Action(unit_id="1015", action="basic", target="elite2")
+        sim.run_step()
+        assert sim.equip_stacks["1015"].get("lc:21010", 0) == 0
+
+    def test_hp_le_crit(self):
+        """星海巡航：目标 HP≤50% → 暴击率 +8%（_deal_damage 内生效）。"""
+        sim = _mk(["1015"], {"1015": {"light_cone": "24001"}})
+        sim.enemy_hp["elite"] = 0.4e9     # 40% HP
+        sim.external_action = Action(unit_id="1015", action="basic", target="elite")
+        before = sim.damage_events[-1].amount if sim.damage_events else 0.0
+        sim.run_step()
+        # 条件暴击已计入伤害（HP≤50% 时 crit_rate 更高 → 伤害更高）
+        d_hi = sim.damage_events[-1].amount
+        sim.enemy_hp["elite"] = 0.9e9     # 90% HP（条件不触发）
+        sim.external_action = Action(unit_id="1015", action="basic", target="elite")
+        sim.run_step()
+        d_lo = sim.damage_events[-1].amount
+        assert d_hi > d_lo   # 半血目标伤害更高
+
+    def test_on_kill_atk(self):
+        """星海巡航：击杀后攻击 +20% 2 回合。"""
+        sim = _mk(["1015"], {"1015": {"light_cone": "24001"}})
+        sim.enemy_hp["elite"] = 100.0
+        sim.external_action = Action(unit_id="1015", action="basic", target="elite")
+        sim.run_step()
+        assert sim.buffs.sum_for("atk_pct", "1015") == pytest.approx(0.20)
+
+    def test_no_crit_crit_approx(self):
+        """如泥酣眠：未暴击→暴击率 +36%（期望值近似：+36%×(1-暴击率)）。"""
+        sim = _mk(["1015"], {})
+        sim.external_action = Action(unit_id="1015", action="basic", target="elite")
+        sim.run_step()
+        d0 = sim.damage_events[-1].amount
+        # 追加近似效果（模拟装配）：暴击率 0.5 → 增量 0.36×0.5=0.18
+        sim.chars["1015"].equipment_effects.append(
+            {"type": "no_crit_crit_approx", "value": 0.36, "src": "lc:23012"})
+        sim.enemy_hp["elite"] = 1e9
+        sim.external_action = Action(unit_id="1015", action="basic", target="elite")
+        sim.run_step()
+        d1 = sim.damage_events[-1].amount
+        # crit_mult: 1+0.5×1.0=1.5 → 1+(0.5+0.18)×1.0=1.68
+        assert d1 / d0 == pytest.approx(1.68 / 1.5, rel=1e-6)

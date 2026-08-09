@@ -10,21 +10,21 @@
   "builds": {
     "1015": {
       "main_stats": {
-        "body": "crit_dmg",
+        "body": "crit_rate",
         "feet": "speed",
-        "sphere": "quantum_dmg",
+        "sphere": "atk_pct",
         "rope": "atk_pct"
       },
       "substats": {
         "speed": 2,
-        "crit_rate": 16,
-        "crit_dmg": 5,
-        "atk_pct": 7
+        "crit_rate": 8,
+        "crit_dmg": 16,
+        "atk_pct": 4
       },
       "light_cone": "23001",
       "relic_sets": [
         {
-          "id": "108",
+          "id": "102",
           "pieces": 4
         },
         {
@@ -33,7 +33,7 @@
         }
       ],
       "eidolon": 5,
-      "equip_note": "示例配置：红A E5（含等级类 E3/E5：战技/大招/天赋 12 级）"
+      "equip_note": "装备搜索最优（480 组合枚举，demo pilot 基线）：于夜色中+快枪手4+萨尔索图2+暴击衣/速度鞋/攻击球/攻击绳+高暴伤词条"
     },
     "1306": {
       "main_stats": {
