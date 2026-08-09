@@ -128,6 +128,9 @@ class TestWebuiApi:
             assert waiting["running"]
             assert waiting["activity"] == "waiting_llm_decision"
             assert waiting["state"]["decision"] is not None
+            assert {x["unit_type"] for x in waiting["state"]["action_order"]["upcoming"]} == {
+                "character", "enemy", "memosprite",
+            }
 
             client.release[0].set()
             assert client.entered[1].wait(5)
@@ -144,6 +147,17 @@ class TestWebuiApi:
             deadline = time.time() + 5
             while runner.status()["running"] and time.time() < deadline:
                 time.sleep(0.01)
+
+    def test_action_order_ui_is_prominent_and_complete(self):
+        """首屏同时提供下一轮排序与包含敌人的完整实际行动记录。"""
+        from hsr_sim.webui_page import PAGE
+        assert 'id="turn-order-live"' in PAGE
+        assert 'id="action-history-live"' in PAGE
+        assert "下一轮行动顺序" in PAGE
+        assert "完整实际行动顺序" in PAGE
+        assert "action_order?.upcoming" in PAGE
+        assert "action_order?.history" in PAGE
+        assert "预计 t" in PAGE
 
     def test_report_copy_ui_is_selection_safe(self):
         """报告可复制，且状态轮询不得反复替换同一文本、打断用户选择。"""

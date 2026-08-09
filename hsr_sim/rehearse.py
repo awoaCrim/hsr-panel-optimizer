@@ -438,6 +438,62 @@ class RehearsalSession:
             "energy_status": "full" if cid in ult_ready else "charging",
         }
 
+    @staticmethod
+    def _actual_action_label(action: str) -> str:
+        return {
+            "basic": "普攻", "skill": "战技", "ult": "终结技",
+            "enemy_attack": "敌方攻击", "enemy_action": "敌方行动",
+            "memosprite_skill": "忆灵技", "memosprite_ult": "忆灵强化技",
+        }.get(action, action)
+
+    def _unit_display(self, unit_id: str) -> tuple[str, str, str]:
+        """行动条/历史共用的单位展示元数据：(名称, 类型, 中文阵营)。"""
+        if unit_id in self.sim.chars:
+            return self.sim.chars[unit_id].name, "character", "我方"
+        if unit_id == "MEM":
+            return "迷迷", "memosprite", "忆灵"
+        for wave in self.sim._waves:
+            if unit_id in wave:
+                return wave[unit_id].name, "enemy", "敌方"
+        return unit_id, "unknown", "其他"
+
+    def _action_order(self) -> Dict[str, Any]:
+        """模拟器真值投影：当前行动条顺序 + 已实际发生的单位行动。"""
+        upcoming = []
+        for index, (unit_id, av) in enumerate(self.sim.queue.ordered(), 1):
+            name, unit_type, side = self._unit_display(unit_id)
+            upcoming.append({
+                "index": index, "unit_id": unit_id, "name": name,
+                "unit_type": unit_type, "side": side,
+                "av": round(av, 4), "at": round(self.sim.t + av, 4),
+                "speed": round(self.sim.queue.get_speed(unit_id) or 0.0, 4),
+            })
+
+        history = []
+        for entry in self.sim.log:
+            name, unit_type, side = self._unit_display(entry.unit_id)
+            is_actual = (
+                unit_type == "character" and entry.action in {"basic", "skill", "ult"}
+                and not entry.detail.startswith("SP不足")
+                and not entry.detail.startswith("能量不足")
+            ) or (
+                unit_type == "enemy" and entry.action in {"enemy_attack", "enemy_action"}
+            ) or (
+                unit_type == "memosprite"
+                and entry.action in {"memosprite_skill", "memosprite_ult"}
+            )
+            if not is_actual:
+                continue
+            history.append({
+                "index": len(history) + 1, "t": round(entry.t, 4),
+                "unit_id": entry.unit_id, "name": name,
+                "unit_type": unit_type, "side": side,
+                "action": entry.action,
+                "action_name": self._actual_action_label(entry.action),
+                "detail": entry.detail,
+            })
+        return {"upcoming": upcoming, "history": history}
+
     def _state(self) -> Dict[str, Any]:
         """完整结构化状态（D9：不预设指标，LLM 自己解读）。"""
         sim = self.sim
@@ -457,6 +513,7 @@ class RehearsalSession:
                                     "speed": self.sim.queue._entries[uid].speed}
                             for uid, av in sim.queue.snapshot().items()},
             },
+            "action_order": self._action_order(),
             "energy": {cid: {"value": round(sim.energy[cid], 3),
                              "cost": sim.chars[cid].skills["ult"].energy_cost,
                              "full": sim.energy[cid] >= sim.chars[cid].skills["ult"].energy_cost}
@@ -535,6 +592,7 @@ class RehearsalSession:
         return {
             "setup": self._setup_meta(),
             "termination": {"reason": stop_reason},
+            "action_order": self._action_order(),
             "decision_trail": [_act_dict(a) for a in self.acts],
             "branch_summary": {
                 "current": {"acts": len(self.acts),
@@ -581,6 +639,12 @@ class RehearsalSession:
                     f"  SP {sp_before:.1f}→{res['sp']:.1f} (Δ{sp_delta:+.1f})"
                     f"  大招 {res['ult_used'] or '-'}{requested}"
                     + (f"  [LLM理由（未经规则验证）：{a['note']}]" if a["note"] else ""))
+            lines.append(f"\n[实际行动顺序] {len(r['action_order']['history'])} 次")
+            for item in r["action_order"]["history"]:
+                detail = f" · {item['detail']}" if item["detail"] else ""
+                lines.append(
+                    f"  {item['index']:>3}. t={item['t']:>7.2f}  [{item['side']}] "
+                    f"{item['unit_id']} {item['name']} · {item['action_name']}{detail}")
             lines.append(f"\n[分支树摘要]")
             lines.append(f"  当前路线：{len(r['decision_trail'])} 个 act（撤销 {r['branch_summary']['current']['undo_used']} 次）")
             for ab in r["branch_summary"]["abandoned"]:

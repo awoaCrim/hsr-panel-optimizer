@@ -44,6 +44,54 @@ class TestObserve:
         assert state["queue"]["next"] == "1015"
         assert state["t"] == 0.0
 
+    def test_action_order_exposes_every_unit_and_actual_turn(self):
+        """行动顺序同时覆盖当前队列与实际历史：我方、敌人、忆灵缺一不可。"""
+        from pathlib import Path
+        s = RehearsalSession.from_files(
+            team=Path("data/team_real.json"),
+            enemy=Path("data/enemy_starforge12b.json"), seed=0)
+        state = s.observe()
+        upcoming = state["action_order"]["upcoming"]
+        assert {x["unit_type"] for x in upcoming} == {"character", "enemy", "memosprite"}
+        assert {x["unit_id"] for x in upcoming} == {
+            "1015", "1306", "1309", "8007", "cywing", "cyash", "MEM",
+        }
+        assert [x["av"] for x in upcoming] == sorted(x["av"] for x in upcoming)
+        assert upcoming[0]["unit_id"] == "8007"
+        assert all(x["at"] == pytest.approx(state["t"] + x["av"]) for x in upcoming)
+
+        # 连续推进我方决策；红A 战技有额外行动，直到 observe 自动结算敌方与忆灵行动。
+        for _ in range(8):
+            if any(x["unit_type"] == "memosprite"
+                   for x in state["action_order"]["history"]):
+                break
+            d = state["decision"]
+            option = d["skill_options"][d["default"]]
+            if option["target_type"] == "ally":
+                target = d["ally_targets"][0]
+            elif option["target_type"] == "enemy":
+                target = d["targets"][0]
+            else:
+                target = ""
+            s.act(skill=d["default"], target=target, ults={})
+            state = s.observe()
+        history = state["action_order"]["history"]
+        assert [x["index"] for x in history] == list(range(1, len(history) + 1))
+        assert [x["t"] for x in history] == sorted(x["t"] for x in history)
+        assert any(x["unit_type"] == "character" for x in history)
+        assert any(x["unit_type"] == "enemy" and x["action"] == "enemy_attack"
+                   for x in history)
+        assert any(x["unit_type"] == "memosprite" for x in history)
+        report = s.report(stop_reason="用户停止")
+        assert "[实际行动顺序]" in report
+        assert "敌方" in report and "忆灵" in report
+
+        history_before = len(history)
+        s.undo(reason="核对行动历史回退")
+        undone = s.observe()["action_order"]["history"]
+        assert len(undone) < history_before
+        assert [x["index"] for x in undone] == list(range(1, len(undone) + 1))
+
 
 class TestAct:
     def test_act_executes_skill(self):

@@ -28,6 +28,17 @@ class TestAvBasics:
         unit, av = q.next()
         assert av == pytest.approx(60.0)
 
+    def test_ordered_matches_next_and_filters_stale_entries(self):
+        """UI 投影必须与实际 next 顺序一致，且不暴露拉条前的过期堆项。"""
+        q = ActionQueue()
+        q.add("first", 100.0)
+        q.add("second", 100.0)
+        q.add("fast", 200.0)
+        q.advance("second", 0.5)  # 与 fast 同 AV，但 second 的新有效堆项后入
+        ordered = q.ordered()
+        assert ordered == [("fast", 50.0), ("second", 50.0), ("first", 100.0)]
+        assert q.next() == ordered[0]
+
 
 class TestAdvanceAndReset:
     def test_advance_50pct(self):

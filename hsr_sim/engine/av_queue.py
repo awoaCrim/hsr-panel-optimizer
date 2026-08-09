@@ -116,5 +116,21 @@ class ActionQueue:
     def __len__(self) -> int:
         return len(self._entries)
 
+    def ordered(self) -> list[Tuple[str, float]]:
+        """返回当前每个单位下一次行动的精确队列顺序。
+
+        同 AV 时沿用堆中的有效插入序，和 next() 的实际选择一致；过滤过期堆项与
+        同一单位的重复有效堆项。仅用于状态投影，不改变队列。
+        """
+        first: Dict[str, Tuple[float, int, str]] = {}
+        for av, seq, unit_id in self._heap:
+            entry = self._entries.get(unit_id)
+            if entry is None or abs(entry.av - av) > 1e-9:
+                continue
+            item = (av, seq, unit_id)
+            if unit_id not in first or item < first[unit_id]:
+                first[unit_id] = item
+        return [(unit_id, av) for av, _seq, unit_id in sorted(first.values())]
+
     def snapshot(self) -> Dict[str, float]:
         return {uid: e.av for uid, e in self._entries.items()}

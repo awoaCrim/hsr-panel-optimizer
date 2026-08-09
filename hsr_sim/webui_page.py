@@ -120,6 +120,33 @@ input:focus, select:focus { border-color: var(--purple); box-shadow: 0 0 0 3px r
 .queue-chip { padding: 5px 7px; border-radius: 7px; background: var(--surface-3); color: var(--muted); font-size: 10px; }
 .queue-chip:first-child { color: #fff; outline: 1px solid var(--purple); }
 .queue-chip b { color: inherit; font-family: Consolas, monospace; }
+.action-order-card { margin-bottom: 14px; overflow: hidden; }
+.action-order-grid { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(340px, .85fr); }
+.order-pane { min-width: 0; padding: 14px 16px 16px; }
+.order-pane + .order-pane { border-left: 1px solid var(--line-soft); }
+.order-pane-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; margin-bottom: 11px; }
+.order-pane-head h2 { margin: 0; font-size: 15px; }
+.turn-order { display: grid; grid-template-columns: repeat(auto-fit, minmax(142px, 1fr)); gap: 9px; padding: 2px 2px 10px; }
+.turn-step { min-width: 0; position: relative; padding: 11px 11px 10px 38px; border: 1px solid var(--line);
+  border-radius: 10px; background: var(--surface-2); }
+.turn-step:first-child { border-color: var(--purple); box-shadow: 0 0 0 2px rgba(155,135,245,.10); }
+.turn-rank { position: absolute; left: 10px; top: 11px; width: 20px; height: 20px; display: grid; place-items: center;
+  border-radius: 50%; color: #d9d1ff; background: #2b2545; font: 700 10px Consolas, monospace; }
+.turn-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 12px; font-weight: 700; }
+.turn-meta { margin-top: 7px; color: var(--muted); font: 10px/1.55 Consolas, monospace; }
+.side-tag { display: inline-block; margin-top: 4px; padding: 1px 6px; border-radius: 99px; font-size: 9px; }
+.side-character { color: #9de5b7; background: #14271c; border: 1px solid #315b42; }
+.side-enemy { color: #ffaaaa; background: #2c191c; border: 1px solid #65383e; }
+.side-memosprite { color: #a9e9f6; background: #14272c; border: 1px solid #315a64; }
+.action-history { max-height: 190px; overflow: auto; padding-right: 3px; }
+.action-history-row { display: grid; grid-template-columns: 25px 58px 46px minmax(90px,.8fr) minmax(105px,1fr); gap: 7px;
+  align-items: baseline; padding: 7px 2px; border-top: 1px solid var(--line-soft); font-size: 11px; }
+.action-history-row:first-child { border-top: 0; }
+.action-history-index, .action-history-time { color: var(--muted); font-family: Consolas, monospace; }
+.action-history-unit { font-weight: 650; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.action-history-action { color: var(--cyan); }
+.action-history-detail { grid-column: 4 / -1; color: var(--muted); font-size: 10px; line-height: 1.4; }
+.action-order-empty { min-height: 92px; display: grid; place-items: center; color: var(--muted); font-size: 11px; text-align: center; }
 .aux { margin-top: 14px; }
 details.card { overflow: hidden; }
 details.card > summary { cursor: pointer; list-style: none; padding: 15px 16px; font-weight: 650; }
@@ -158,6 +185,8 @@ details.card[open] > summary::after { content: "−"; }
 @media (max-width: 1080px) {
   .metrics { grid-template-columns: repeat(3, 1fr); }
   .live-layout { grid-template-columns: 1fr; }
+  .action-order-grid { grid-template-columns: 1fr; }
+  .order-pane + .order-pane { border-left: 0; border-top: 1px solid var(--line-soft); }
   .timeline { max-height: 520px; }
 }
 @media (max-width: 760px) {
@@ -218,6 +247,18 @@ details.card[open] > summary::after { content: "−"; }
       <div class="metric"><div class="metric-label">战技点</div><div id="metric-sp" class="metric-value">—</div></div>
       <div class="metric"><div class="metric-label">分支</div><div id="metric-branch" class="metric-value">0</div></div>
     </div>
+    <section class="action-order-card card">
+      <div class="action-order-grid">
+        <div class="order-pane">
+          <div class="order-pane-head"><div><h2>下一轮行动顺序</h2><div class="section-kicker">模拟器当前行动条真值 · AV 越小越先行动</div></div><span id="turn-order-count" class="badge">0 单位</span></div>
+          <div id="turn-order-live" class="turn-order"><div class="action-order-empty">开始后显示所有我方、敌方与忆灵的下一次行动。</div></div>
+        </div>
+        <div class="order-pane">
+          <div class="order-pane-head"><div><h2>完整实际行动顺序</h2><div class="section-kicker">我方 / 敌方 / 忆灵按实际发生时刻统一记录</div></div><span id="action-history-count" class="badge">0 次</span></div>
+          <div id="action-history-live" class="action-history"><div class="action-order-empty">尚无已结算行动。</div></div>
+        </div>
+      </div>
+    </section>
     <div class="live-layout">
       <section class="card">
         <div class="section-head"><div><h2>决策时间线</h2><div class="section-kicker">每个 act 完成后立即出现，不等待整局结束</div></div><span id="trace-count" class="badge">0 act</span></div>
@@ -229,7 +270,6 @@ details.card[open] > summary::after { content: "−"; }
         </section>
         <section class="unit-section card"><h3>敌方状态</h3><div id="enemy-live" class="section-kicker">等待战斗状态</div></section>
         <section class="unit-section card"><h3>我方状态</h3><div id="ally-live" class="section-kicker">等待战斗状态</div></section>
-        <section class="unit-section card"><h3>行动队列</h3><div id="queue-live" class="queue"><span class="section-kicker">等待战斗状态</span></div></section>
         <section class="unit-section card"><h3>最近伤害</h3><div id="damage-live" class="section-kicker">等待伤害事件</div></section>
       </aside>
     </div>
@@ -261,6 +301,7 @@ const num = n => Number(n || 0).toLocaleString('zh-CN', {maximumFractionDigits: 
 const pct = n => `${clamp(n).toFixed(1)}%`;
 const skillName = s => ({basic:'普攻', skill:'战技', ult:'终结技'}[s] || s || '—');
 let stageData = null, teamData = null, equipLoaded = false, pollBusy = false, pollTimer = null, lastTrailCount = 0;
+let lastActionCount = 0;
 let lastReport = '';
 let unitNames = {};
 
@@ -337,12 +378,23 @@ function renderCurrent(d){
   el.innerHTML=`<div class="current-label">当前环节</div><div class="current-title">${esc(title)}</div><div class="current-copy">${esc(clean(copy))}</div>`;
 }
 function bar(width,kind=''){return `<div class="bar ${kind}"><i style="width:${clamp(width)}%"></i></div>`;}
+function unitSideClass(type){return `side-${['character','enemy','memosprite'].includes(type)?type:'character'}`;}
+function namedDetail(value){let text=String(value||'');for(const [id,name] of Object.entries(unitNames).sort((a,b)=>b[0].length-a[0].length))text=text.split(id).join(name);return text;}
+function renderActionOrder(st){
+  const upcoming=st?.action_order?.upcoming||[],history=st?.action_order?.history||[];
+  $('#turn-order-count').textContent=`${upcoming.length} 单位`;
+  $('#action-history-count').textContent=`${history.length} 次`;
+  $('#turn-order-live').innerHTML=upcoming.length?upcoming.map(x=>`<article class="turn-step"><span class="turn-rank">${x.index}</span><div class="turn-name">${esc(x.name||unitNames[x.unit_id]||x.unit_id)}</div><span class="side-tag ${unitSideClass(x.unit_type)}">${esc(x.side)}</span><div class="turn-meta">距行动 ${Number(x.av).toFixed(1)} AV<br>预计 t ${Number(x.at).toFixed(1)} · 速 ${Number(x.speed).toFixed(1)}</div></article>`).join(''):'<div class="action-order-empty">当前行动条为空。</div>';
+  const root=$('#action-history-live'),wasNearBottom=root.scrollHeight-root.scrollTop-root.clientHeight<45;
+  root.innerHTML=history.length?history.map(x=>`<div class="action-history-row"><span class="action-history-index">#${x.index}</span><span class="action-history-time">t ${Number(x.t).toFixed(1)}</span><span class="side-tag ${unitSideClass(x.unit_type)}">${esc(x.side)}</span><span class="action-history-unit">${esc(x.name||unitNames[x.unit_id]||x.unit_id)}</span><span class="action-history-action">${esc(x.action_name||x.action)}</span>${x.detail?`<span class="action-history-detail">${esc(namedDetail(x.detail))}</span>`:''}</div>`).join(''):'<div class="action-order-empty">尚无已结算行动。</div>';
+  if(wasNearBottom||history.length>lastActionCount)root.scrollTop=root.scrollHeight;
+  lastActionCount=history.length;
+}
 function renderBattleState(st){
-  if(!st){$('#enemy-live').innerHTML=$('#ally-live').innerHTML=$('#queue-live').innerHTML='<span class="section-kicker">等待战斗状态</span>';return;}
+  if(!st){$('#enemy-live').innerHTML=$('#ally-live').innerHTML='<span class="section-kicker">等待战斗状态</span>';renderActionOrder(null);return;}
   $('#enemy-live').innerHTML=Object.entries(st.enemies||{}).map(([id,e])=>`<div class="unit-card"><div class="unit-line"><span class="unit-name">${esc(e.name||unitNames[id]||id)} ${e.broken?'<span class="badge warn">击破</span>':''}</span><span class="unit-numbers">${num(e.hp)} / ${num(e.hp_max)}</span></div>${bar(e.hp_pct)}<div class="unit-line" style="margin-top:6px"><span class="section-kicker">韧性</span><span class="unit-numbers">${num(e.toughness)} / ${num(e.toughness_max)}</span></div>${bar(e.toughness_max?e.toughness/e.toughness_max*100:0,'toughness')}</div>`).join('')||'<span class="section-kicker">敌人已全灭</span>';
   $('#ally-live').innerHTML=Object.entries(st.allies||{}).map(([id,a])=>`<div class="unit-card"><div class="unit-line"><span class="unit-name">${esc(a.name||unitNames[id]||id)} ${!a.alive?'<span class="badge warn">倒下</span>':''}</span><span class="unit-numbers">HP ${num(a.hp)} / ${num(a.hp_max)}</span></div>${bar(a.hp_pct)}<div class="unit-line" style="margin-top:6px"><span class="section-kicker">能量</span><span class="unit-numbers">${num(a.energy)} / ${num(a.energy_cost)}</span></div>${bar(a.energy_cost?a.energy/a.energy_cost*100:0,'energy')}</div>`).join('');
-  const entries=Object.entries(st.queue?.entries||{}).sort((a,b)=>a[1].av-b[1].av).slice(0,10);
-  $('#queue-live').innerHTML=entries.map(([id,q])=>`<span class="queue-chip">${esc(unitNames[id]||id)} <b>${Number(q.av).toFixed(1)}</b></span>`).join('')||'<span class="section-kicker">队列为空</span>';
+  renderActionOrder(st);
   const recent=st.damage?.recent||[]; $('#damage-live').innerHTML=recent.slice().reverse().slice(0,5).map(x=>`<div class="unit-line" style="padding:4px 0"><span>${esc(unitNames[x[1]]||x[1])} → ${esc(unitNames[x[2]]||x[2])}</span><span class="unit-numbers">${num(x[3])} · ${esc(x[4])}</span></div>`).join('')||'<span class="section-kicker">等待伤害事件</span>';
 }
 function renderTimeline(trail){
@@ -382,7 +434,7 @@ async function pollSim(immediate=false){
   try{const r=await fetch('/api/sim/status',{cache:'no-store'});if(!r.ok)throw new Error(`状态 API ${r.status}`);const d=await r.json();renderStatus(d);delay=d.running?450:1500;}
   catch(e){toast(`状态更新失败：${e.message}`);delay=2500;}finally{pollBusy=false;pollTimer=setTimeout(()=>pollSim(),delay);}
 }
-$('#sim-start').onclick=async()=>{try{const q=new URLSearchParams({mode:$('#sim-mode').value,seed:$('#sim-seed').value,max_acts:$('#sim-max').value,stage:$('#sim-stage').value});const r=await fetch(`/api/sim/start?${q}`);if(!r.ok)throw new Error((await r.json()).error||`HTTP ${r.status}`);lastTrailCount=0;selectPanel('battle');pollSim(true);}catch(e){toast(`启动失败：${e.message}`);}};
+$('#sim-start').onclick=async()=>{try{const q=new URLSearchParams({mode:$('#sim-mode').value,seed:$('#sim-seed').value,max_acts:$('#sim-max').value,stage:$('#sim-stage').value});const r=await fetch(`/api/sim/start?${q}`);if(!r.ok)throw new Error((await r.json()).error||`HTTP ${r.status}`);lastTrailCount=0;lastActionCount=0;selectPanel('battle');pollSim(true);}catch(e){toast(`启动失败：${e.message}`);}};
 $('#sim-stop').onclick=async()=>{try{await fetch('/api/sim/stop');pollSim(true);}catch(e){toast(`停止失败：${e.message}`);}};
 
 (async function init(){
