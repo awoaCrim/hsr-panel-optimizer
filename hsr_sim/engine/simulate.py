@@ -557,7 +557,13 @@ class Simulator:
                 self._record_damage("MEM", eid, dmg, "normal",
                                     noncrit=nc, crit_dmg_mult=cdm)
 
+    def _enemy_is_current(self, target: Optional[str]) -> bool:
+        """目标仍属于当前波次；结算链跨波次后旧 id 必须失效。"""
+        return bool(target) and target in self.enemies and target in self.enemy_hp
+
     def _resolve_target(self, target_id: str, skill) -> Optional[str]:
+        # 保持既有决策语义：显式 id 只要仍在当前 HP 状态中就接受；
+        # 跨波切换后旧 id 已不在 enemy_hp，会回退到当前波默认目标。
         if target_id and target_id in self.enemy_hp:
             return target_id
         alive = [eid for eid, hp in self.enemy_hp.items() if hp > 0.0]
@@ -572,6 +578,9 @@ class Simulator:
         条件触发（论剑叠层/如泥酣眠/击杀）按段判定（官方语义）。
         技能总削韧仍按技能结算一次（官方削韧不按段）。
         """
+        # 主伤害可能已在同一效果链中触发波次切换；旧目标不可继续结算。
+        if not self._enemy_is_current(target):
+            return 0.0
         stats = self._effective_stats(cid)
         # 装备条件暴击（目标血量条件）——作用于本次技能全部段
         for ex in self._equip_effects(cid):
@@ -753,6 +762,9 @@ class Simulator:
                 self._additional_damage(robin, target)
 
     def _archer_followup(self, cid: str, target: str) -> None:
+        # 目标已不属于当前波次时不触发：不消耗充能，也不虚假恢复 SP/能量。
+        if not self._enemy_is_current(target):
+            return
         charge = self.fate_charge.get(cid, 0.0)
         if charge < 1.0:
             return
@@ -767,6 +779,9 @@ class Simulator:
 
     def _additional_damage(self, robin: CharacterData, target: str) -> None:
         """知更鸟协奏附加伤害：固定双暴（100%/150%）。"""
+        # 原攻击已触发切波时，附伤不能沿用旧 id 或穿透到下一波。
+        if not self._enemy_is_current(target):
+            return
         enemy = self.enemies[target]
         robin_stats = self._effective_stats(robin.id)
         m = self._current_multipliers()

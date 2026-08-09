@@ -4,6 +4,7 @@ from pathlib import Path
 import pytest
 
 from hsr_sim.data.loader import load_team_normalized
+from hsr_sim.engine.effects import DamageEffect
 from hsr_sim.engine.simulate import Simulator
 from hsr_sim.loader import DATA_DIR, load_enemy_waves, load_enemies, load_rotation
 
@@ -88,6 +89,28 @@ class TestMultiWave:
         snap_hp = dict(sim.enemy_hp)
         assert sim.undo() or True   # 可再回退或已到底
         assert sim.enemy_wave <= snap_wave
+
+    def test_wave_boundary_target_triggers_do_not_reuse_old_enemy(self, real_team):
+        """击杀并切波后，追击/协奏不得继续访问旧波次目标（WebUI KeyError: 'cyash' 回归）。"""
+        chars, stats, _, _ = real_team
+        waves = load_enemy_waves(STARFORGE)
+        rot = load_rotation(DATA_DIR / "rotation.json")
+        sim = Simulator(chars, stats, waves[0], rot, 1000, 95, seed=0, waves=waves)
+        # 最小化真实结算链：主伤害击杀波次 1 最后一名敌人；随后同时满足红A追击与协奏触发。
+        sim.enemy_hp["cywing"] = 0.0
+        sim.enemy_hp["cyash"] = 1.0
+        sim.fate_charge["1015"] = 1.0
+        sim.concert_rounds = 2
+
+        sim._apply_effects("8007", [DamageEffect(mult=1.0)], "cyash", "", skill_type="basic")
+
+        assert sim.enemy_wave == 1
+        assert set(sim.enemy_hp) == {"pamking"}
+        # 触发链属于击杀所在波次，不得把追击/附加伤害泄漏到新波敌人；
+        # 追击没有合法目标时也不能白白消耗红A充能。
+        assert sim.fate_charge["1015"] == 1.0
+        assert not any(event.kind in {"followup", "additional"} for event in sim.damage_events)
+        assert not any(event.target == "pamking" for event in sim.damage_events)
 
     def test_wave_boundary_same_act(self, real_team):
         """波次切换同 act 内：击杀瞬间切换，剩余段不打旧目标。"""
