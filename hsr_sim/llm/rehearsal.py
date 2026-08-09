@@ -22,7 +22,9 @@ from .client import LLMClient
 
 MECHANICS_RULES = """\
 ## 决策空间（官方玩家可控部分，其余由模拟器按官方规则自动执行）
-1. 主动行动：当前决策点角色的 basic / skill（target 可指定单体目标；留空 = 默认）
+1. 主动行动：只能从当前局面 `decision.skills` 选择 basic / skill；该列表已排除 SP 不足等非法动作。
+   每个 `decision.skill_options[skill]` 都给出 `sp_delta`、`sp_cost`、`available`；
+   `sp_delta=-1` 表示消耗 1 点。非攻击只表示不造成伤害，不表示免费。
 2. 大招时机：能量满的角色可放可等——ults=null 放全部满能；ults={} 全 hold；
    ults={"<cid>": true/false} 逐角色指定。大招不占行动条，在行动连锁末尾即时释放。
 自动执行：追击 / 协奏 / 真伤（声援） / 击破 / 忆灵（迷迷）行动 / 敌人 AI / 回能。
@@ -80,7 +82,8 @@ def _char_summary(session: RehearsalSession) -> str:
             extra.append(f"队友攻击后仅自身回能{te['energy_on_ally_attack']}（不是全队回能）")
         if te.get("summon"):
             m = te.get("memosprite", {})
-            extra.append(f"召唤迷迷(速{m.get('speed', 130)}；普攻{m.get('basic_hits', 4)}段"
+            extra.append(f"迷迷在进入战斗时已自动完成召唤；此后战技不会召唤/重新召唤迷迷"
+                         f"(速{m.get('speed', 130)}；普攻{m.get('basic_hits', 4)}段"
                          f"×{m.get('basic_mult', 0.36):.0%}+全体{m.get('basic_aoe_mult', 0.9):.0%}；"
                          f"强化=拉条+声援真伤{m.get('support_true_dmg', 0.28):.0%})")
         se = te.get("skill_effects", {})
@@ -93,6 +96,15 @@ def _char_summary(session: RehearsalSession) -> str:
             scope = "全队" if not skill_buff.get("target") else "指定队友"
             extra.append(f"战技{scope}{skill_buff.get('stat')}+{skill_buff.get('value', 0):.0%}"
                          f"/持续{skill_buff.get('duration', 1)}回合")
+        mem_skill = se.get("skill", {})
+        if mem_skill.get("mem_charge"):
+            extra.append(f"战技消耗{abs(c.skills['skill'].sp):g} SP：为已在场迷迷充能"
+                         f"{mem_skill['mem_charge']:.0%}"
+                         + ("并治疗迷迷（治疗结算未实现）" if mem_skill.get("mem_heal") else ""))
+        mem_ult = se.get("ult", {})
+        if mem_ult.get("mem_charge"):
+            extra.append(f"终结技为迷迷充能{mem_ult['mem_charge']:.0%}"
+                         + ("并使迷迷立即行动" if mem_ult.get("mem_immediate") else ""))
         lines.append(f"- {cid} {c.name}（{c.element}）：速{s.speed} 攻{s.atk:.0f} "
                      f"双暴{s.crit_rate:.0%}/{s.crit_dmg:.0%} 充能{s.energy_regen:.0%} | "
                      + "; ".join(skills) + (f" | {', '.join(extra)}" if extra else ""))
@@ -260,14 +272,18 @@ DECISION_CONTRACT = """\
 
 ## 你的决策（决策点：{unit}）
 输出 JSON：{{"skill": "<basic|skill>", "target": "<敌人id|队友id|留空>", "ults": <null|{{"cid": bool}}>, "note": "<一句话理由>"}}
-- skill 必须来自局面 decision.skills
+- skill 必须来自局面 decision.skills；不要选择 skill_options 中 available=false 的动作
+- 必须读取 decision.skill_options[skill].sp_delta / sp_cost：非攻击不等于免费，sp_delta=-1 仍会消耗 1 点战技点
 - 根据所选 skill 的 decision.skill_options[skill].target_type 决定 target：
   enemy → 从 decision.targets 选敌人（可留空让模拟器默认）；
   ally → 从 decision.ally_targets 选队友并遵守不可自拉；
   none → target 必须留空，禁止给非攻击/无目标技能虚构敌方目标
+- 必须按 decision.skill_options[skill].mechanics 描述本次技能效果；字段未出现的效果视为不存在，不得自行补全
+- decision.memosprite_present=true 表示忆灵已在场；只有 mechanics.summon=true 才能声称本次技能召唤忆灵
 - decision.skill_options[skill].is_attack=false 时，该技能不造成伤害/削韧，且不触发任何“攻击后”链
 - ults=null 表示放全部满能大招；{{}} 全 hold；{{"cid": true/false}} 逐角色指定
-- note 会进入推演报告决策轨迹，请说明战术意图
+- 只有 decision.ult_ready 中的角色可设为 true；不得声称未实际出现在 act_result.ult_used 的大招已释放
+- note 会进入推演报告，但只作为“LLM理由（未经规则验证）”；不得把推测写成已发生的结算事实
 """
 
 EVAL_CONTRACT = """\
@@ -369,16 +385,18 @@ def run_rehearsal(client: LLMClient, session: RehearsalSession,
                         llm_calls=result.llm_calls)
         if result.stop_reason == "用户停止":
             break
+        actual = session.acts[-1]
         result.acts += 1
         if verbose:
-            print(f"  act#{result.acts} t={act_result['t']:>7.2f} {decision['unit']} {skill}"
-                  f"→{target or '-'} 伤害{act_result['damage_delta']:>10,.0f} 大招{act_result['ult_used'] or '-'}"
-                  + (f" [{note}]" if note else ""))
+            print(f"  act#{result.acts} t={act_result['t']:>7.2f} {actual.unit_id} {actual.skill}"
+                  f"→{actual.target or '-'} 伤害{act_result['damage_delta']:>10,.0f} 大招{act_result['ult_used'] or '-'}"
+                  + (f" [LLM理由：{note}]" if note else ""))
         # ---- 自评调用 ----
         state = session.observe()
         publish("waiting_llm_evaluation", state=state, act=result.acts,
-                decision={"unit": decision["unit"], "skill": skill, "target": target,
-                          "ults": ults, "note": note},
+                decision={"unit": actual.unit_id, "skill": actual.skill,
+                          "target": actual.target, "requested_skill": skill,
+                          "requested_target": target, "ults": ults, "note": note},
                 act_result=act_result, llm_calls=result.llm_calls)
         ev_msgs = [
             {"role": "system", "content": knowledge},
@@ -423,8 +441,8 @@ def run_rehearsal(client: LLMClient, session: RehearsalSession,
         result.stop_reason = f"达到步数上限 {max_acts}"
     elif state["phase"] == "terminal":
         result.stop_reason = f"物理终止：{state['terminal_reason']}"
-    result.report = session.report()
-    result.report_dict = session.report_dict()
+    result.report = session.report(stop_reason=result.stop_reason)
+    result.report_dict = session.report_dict(stop_reason=result.stop_reason)
     publish("finished", state=state, stop_reason=result.stop_reason,
             acts=result.acts, llm_calls=result.llm_calls)
     return result

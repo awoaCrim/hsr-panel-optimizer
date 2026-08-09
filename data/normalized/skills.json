@@ -983,7 +983,7 @@
         "mem_charge": 0.1,
         "mem_heal": 0.6
       },
-      "_mechanic_note": "召唤/回血 60% + 充能 10%（回血未实现）"
+      "_mechanic_note": "治疗迷迷 60% + 充能 10%（回血未实现；迷迷由天赋开局自动召唤）"
     },
     "ult": {
       "_source": {

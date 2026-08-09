@@ -60,6 +60,7 @@ class TestWebuiApi:
         assert len(d["characters"]) == 4
         red = d["characters"][0]
         assert red["id"] == "1015" and red["eidolon"] == 2
+        assert red["name"] == "红A"
         assert d["team_file"] == "team_real.json"
         assert red["light_cone"]["effect"]["exec"]      # 光锥效果已接入标注
         assert red["light_cone"]["refinement"] == 1
@@ -143,6 +144,15 @@ class TestWebuiApi:
             deadline = time.time() + 5
             while runner.status()["running"] and time.time() < deadline:
                 time.sleep(0.01)
+
+    def test_report_copy_ui_is_selection_safe(self):
+        """报告可复制，且状态轮询不得反复替换同一文本、打断用户选择。"""
+        from hsr_sim.webui_page import PAGE
+        assert 'id="report-copy"' in PAGE
+        assert "navigator.clipboard.writeText" in PAGE
+        assert "document.execCommand('copy')" in PAGE
+        assert "reportText !== lastReport" in PAGE
+        assert "user-select: text" in PAGE
 
     def test_equipment_search(self):
         from hsr_sim.webui import build_equipment_payload

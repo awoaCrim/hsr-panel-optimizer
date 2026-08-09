@@ -65,6 +65,45 @@ class TestAct:
         with pytest.raises(RehearseError, match="不占行动条"):
             s.act(skill="ult")
 
+    def test_unaffordable_skill_is_not_legal_and_direct_request_is_rejected(self):
+        """官方决策边界：SP 不足时战技不是合法选项，不能静默降级普攻。"""
+        s = _make_session()
+        s.sim.sp = 0.0
+        state = s.observe()
+        decision = state["decision"]
+        assert decision["skills"] == ["basic"]
+        assert decision["default"] == "basic"
+        assert decision["skill_options"]["basic"] == {
+            "is_attack": True, "target_type": "enemy", "sp_delta": 1,
+            "sp_cost": 0, "mechanics": {}, "available": True,
+            "unavailable_reason": "",
+        }
+        assert decision["skill_options"]["skill"]["available"] is False
+        assert decision["skill_options"]["skill"]["sp_delta"] == -1
+        assert decision["skill_options"]["skill"]["sp_cost"] == 1
+        assert "战技点不足" in decision["skill_options"]["skill"]["unavailable_reason"]
+        with pytest.raises(RehearseError, match="战技点不足"):
+            s.act(skill="skill", target="elite", ults={})
+        assert s.acts == []
+
+    def test_act_records_actual_default_target_and_resource_delta(self):
+        """轨迹记录实际命中的默认目标，并暴露真实 SP 变化。"""
+        s = _make_session()
+        s.observe()
+        result = s.act(skill="basic", target="", ults={})
+        act = s.acts[-1]
+        assert act.requested_target == ""
+        assert act.target == "elite"
+        assert act.requested_skill == "basic"
+        assert act.skill == "basic"
+        assert result["sp_before"] == pytest.approx(4.0)
+        assert result["sp_delta"] == pytest.approx(1.0)
+        assert result["sp"] == pytest.approx(5.0)
+        report = s.report(stop_reason="用户停止")
+        assert "basic→elite" in report
+        assert "请求 basic→-" not in report
+        assert "[终止原因] 用户停止" in report
+
     def test_act_requires_decision_point(self):
         s = _make_session()
         s.act(skill="skill")
@@ -94,6 +133,15 @@ class TestUltTiming:
         s.sim.energy["1015"] = s.sim.chars["1015"].skills["ult"].energy_cost
         res = s.act(skill="basic", ults={"1015": True})
         assert res["ult_used"] == ["1015"]
+
+    def test_unready_or_unknown_ult_request_is_rejected(self):
+        """官方决策空间只允许释放当前满能角色的大招。"""
+        s = _make_session()
+        s.observe()
+        with pytest.raises(RehearseError, match="能量未满"):
+            s.act(skill="basic", ults={"1015": True})
+        with pytest.raises(RehearseError, match="未知角色"):
+            s.act(skill="basic", ults={"ghost": True})
 
 
 class TestUndo:
@@ -261,6 +309,16 @@ class TestAdvanceTargetRules:
         with pytest.raises(RehearseError, match="必须是我方队友"):
             s.act(skill="skill", target="elite")
 
+    def test_act_requires_advance_target(self):
+        """友方单体技能不能留空目标，否则会消耗 SP 却不产生拉条。"""
+        s = self._make_sparkle_session()
+        state = s.observe()
+        while state["decision"]["unit"] != "1306":
+            s.act(skill="basic", ults={})
+            state = s.observe()
+        with pytest.raises(RehearseError, match="必须选择我方目标"):
+            s.act(skill="skill", target="", ults={})
+
     def test_advance_target_ally_works(self):
         """花火拉队友：拉条生效（目标距离归零），自身不被拉。"""
         s = self._make_sparkle_session()
@@ -283,7 +341,9 @@ class TestSerialization:
         """会话持久化往返：状态、决策、放弃路线、预算计数完整恢复。"""
         s = RehearsalSession.from_files(seed=3, name="roundtrip")
         s.observe()
-        s.act(skill="skill", ults={})
+        d = s.observe()["decision"]
+        target = d["ally_targets"][0] if d["skill_options"]["skill"]["target_type"] == "ally" else ""
+        s.act(skill="skill", target=target, ults={})
         s.act(skill="basic", ults={})
         s.undo(reason="试一下")
         state = s.state_dict()

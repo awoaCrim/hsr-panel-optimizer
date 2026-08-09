@@ -35,6 +35,11 @@ def test_loader_strips_provenance():
     data = load()
     # 1306 基础面板（StarRailRes L80，3 位小数）
     assert data.get("characters", "1306", "base_stats", "hp") == pytest.approx(1397.088)
+    # 1015 上游名为 Archer；产品展示名统一从本地解析为红A。
+    assert data.get("characters", "1015", "name") == "Archer"
+    from hsr_sim.data.loader import load_characters_normalized
+    chars, _ = load_characters_normalized()
+    assert chars["1015"].name == "红A"
     # 花火战技拉条 50%
     assert data.get("skills", "1306", "skill", "advance_pct") == 0.5
     # 敌人模板值原样

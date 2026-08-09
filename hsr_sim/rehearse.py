@@ -50,8 +50,10 @@ class ActRecord:
 
     index: int
     unit_id: str
-    skill: str
-    target: str
+    skill: str                 # 实际执行技能
+    target: str                # 实际结算目标（默认目标已解析）
+    requested_skill: str = ""  # LLM/调用方原请求；正常应与 skill 相同
+    requested_target: str = ""
     ults: Optional[Dict[str, bool]] = None
     note: str = ""
     result: Dict[str, Any] = field(default_factory=dict)
@@ -79,6 +81,10 @@ class RehearsalSession:
                  undo_budget: int = 50, per_step_budget: int = 3,
                  history: Optional[List[Dict]] = None) -> None:
         self.sim = sim
+        # 推演会话的初始边界必须已完成“进入战斗”自动阶段：忆灵开局召唤、
+        # 翁瓦克等开局拉条先结算，再向 LLM 暴露首个决策点并建立 undo 初始快照。
+        sim._ensure_memosprite_summon()
+        sim._apply_start_effects()
         self.name = name
         self.undo_budget = undo_budget
         self.per_step_budget = per_step_budget
@@ -210,29 +216,65 @@ class RehearsalSession:
         if skill not in self.sim.chars[cid].skills:
             raise RehearseError(f"角色 {cid} 无技能 {skill!r}（可选：{list(self.sim.chars[cid].skills)}）")
         skill_obj = self.sim.chars[cid].skills[skill]
+        if skill_obj.sp < 0 and self.sim.sp < -skill_obj.sp:
+            raise RehearseError(
+                f"{cid} 的 {skill} 需要 {-skill_obj.sp:g} 点战技点，"
+                f"当前仅 {self.sim.sp:g} 点（战技点不足；请选择 basic）")
         target_type = self._skill_target_type(skill_obj)
+        requested_target = target
         if target_type == "none" and target:
             raise RehearseError(
                 f"{cid} 的 {skill} 是非攻击/无目标技能，无需选择目标（target 必须留空）")
-        # 拉条目标校验（官方目标选择器规则）：advance 技能目标必须是我方队友且不可自拉
+        if target_type == "enemy":
+            alive_enemies = [eid for eid, hp in self.sim.enemy_hp.items() if hp > 0.0]
+            if target and target not in alive_enemies:
+                raise RehearseError(
+                    f"敌方目标 {target!r} 当前不可选（可选：{alive_enemies}）")
+            target = target or (alive_enemies[0] if alive_enemies else "")
+            if not target:
+                raise RehearseError("当前没有可选的存活敌方目标")
+        # 拉条目标校验（官方目标选择器规则）：advance 技能目标必须是存活队友且不可自拉
         if skill_obj.advance_pct:
-            allies = [c for c in self.sim.chars if c != cid]
+            allies = [c for c in self.sim.chars if c != cid and
+                      (self.sim.char_hp_max.get(c, 0.0) <= 0.0 or
+                       self.sim.char_hp.get(c, 1.0) > 0.0)]
+            if not target and not skill_obj.advance_self:
+                raise RehearseError(
+                    f"{cid} 的 {skill} 必须选择我方目标（可选队友：{allies}）")
             if not skill_obj.advance_self and target == cid:
                 raise RehearseError(
                     f"{cid} 的技能不可选择自己为拉条目标（官方目标选择器排除自身），"
                     f"可选队友：{allies}")
-            if target and target not in self.sim.chars:
+            if target and target not in allies and not (skill_obj.advance_self and target == cid):
                 raise RehearseError(
                     f"拉条目标 {target!r} 必须是我方队友（可选：{allies}）")
+            if not target and skill_obj.advance_self:
+                target = cid
         if ults is None:
             allowed = set(self.sim.chars)        # 默认：满能即放（与旧行为一致）
         elif isinstance(ults, dict):
+            unknown = set(ults) - set(self.sim.chars)
+            if unknown:
+                raise RehearseError(f"ults 含未知角色：{sorted(unknown)}")
             allowed = {c for c, flag in ults.items() if flag}
+            for ult_cid in allowed:
+                ult = self.sim.chars[ult_cid].skills.get("ult")
+                if ult is None:
+                    raise RehearseError(f"角色 {ult_cid} 没有终结技")
+                if self.sim.energy[ult_cid] < ult.energy_cost:
+                    raise RehearseError(
+                        f"{ult_cid} 终结技能量未满："
+                        f"{self.sim.energy[ult_cid]:g}/{ult.energy_cost:g}")
+                if self.sim.char_hp_max.get(ult_cid, 0.0) > 0.0 and \
+                        self.sim.char_hp.get(ult_cid, 1.0) <= 0.0:
+                    raise RehearseError(f"{ult_cid} 已倒下，不能释放终结技")
         else:
             raise RehearseError("ults 应为 dict {cid: bool} 或 None")
         dmg_before = self._total_damage()
+        sp_before = self.sim.sp
         ult_before = dict(self.sim.ult_count)
         breaks_before = len(self.sim.breaks)
+        log_before = len(self.sim.log)
         self.sim.external_action = Action(unit_id=cid, action=skill, target=target)
         self.sim.ult_hold = set(self.sim.chars) - allowed
         self.sim.ult_override = bool(allowed)
@@ -241,10 +283,18 @@ class RehearsalSession:
         finally:
             self.sim.ult_hold = set()
             self.sim.ult_override = None
+        actual_skill = next(
+            (entry.action for entry in self.sim.log[log_before:]
+             if entry.unit_id == cid and entry.action in ("basic", "skill")),
+            skill,
+        )
         self._act_seq += 1
-        rec = ActRecord(index=self._act_seq, unit_id=cid, skill=skill, target=target,
+        rec = ActRecord(index=self._act_seq, unit_id=cid,
+                        skill=actual_skill, target=target,
+                        requested_skill=skill, requested_target=requested_target,
                         ults=ults, note=note,
-                        result=self._act_summary(dmg_before, ult_before, breaks_before))
+                        result=self._act_summary(dmg_before, sp_before, ult_before,
+                                                breaks_before, actual_skill, target))
         self.acts.append(rec)
         self.snapshots.append(self.sim.snapshot())
         self.undo_since_act = 0
@@ -313,14 +363,18 @@ class RehearsalSession:
     def _total_damage(self) -> float:
         return sum(e.amount for e in self.sim.damage_events)
 
-    def _act_summary(self, dmg_before: float, ult_before: Dict[str, int],
-                     breaks_before: int) -> Dict[str, Any]:
+    def _act_summary(self, dmg_before: float, sp_before: float, ult_before: Dict[str, int],
+                     breaks_before: int, actual_skill: str, actual_target: str) -> Dict[str, Any]:
         sim = self.sim
         return {
             "t": round(sim.t, 4),
+            "skill": actual_skill,
+            "target": actual_target,
             "damage_delta": round(self._total_damage() - dmg_before, 1),
             "ult_used": [c for c in sim.chars if sim.ult_count.get(c, 0) > ult_before.get(c, 0)],
             "new_breaks": [eid for _t, eid in self.sim.breaks[breaks_before:]],
+            "sp_before": round(sp_before, 3),
+            "sp_delta": round(sim.sp - sp_before, 3),
             "sp": round(sim.sp, 3),
             "energy": {c: round(sim.energy[c], 3) for c in sim.chars},
             "kills": [eid for eid, hp in sim.enemy_hp.items() if hp <= 0.0],
@@ -345,25 +399,41 @@ class RehearsalSession:
         cid = nxt[0]
         if sim.char_hp_max.get(cid, 0.0) > 0.0 and sim.char_hp.get(cid, 1.0) <= 0.0:
             return None    # ① 死亡角色不进入决策点（观察者跳过）
-        skills = [k for k in ("basic", "skill") if k in sim.chars[cid].skills]
+        all_skill_names = [k for k in ("basic", "skill") if k in sim.chars[cid].skills]
+        skill_options = {}
+        for k in all_skill_names:
+            sk = sim.chars[cid].skills[k]
+            sp_cost = max(0.0, -float(sk.sp))
+            available = sim.sp >= sp_cost
+            mechanics = dict(
+                sim.chars[cid].talent_extra.get("skill_effects", {}).get(k) or {})
+            mechanics.pop("note", None)
+            skill_options[k] = {
+                "is_attack": sk.mult > 0.0,
+                "target_type": self._skill_target_type(sk),
+                "sp_delta": sk.sp,
+                "sp_cost": sp_cost,
+                "mechanics": mechanics,
+                "available": available,
+                "unavailable_reason": "" if available else
+                f"战技点不足：需要 {sp_cost:g}，当前 {sim.sp:g}",
+            }
+        skills = [k for k in all_skill_names if skill_options[k]["available"]]
         ult_ready = [c for c in sim.chars
                      if not (sim.char_hp_max.get(c, 0.0) > 0.0 and sim.char_hp.get(c, 1.0) <= 0.0)
                      and sim.energy[c] >= sim.chars[c].skills["ult"].energy_cost]
-        skill_options = {
-            k: {
-                "is_attack": sim.chars[cid].skills[k].mult > 0.0,
-                "target_type": self._skill_target_type(sim.chars[cid].skills[k]),
-            }
-            for k in skills
-        }
-        has_ally_target = any(o["target_type"] == "ally" for o in skill_options.values())
+        has_ally_target = any(o["target_type"] == "ally" and o["available"]
+                              for o in skill_options.values())
         return {
             "unit": cid,
             "skills": skills,
             "skill_options": skill_options,
             "default": "skill" if "skill" in skills else "basic",
             "targets": [eid for eid, hp in sim.enemy_hp.items() if hp > 0.0],
-            "ally_targets": [c for c in sim.chars if c != cid] if has_ally_target else [],
+            "ally_targets": [c for c in sim.chars if c != cid and
+                             (sim.char_hp_max.get(c, 0.0) <= 0.0 or
+                              sim.char_hp.get(c, 1.0) > 0.0)] if has_ally_target else [],
+            "memosprite_present": bool(sim.memosprite and sim.memosprite.get("alive")),
             "ult_ready": ult_ready,
             "energy_status": "full" if cid in ult_ready else "charging",
         }
@@ -457,9 +527,14 @@ class RehearsalSession:
 
     # ---------- 报告（D7） ----------
 
-    def report_dict(self) -> Dict[str, Any]:
+    def report_dict(self, stop_reason: str = "") -> Dict[str, Any]:
+        if not stop_reason:
+            terminal = self._terminal_reason()
+            if terminal:
+                stop_reason = f"物理终止：{terminal}"
         return {
             "setup": self._setup_meta(),
+            "termination": {"reason": stop_reason},
             "decision_trail": [_act_dict(a) for a in self.acts],
             "branch_summary": {
                 "current": {"acts": len(self.acts),
@@ -473,13 +548,15 @@ class RehearsalSession:
                       "unverified_inputs": list(self.sim._unverified)},
         }
 
-    def report(self, brief: bool = False) -> str:
+    def report(self, brief: bool = False, stop_reason: str = "") -> str:
         """完整推演报告：决策轨迹 + 分支树摘要 + 最终状态（--brief 只给结论）。"""
-        r = self.report_dict()
+        r = self.report_dict(stop_reason=stop_reason)
         lines = ["===== 推演报告 ====="]
         s = r["setup"]
         lines.append(f"配置：{s['name']}（seed={s['seed']}）队伍 {s['team']} "
                      f"vs {s['enemies']} 目标行动值 {s['target_av']}")
+        if r["termination"]["reason"]:
+            lines.append(f"[终止原因] {r['termination']['reason']}")
         if brief:
             f = r["final_state"]
             lines.append(f"最终：总伤害 {f['total_damage']:,.0f} / 击杀 {len(f['kills'])} "
@@ -490,11 +567,20 @@ class RehearsalSession:
             lines.append(f"\n[决策轨迹] {len(r['decision_trail'])} 个 act")
             for a in r["decision_trail"]:
                 res = a["result"]
+                sp_before = res.get("sp_before", res["sp"] - res.get("sp_delta", 0.0))
+                sp_delta = res.get("sp_delta", res["sp"] - sp_before)
+                requested = ""
+                if a.get("requested_skill") and (a["requested_skill"] != a["skill"] or
+                                                   (a.get("requested_target") and
+                                                    a["requested_target"] != a["target"])):
+                    requested = (f"  请求 {a['requested_skill']}"
+                                 f"→{a.get('requested_target') or '-'}")
                 lines.append(
                     f"  #{a['index']} t={res['t']:>7.2f}  {a['unit_id']} {a['skill']}"
                     f"→{a['target'] or '-'}  | 伤害 {res['damage_delta']:>10,.0f}"
-                    f"  SP {res['sp']:.1f}  大招 {res['ult_used'] or '-'}"
-                    + (f"  [{a['note']}]" if a["note"] else ""))
+                    f"  SP {sp_before:.1f}→{res['sp']:.1f} (Δ{sp_delta:+.1f})"
+                    f"  大招 {res['ult_used'] or '-'}{requested}"
+                    + (f"  [LLM理由（未经规则验证）：{a['note']}]" if a["note"] else ""))
             lines.append(f"\n[分支树摘要]")
             lines.append(f"  当前路线：{len(r['decision_trail'])} 个 act（撤销 {r['branch_summary']['current']['undo_used']} 次）")
             for ab in r["branch_summary"]["abandoned"]:
@@ -568,13 +654,19 @@ class RehearsalSession:
 
 
 def _act_dict(a: ActRecord) -> Dict[str, Any]:
-    return {"index": a.index, "unit_id": a.unit_id, "skill": a.skill,
-            "target": a.target, "ults": a.ults, "note": a.note, "result": a.result}
+    return {"index": a.index, "unit_id": a.unit_id,
+            "skill": a.skill, "target": a.target,
+            "requested_skill": a.requested_skill or a.skill,
+            "requested_target": a.requested_target,
+            "ults": a.ults, "note": a.note, "result": a.result}
 
 
 def _act_from_dict(d: Dict[str, Any]) -> ActRecord:
     return ActRecord(index=d["index"], unit_id=d["unit_id"], skill=d["skill"],
-                     target=d.get("target", ""), ults=d.get("ults"), note=d.get("note", ""),
+                     target=d.get("target", ""),
+                     requested_skill=d.get("requested_skill", d["skill"]),
+                     requested_target=d.get("requested_target", d.get("target", "")),
+                     ults=d.get("ults"), note=d.get("note", ""),
                      result=d.get("result", {}))
 
 
@@ -677,7 +769,7 @@ def _snap_from_dict(d: Dict[str, Any]) -> BattleSnapshot:
 # ---------------------------------------------------------------------------
 
 def _demo_pilot(session: RehearsalSession, max_acts: int = 200) -> RehearsalSession:
-    """演示策略：满能即放大招、有战技就战技（SP 不足由模拟器自动降级）。"""
+    """演示策略：从当前合法动作中优先战技；SP 不足时显式选择普攻。"""
     state = session.observe()
     acts = 0
     while state["phase"] == "decision" and acts < max_acts:

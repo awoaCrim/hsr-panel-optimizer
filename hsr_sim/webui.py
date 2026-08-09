@@ -120,7 +120,8 @@ class SimRunner:
         self._publish("executing_demo", session, {"state": state, "act": 1})
         while state["phase"] == "decision" and acts < max_acts and not self._stop_event.is_set():
             decision = state["decision"]
-            option = decision["skill_options"][decision["default"]]
+            selected = decision["default"]
+            option = decision["skill_options"][selected]
             if option["target_type"] == "ally":
                 target = decision["ally_targets"][0] if decision["ally_targets"] else ""
             elif option["target_type"] == "enemy":
@@ -128,10 +129,10 @@ class SimRunner:
             else:
                 target = ""
             self._publish("executing_action", session, {
-                "state": state, "unit": decision["unit"], "skill": decision["default"],
+                "state": state, "unit": decision["unit"], "skill": selected,
                 "target": target, "note": "demo", "act": acts + 1,
             })
-            session.act(skill=decision["default"], target=target, note="demo")
+            session.act(skill=selected, target=target, note="demo")
             acts += 1
             state = session.observe()
             self._publish("executing_demo", session, {"state": state, "act": acts + 1})
@@ -158,7 +159,7 @@ class SimRunner:
                 self._report = result.report
             else:
                 self._run_demo(session, max_acts)
-                self._report = session.report()
+                self._report = session.report(stop_reason=self._stop_reason)
             self._publish("finished", session, {"stop_reason": self._stop_reason})
         except Exception as e:  # 推演异常也回报给前端
             self._stop_reason = f"推演异常：{type(e).__name__}: {e}"

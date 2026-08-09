@@ -99,9 +99,7 @@ from hsr_sim.model import CharacterData, Enemy, EnemySkill, SkillData  # noqa: E
 
 
 def _resolved_character_name(cid: str, raw_name: str) -> str:
-    """normalized 可能保留主角名占位符；优先回退到本地已解析角色名。"""
-    if raw_name and not (raw_name.startswith("{") and raw_name.endswith("}")):
-        return raw_name
+    """优先使用本地已解析/产品展示名，避免上游英文名或主角占位符泄漏到报告与 UI。"""
     local = DATA_DIR / "characters" / f"{cid}.json"
     if local.exists():
         name = json.loads(local.read_text(encoding="utf-8")).get("name", "")

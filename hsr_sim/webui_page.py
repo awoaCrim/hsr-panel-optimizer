@@ -133,7 +133,8 @@ details.card[open] > summary::after { content: "−"; }
 .enemy-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(245px,1fr)); gap: 8px; }
 .enemy-static { padding: 11px; background: var(--surface-2); border: 1px solid var(--line-soft); border-radius: 9px; font-size: 11px; color: var(--muted); }
 .enemy-static b { color: var(--text); font-size: 12px; }
-.report { white-space: pre-wrap; font: 11px/1.65 Consolas, monospace; color: #c9cfdb; max-height: 560px; overflow: auto; }
+.report { white-space: pre-wrap; font: 11px/1.65 Consolas, monospace; color: #c9cfdb; max-height: 560px; overflow: auto; user-select: text; -webkit-user-select: text; cursor: text; }
+.report-tools { display: flex; align-items: center; justify-content: flex-end; gap: 8px; padding: 10px 0 0; }
 .data-grid { display: grid; grid-template-columns: repeat(2, minmax(320px,1fr)); gap: 14px; }
 .char-card { padding: 16px; }
 .char-head { display: flex; justify-content: space-between; gap: 10px; align-items: start; }
@@ -234,7 +235,7 @@ details.card[open] > summary::after { content: "−"; }
     </div>
     <div class="aux">
       <details class="card"><summary>关卡配置与敌人完整参数</summary><div class="details-body"><div id="stage-root" class="stage-overview">加载中…</div></div></details>
-      <details id="report-details" class="card" style="margin-top:10px"><summary>最终推演报告</summary><div class="details-body"><pre id="report" class="report">推演结束后生成完整报告。</pre></div></details>
+      <details id="report-details" class="card" style="margin-top:10px"><summary>最终推演报告</summary><div class="details-body"><div class="report-tools"><button class="btn" id="report-copy" type="button">复制报告</button></div><pre id="report" class="report">推演结束后生成完整报告。</pre></div></details>
     </div>
   </section>
 
@@ -260,6 +261,7 @@ const num = n => Number(n || 0).toLocaleString('zh-CN', {maximumFractionDigits: 
 const pct = n => `${clamp(n).toFixed(1)}%`;
 const skillName = s => ({basic:'普攻', skill:'战技', ult:'终结技'}[s] || s || '—');
 let stageData = null, teamData = null, equipLoaded = false, pollBusy = false, pollTimer = null, lastTrailCount = 0;
+let lastReport = '';
 let unitNames = {};
 
 function toast(message) { const el=$('#toast'); el.textContent=message; el.style.display='block'; clearTimeout(toast.t); toast.t=setTimeout(()=>el.style.display='none',4500); }
@@ -347,7 +349,7 @@ function renderTimeline(trail){
   const root=$('#trace'), wasNearBottom=root.scrollHeight-root.scrollTop-root.clientHeight<70;
   $('#trace-count').textContent=`${trail.length} act`;
   if(!trail.length){root.innerHTML='<div class="timeline-empty"><div><b>尚无决策</b><br><br>开始后将实时显示模型理由、技能、目标、伤害与大招。</div></div>';lastTrailCount=0;return;}
-  root.innerHTML=trail.map(a=>{const r=a.result||{};return `<article class="timeline-item" data-index="${a.index}"><div class="act-main"><span class="act-unit">${esc(unitNames[a.unit_id]||a.unit_id)}</span><span class="act-action">${esc(skillName(a.skill))} → ${esc(unitNames[a.target]||a.target||'默认')}</span><span class="act-damage">+${num(r.damage_delta)}</span></div><div class="act-meta"><span class="badge">t ${Number(r.t||0).toFixed(1)}</span><span class="badge">波次 ${r.wave||'—'}/${r.wave_count||'—'}</span><span class="badge">SP ${r.sp??'—'}</span>${(r.ult_used||[]).map(id=>`<span class="badge good">大招 ${esc(unitNames[id]||id)}</span>`).join('')}${(r.new_breaks||[]).map(id=>`<span class="badge warn">击破 ${esc(unitNames[id]||id)}</span>`).join('')}</div>${a.note?`<div class="act-note">${esc(a.note)}</div>`:''}</article>`}).join('');
+  root.innerHTML=trail.map(a=>{const r=a.result||{},spDelta=Number(r.sp_delta||0);return `<article class="timeline-item" data-index="${a.index}"><div class="act-main"><span class="act-unit">${esc(unitNames[a.unit_id]||a.unit_id)}</span><span class="act-action">${esc(skillName(a.skill))} → ${esc(unitNames[a.target]||a.target||'默认')}</span><span class="act-damage">+${num(r.damage_delta)}</span></div><div class="act-meta"><span class="badge">t ${Number(r.t||0).toFixed(1)}</span><span class="badge">波次 ${r.wave||'—'}/${r.wave_count||'—'}</span><span class="badge">SP ${r.sp_before??'—'} → ${r.sp??'—'} (${spDelta>=0?'+':''}${spDelta})</span>${(r.ult_used||[]).map(id=>`<span class="badge good">大招 ${esc(unitNames[id]||id)}</span>`).join('')}${(r.new_breaks||[]).map(id=>`<span class="badge warn">击破 ${esc(unitNames[id]||id)}</span>`).join('')}</div>${a.note?`<div class="act-note">LLM理由（未经规则验证）：${esc(a.note)}</div>`:''}</article>`}).join('');
   if(wasNearBottom||trail.length>lastTrailCount)root.scrollTop=root.scrollHeight; lastTrailCount=trail.length;
 }
 function renderStatus(d){
@@ -359,8 +361,21 @@ function renderStatus(d){
   $('#metric-wave').textContent=st?.wave?`${st.wave.index} / ${st.wave.total}`:'—'; $('#metric-av').innerHTML=`${Number(st?.t||0).toFixed(1)}<small> / ${st?.setup?.target_av||currentStage()?.target_av||'—'}</small>`;
   $('#metric-damage').textContent=num(st?.damage?.total||0); $('#metric-sp').textContent=st?.sp?`${st.sp.value} / ${st.sp.max}`:'—'; $('#metric-branch').textContent=st?.progression?.abandoned_routes||0;
   ['sim-stage','sim-mode','sim-seed','sim-max'].forEach(id=>$('#'+id).disabled=d.running); $('#sim-start').disabled=d.running; $('#sim-stop').disabled=!d.running;
-  renderCurrent(d); renderBattleState(st); renderTimeline(d.trail||[]); $('#report').textContent=d.report||'推演结束后生成完整报告。';
+  renderCurrent(d); renderBattleState(st); renderTimeline(d.trail||[]);
+  const reportText=d.report||'推演结束后生成完整报告。';
+  if(reportText !== lastReport){$('#report').textContent=reportText;lastReport=reportText;}
 }
+async function copyReport(){
+  const text=$('#report').textContent||'';
+  try{
+    if(navigator.clipboard?.writeText){await navigator.clipboard.writeText(text);}
+    else{throw new Error('clipboard unavailable');}
+  }catch(_e){
+    const area=document.createElement('textarea');area.value=text;area.setAttribute('readonly','');area.style.position='fixed';area.style.opacity='0';document.body.appendChild(area);area.select();document.execCommand('copy');area.remove();
+  }
+  toast('报告已复制');
+}
+$('#report-copy').onclick=copyReport;
 async function pollSim(immediate=false){
   if(immediate&&pollTimer){clearTimeout(pollTimer);pollTimer=null;}
   if(pollBusy)return; pollBusy=true; let delay=1500;

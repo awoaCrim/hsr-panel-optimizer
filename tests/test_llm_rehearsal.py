@@ -6,7 +6,8 @@
 import pytest
 
 from hsr_sim.engine.simulate import Simulator
-from hsr_sim.llm.rehearsal import _compact_state, build_knowledge_pack, run_rehearsal
+from hsr_sim.llm.rehearsal import (DECISION_CONTRACT, _compact_state,
+                                   build_knowledge_pack, run_rehearsal)
 from hsr_sim.loader import DATA_DIR, load_character
 from hsr_sim.model import Enemy, Rotation, Stats
 from hsr_sim.rehearse import RehearsalSession
@@ -69,6 +70,7 @@ def test_knowledge_pack_non_attack_skills_are_explicit():
                       enemy=Path("data/enemy_starforge12b.json"))
     pack = build_knowledge_pack(s)
     assert "1309 知更鸟" in pack
+    assert "1015 红A" in pack
     assert "skill:非攻击" in pack
     assert "非攻击技能不会造成伤害/削韧" in pack
     assert "不会触发协奏附加伤害" in pack
@@ -78,6 +80,9 @@ def test_knowledge_pack_non_attack_skills_are_explicit():
     assert compact["sp"] == {"value": 4.0, "max": 9.0}
     assert "战技点：当前 4 / 上限 9" in pack
     assert "在场使战技点上限+2" in pack
+    assert "迷迷在进入战斗时已自动完成召唤" in pack
+    assert "此后战技不会召唤/重新召唤迷迷" in pack
+    assert "战技消耗1 SP：为已在场迷迷充能10%" in pack
     # 开局推进到知更鸟决策点，验证结构化目标契约也不是敌人目标。
     while state["phase"] == "decision" and state["decision"]["unit"] != "1309":
         d = state["decision"]
@@ -92,13 +97,41 @@ def test_knowledge_pack_non_attack_skills_are_explicit():
         state = s.observe()
     assert state["decision"]["skill_options"]["skill"]["is_attack"] is False
     assert state["decision"]["skill_options"]["skill"]["target_type"] == "none"
+    assert state["decision"]["skill_options"]["skill"]["sp_delta"] == -1
+    assert state["decision"]["skill_options"]["skill"]["sp_cost"] == 1
+    assert "非攻击不等于免费" in DECISION_CONTRACT
+
+    # 记忆主决策点：结构化机制明确“忆灵已在场，战技只充能/治疗，不召唤”。
+    real = RehearsalSession.from_files(
+        team=Path("data/team_real.json"), enemy=Path("data/enemy_starforge12b.json"), seed=0)
+    real_state = real.observe()
+    assert real_state["decision"]["unit"] == "8007"
+    decision = real_state["decision"]
+    assert decision["memosprite_present"] is True
+    assert decision["skill_options"]["skill"]["mechanics"] == {
+        "mem_charge": 0.1, "mem_heal": 0.42,
+    }
+    assert "mechanics.summon=true" in DECISION_CONTRACT
 
 
 def test_full_run_to_terminal():
-    """continue 自评直到物理终止（av_exhausted）：act 数与调用数对应。"""
-    decisions = [{"skill": "skill", "ults": {}, "note": "攒能"} for _ in range(30)]
-    verdicts = [{"verdict": "continue"} for _ in range(30)]
-    fake = FakeClient([x for pair in zip(decisions, verdicts) for x in pair])
+    """continue 自评直到物理终止；SP 不足后 LLM 改选局面默认合法动作。"""
+    class LegalClient:
+        def __init__(self):
+            self.calls = 0
+
+        def chat_json(self, messages, temperature=0.2):
+            self.calls += 1
+            prompt = messages[-1]["content"]
+            if "## 自评" in prompt:
+                return {"verdict": "continue"}
+            import json as _json
+            marker = "## 当前局面\n"
+            state_text = prompt.split(marker, 1)[1].split("\n\n## 你的决策", 1)[0]
+            state = _json.loads(state_text)
+            return {"skill": state["decision"]["default"], "ults": {}, "note": "合法推进"}
+
+    fake = LegalClient()
     s = _session()
     r = run_rehearsal(fake, s, max_acts=30)
     assert "物理终止" in r.stop_reason
@@ -149,7 +182,7 @@ def test_undo_to_arbitrary():
 
 
 def test_stop_early():
-    """LLM 自评 stop：提前收敛。"""
+    """LLM 自评 stop：提前收敛，报告明确记录原因。"""
     fake = FakeClient([
         {"skill": "skill", "ults": {}},
         {"verdict": "stop", "reason": "已达成目标"},
@@ -158,6 +191,8 @@ def test_stop_early():
     r = run_rehearsal(fake, s, max_acts=10)
     assert r.acts == 1
     assert r.stop_reason == "已达成目标"
+    assert "[终止原因] 已达成目标" in r.report
+    assert r.report_dict["termination"]["reason"] == "已达成目标"
 
 
 def test_invalid_decision_retry():
@@ -176,6 +211,23 @@ def test_invalid_decision_retry():
     assert r.llm_calls == 5                # 决策1+重试1+自评1+决策2+自评2
 
 
+def test_sp_insufficient_skill_retries_as_illegal_decision():
+    """LLM 无视 available 仍请求战技时必须重试，不能静默降级后伪造轨迹。"""
+    fake = FakeClient([
+        {"skill": "skill", "target": "elite", "ults": {}},
+        {"skill": "basic", "target": "elite", "ults": {}},
+        {"verdict": "stop", "reason": "测试结束"},
+    ])
+    s = _session()
+    s.sim.sp = 0.0
+    r = run_rehearsal(fake, s, max_acts=2)
+    assert r.retries == 1
+    assert r.acts == 1
+    assert s.acts[0].requested_skill == "basic"
+    assert s.acts[0].skill == "basic"
+    assert s.acts[0].result["sp_delta"] == pytest.approx(1.0)
+
+
 def test_max_acts_cap():
     """步数上限：LLM 一直不收敛时强制停止。"""
     decisions = [{"skill": "skill", "ults": {}} for _ in range(4)]
@@ -185,3 +237,4 @@ def test_max_acts_cap():
     r = run_rehearsal(fake, s, max_acts=3)
     assert r.acts == 3
     assert "步数上限" in r.stop_reason
+    assert "[终止原因] 达到步数上限 3" in r.report
