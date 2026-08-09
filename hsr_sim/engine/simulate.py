@@ -70,6 +70,7 @@ class SimResult:
     total_damage: float = 0.0
     damage_by_source: Dict[str, float] = field(default_factory=dict)
     damage_by_kind: Dict[str, float] = field(default_factory=dict)
+    setup: Dict[str, object] = field(default_factory=dict)
     sp_timeline: List[Tuple[float, float]] = field(default_factory=list)
     sp_min: float = 0.0
     energy_shortfalls: List[Tuple[float, str, float, float]] = field(default_factory=list)
@@ -101,11 +102,13 @@ class Simulator:
         initial_sp: Optional[float] = None,
         initial_energy: Optional[Dict[str, float]] = None,
         waves: Optional[List[Dict[str, Enemy]]] = None,
+        battle_setup: Optional[Dict] = None,
     ) -> None:
         self.chars = characters
         self.stats = char_stats
         self._initial_sp = 4.0 if initial_sp is None else initial_sp
         self._initial_energy = dict(initial_energy or {})
+        self.battle_setup = copy.deepcopy(battle_setup or {})
         # 多波次（D8，混沌回忆结构）：waves 缺省 = 单波次
         self._waves = list(waves) if waves else [enemies]
         self.enemy_wave = 0
@@ -176,6 +179,10 @@ class Simulator:
         self.equip_ult_count: Dict[str, int] = {}           # cid -> 大招计数（ult_sp_refund）
         self.equip_hit_target: Dict[str, str] = {}          # cid -> 上次攻击目标（论剑叠层）
         self.skill_streak: Dict[str, int] = {}              # 连续战技计数（星魂 E1）
+        self.setup_state: Dict[str, object] = {
+            "requested": [], "applied": [], "skipped": [], "field_owner": "", "engage_by": "",
+        }
+        self._wave_energy_effects: List[Tuple[str, float, str]] = []
         self._start_effects_applied = False
         # 装备效果运行时状态随 _reset 清理（restart 一致性）
         for _attr in ("equip_stacks", "equip_ult_count", "equip_hit_target", "skill_streak"):
@@ -200,14 +207,130 @@ class Simulator:
         return v
 
     def _apply_start_effects(self) -> None:
-        """开局效果：start_advance（翁瓦克：速度≥120 开局行动提前 40%）。"""
+        """开战自动阶段：显式秘技 Setup → 每波开始效果 → 装备开局拉条。"""
         if self._start_effects_applied:
             return
         self._start_effects_applied = True
+        self._apply_battle_setup()
+        self._apply_wave_start_effects(0)
         for cid, ch in self.chars.items():
             for ex in self._equip_effects(cid):
                 if ex["type"] == "start_advance" and self.stats[cid].speed >= ex["speed_ge"]:
                     self.queue.advance(cid, ex["pct"])
+
+    def _apply_battle_setup(self) -> None:
+        """应用显式开战准备；同一 field_group 最多保留一个领域。"""
+        requested = [str(cid) for cid in self.battle_setup.get("techniques", [])]
+        field_owner = str(self.battle_setup.get("field_owner", "") or "")
+        state = {"requested": requested, "applied": [], "skipped": [], "field_owner": "",
+                 "engage_by": str(self.battle_setup.get("engage_by", "") or "")}
+
+        is_attack = self.battle_setup.get("engage_by")
+        if is_attack and str(is_attack) not in requested:
+            raise ValueError("battle_setup.engage_by 必须包含在 techniques 中")
+        if is_attack:
+            owner = self.chars.get(str(is_attack))
+            if owner is None or owner.technique.get("category") != "attack":
+                raise ValueError("battle_setup.engage_by 必须指向队伍内的攻击型秘技")
+
+        field_groups: Dict[str, List[str]] = {}
+        for cid in requested:
+            ch = self.chars.get(cid)
+            if ch is None or not ch.technique:
+                state["skipped"].append({"unit_id": cid, "reason": "角色不在队伍或无秘技数据"})
+                continue
+            group = ch.technique.get("field_group", "")
+            if group:
+                field_groups.setdefault(group, []).append(cid)
+        for group, owners in field_groups.items():
+            if len(owners) > 1 and field_owner not in owners:
+                names = [self.chars[c].name for c in owners]
+                raise ValueError(
+                    f"开战准备存在互斥领域 {names}；field_owner 必须从 {owners} 中显式选择")
+        if field_owner and not any(field_owner in owners for owners in field_groups.values()):
+            raise ValueError("battle_setup.field_owner 必须指向 techniques 中的领域秘技")
+
+        for cid in requested:
+            ch = self.chars.get(cid)
+            if ch is None or not ch.technique:
+                continue
+            tech = ch.technique
+            group = tech.get("field_group", "")
+            if group and len(field_groups.get(group, [])) > 1 and cid != field_owner:
+                state["skipped"].append({
+                    "unit_id": cid, "name": ch.name, "technique": tech.get("name", "秘技"),
+                    "reason": f"同类领域互斥；保留 {self.chars[field_owner].name} 领域",
+                })
+                self.log.append(ActionLog(
+                    self.t, cid, "setup_skip",
+                    detail=f"秘技 {tech.get('name', '秘技')} 未生效：同类领域互斥，保留 {self.chars[field_owner].name} 领域"))
+                continue
+            self._apply_technique(cid, tech)
+            state["applied"].append({
+                "unit_id": cid, "name": ch.name, "technique": tech.get("name", "秘技"),
+                "category": tech.get("category", ""),
+            })
+            if group:
+                state["field_owner"] = cid
+        self.setup_state = state
+
+    def _apply_technique(self, cid: str, technique: Dict) -> None:
+        details = []
+        for effect in technique.get("effects", []):
+            effect_type = effect.get("type")
+            if effect_type == "sp":
+                before = self.sp
+                self.sp = min(self.sp_max, self.sp + float(effect.get("amount", 0.0)))
+                self.sp_timeline.append((self.t, self.sp))
+                details.append(f"SP {before:g}→{self.sp:g}")
+            elif effect_type == "fate_charge":
+                amount = float(effect.get("amount", 0.0))
+                cap = float(effect.get("cap", 4.0))
+                self.fate_charge[cid] = min(cap, self.fate_charge.get(cid, 0.0) + amount)
+                details.append(f"充能+{amount:g}")
+            elif effect_type == "energy_each_wave":
+                amount = float(effect.get("amount", 0.0))
+                self._wave_energy_effects.append((cid, amount, technique.get("name", "秘技")))
+                details.append(f"每波能量+{amount:g}")
+            elif effect_type == "postpone_all":
+                pct = float(effect.get("pct", 0.0))
+                for eid in list(self.enemies):
+                    self.queue.postpone(eid, pct)
+                details.append(f"敌方全体行动延后{pct:.0%}")
+            elif effect_type == "damage_all":
+                mult = float(effect.get("mult", 0.0))
+                for eid in list(self.enemies):
+                    if self.enemy_hp.get(eid, 0.0) <= 0.0:
+                        continue
+                    dmg, noncrit, crit_dmg_mult = self._technique_damage(cid, eid, mult)
+                    self._record_damage(cid, eid, dmg, "technique",
+                                        noncrit=noncrit, crit_dmg_mult=crit_dmg_mult)
+                details.append(f"敌方全体{mult:.0%}攻击力伤害")
+        self.log.append(ActionLog(
+            self.t, cid, "technique",
+            detail=f"{technique.get('name', '秘技')}：" + "；".join(details)))
+
+    def _technique_damage(self, cid: str, target: str, mult: float) -> float:
+        """攻击型秘技伤害；按普通角色伤害公式结算，不触发战斗内“攻击后”链。"""
+        stats = self._effective_stats(cid)
+        enemy = self.enemies[target]
+        res = enemy.resistances.get(self.chars[cid].element, 0.0)
+        m = self._current_multipliers(damager=cid)
+        noncrit = noncrit_damage(mult, stats.atk, stats, m, enemy.defense, res,
+                                 self.attacker_level,
+                                 enemy_broken=self.toughness[target] <= 0.0)
+        crit = self.rng.random() < min(stats.crit_rate, 1.0)
+        amount = noncrit * (1.0 + stats.crit_dmg) if crit else noncrit
+        return amount, noncrit, 1.0 + stats.crit_dmg
+
+    def _apply_wave_start_effects(self, wave_idx: int) -> None:
+        for cid, amount, technique_name in self._wave_energy_effects:
+            before = self.energy[cid]
+            self.energy[cid] += amount
+            self._memosprite_charge_from_energy(amount)
+            self.log.append(ActionLog(
+                self.t, cid, "wave_start_effect",
+                detail=f"第{wave_idx + 1}波 {technique_name}：能量 {before:g}→{self.energy[cid]:g}"))
 
     # ---------- 主循环 ----------
     def run(self) -> SimResult:
@@ -981,6 +1104,9 @@ class Simulator:
             skill_streak=dict(self.skill_streak),
             char_hp=dict(self.char_hp), char_hp_max=dict(self.char_hp_max),
             enemy_cd={eid: dict(c) for eid, c in self.enemy_cd.items()},
+            setup_state=copy.deepcopy(self.setup_state),
+            wave_energy_effects=list(self._wave_energy_effects),
+            start_effects_applied=self._start_effects_applied,
             queue_entries={uid: (e.distance, e.speed) for uid, e in self.queue._entries.items()},
             sp_timeline=list(self.sp_timeline), damage_events=list(self.damage_events),
             log=list(self.log), breaks=list(self.breaks),
@@ -1018,6 +1144,9 @@ class Simulator:
         self.char_hp = dict(snap.char_hp)
         self.char_hp_max = dict(snap.char_hp_max)
         self.enemy_cd = {eid: dict(c) for eid, c in snap.enemy_cd.items()}
+        self.setup_state = copy.deepcopy(snap.setup_state)
+        self._wave_energy_effects = list(snap.wave_energy_effects)
+        self._start_effects_applied = snap.start_effects_applied
         self.queue = ActionQueue()
         for uid, (distance, speed) in snap.queue_entries.items():
             self.queue.add(uid, speed, distance)
@@ -1080,6 +1209,7 @@ class Simulator:
             self.queue.add(eid, e.speed)
         self.log.append(ActionLog(self.t, "WAVE", f"wave_{idx + 1}",
                                   detail=f"第{idx + 1}波敌人入场"))
+        self._apply_wave_start_effects(idx)
 
     def _result(self) -> SimResult:
         r = SimResult(t_end=self.t)
@@ -1087,6 +1217,7 @@ class Simulator:
         for e in self.damage_events:
             r.damage_by_source[e.source] = r.damage_by_source.get(e.source, 0.0) + e.amount
             r.damage_by_kind[e.kind] = r.damage_by_kind.get(e.kind, 0.0) + e.amount
+        r.setup = copy.deepcopy(self.setup_state)
         r.sp_timeline = self.sp_timeline
         r.sp_min = min(sp for _, sp in self.sp_timeline)
         r.energy_shortfalls = self.shortfalls

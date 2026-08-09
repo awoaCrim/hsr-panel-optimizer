@@ -60,6 +60,7 @@ def load_character(path: Path) -> CharacterData:
         base_stats=_stats_from_dict(d.get("base_stats", {})),
         skills={k: _skill_from_dict(v) for k, v in d.get("skills", {}).items()},
         talent_extra=d.get("talent_extra", {}),
+        technique=d.get("technique", {}),
         max_energy=d.get("max_energy", 0.0),
         note=d.get("note", ""),
     )

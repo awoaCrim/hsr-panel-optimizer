@@ -15,6 +15,16 @@
     "energy_regen": 1.0
   },
   "max_energy": 160.0,
+  "technique": {
+    "id": "130902",
+    "name": "酣醉序曲",
+    "category": "field",
+    "field_group": "ally_field",
+    "effects": [
+      {"type": "energy_each_wave", "amount": 5.0}
+    ],
+    "source": "TBGD MazeSkill 130902 → AvatarSkillConfig 130907 ParamList[15,5] / 中文描述交叉核对"
+  },
   "skills": {
     "basic": {
       "mult": 1.4,

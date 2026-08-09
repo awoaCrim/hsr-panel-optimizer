@@ -6,7 +6,7 @@
 import pytest
 
 from hsr_sim.engine.simulate import Simulator
-from hsr_sim.llm.rehearsal import (DECISION_CONTRACT, _compact_state,
+from hsr_sim.llm.rehearsal import (DECISION_CONTRACT, MECHANICS_RULES, _compact_state,
                                    build_knowledge_pack, run_rehearsal)
 from hsr_sim.loader import DATA_DIR, load_character
 from hsr_sim.model import Enemy, Rotation, Stats
@@ -67,7 +67,7 @@ def test_knowledge_pack_non_attack_skills_are_explicit():
     from pathlib import Path
     from hsr_sim.rehearse import RehearsalSession as RS
     s = RS.from_files(team=Path("data/team_real.json"),
-                      enemy=Path("data/enemy_starforge12b.json"))
+                      enemy=Path("data/enemy_floor12_node2.json"))
     pack = build_knowledge_pack(s)
     assert "1309 知更鸟" in pack
     assert "1015 红A" in pack
@@ -76,9 +76,10 @@ def test_knowledge_pack_non_attack_skills_are_explicit():
     assert "不会触发协奏附加伤害" in pack
     state = s.observe()
     compact = _compact_state(state)
-    assert state["sp"] == {"value": 4.0, "max": 9.0, "timeline_tail": [[0.0, 4.0]]}
-    assert compact["sp"] == {"value": 4.0, "max": 9.0}
-    assert "战技点：当前 4 / 上限 9" in pack
+    assert state["sp"] == {"value": 7.0, "max": 9.0,
+                            "timeline_tail": [[0.0, 4.0], [0.0, 7.0]]}
+    assert compact["sp"] == {"value": 7.0, "max": 9.0}
+    assert "战技点：当前 7 / 上限 9" in pack
     assert "在场使战技点上限+2" in pack
     assert "迷迷在进入战斗时已自动完成召唤" in pack
     assert "此后战技不会召唤/重新召唤迷迷" in pack
@@ -100,10 +101,13 @@ def test_knowledge_pack_non_attack_skills_are_explicit():
     assert state["decision"]["skill_options"]["skill"]["sp_delta"] == -1
     assert state["decision"]["skill_options"]["skill"]["sp_cost"] == 1
     assert "非攻击不等于免费" in DECISION_CONTRACT
+    assert "开战准备（已结算的模拟器真值）" in pack
+    assert '"field_owner": "1309"' in pack
+    assert "同类领域最多保留1个" in MECHANICS_RULES
 
     # 记忆主决策点：结构化机制明确“忆灵已在场，战技只充能/治疗，不召唤”。
     real = RehearsalSession.from_files(
-        team=Path("data/team_real.json"), enemy=Path("data/enemy_starforge12b.json"), seed=0)
+        team=Path("data/team_real.json"), enemy=Path("data/enemy_floor12_node2.json"), seed=0)
     real_state = real.observe()
     assert real_state["decision"]["unit"] == "8007"
     decision = real_state["decision"]

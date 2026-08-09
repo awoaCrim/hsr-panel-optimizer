@@ -343,7 +343,7 @@ function currentStage(){ return stageData?.stages.find(x=>x.id===$('#sim-stage')
 function renderStage(){
   const s=currentStage(); if(!s)return;
   const waves=s.waves.map(w=>`<div class="wave-block"><div class="wave-title">波次 ${w.index}${w.note?` · ${esc(clean(w.note))}`:''}</div><div class="enemy-grid">${w.enemies.map(e=>`<div class="enemy-static"><b>${esc(e.name)}</b> <span class="mono">${esc(e.key)}</span><br>HP ${num(e.hp)} · 速度 ${esc(e.speed)} · 防御 ${esc(e.defense)} · 韧性 ${esc(e.toughness)}<br>弱点 ${esc((e.weaknesses||[]).join(' / ')||'—')}<br>抗性 ${esc(Object.entries(e.resistances||{}).map(([k,v])=>`${k} ${Math.round(v*100)}%`).join(' / ')||'0%')}<br>技能 ${esc((e.skills||[]).map(x=>`${x.name} ×${x.mult}`).join('；')||'未配置')}</div>`).join('')}</div></div>`).join('');
-  $('#stage-root').innerHTML=`<b>${esc(s.label)}</b> <span class="badge">Lv${s.level}</span><span class="badge">${s.wave_count} 波</span><span class="badge">${s.target_av} AV</span><br>${esc(clean(s.note))}${(s.unverified_inputs||[]).length?`<div class="trust" style="margin-top:8px">未验证近似：${s.unverified_inputs.map(x=>esc(clean(x))).join('；')}</div>`:''}${waves}`;
+  $('#stage-root').innerHTML=`<b>${esc(s.label)}</b> <span class="badge">Stage ${esc(s.stage_id||'—')}</span><span class="badge">Lv${s.level}</span><span class="badge">${s.wave_count} 波</span><span class="badge">${s.target_av} AV</span><br>${esc(clean(s.note))}${(s.unverified_inputs||[]).length?`<div class="trust" style="margin-top:8px">未验证近似：${s.unverified_inputs.map(x=>esc(clean(x))).join('；')}</div>`:''}${waves}`;
 }
 $('#sim-stage').onchange=renderStage;
 

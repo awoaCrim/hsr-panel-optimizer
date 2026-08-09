@@ -1,0 +1,115 @@
+{
+  "note": "忘却之庭·星启模式 值日行动其十二 第3节点（StageID 30124123，首领示死祸源：深魇蝗灾）。节点映射：ChallengeMazeTierce PHFMCACHFIJ=5313 / HFIAAGAKFMD=30124123；不能与常规第2节点 30124122 混用。数据源：TBGD StageConfig/MonsterConfig/MonsterTemplateConfig + HardLevelGroup 3 Lv95（HP×375.4385/ATK×34.75065/DEF×5.47619/SPD×1.32）。技能倍率=MonsterSkillConfig ParamList[0]（分布推断，待实测）；敌人行为树与技能削韧尚未解包。",
+  "stage_id": 30124123,
+  "challenge_node": "tierce_3",
+  "unverified_inputs": [
+    "stage.target_av：星启3节点共享总轮数未解包，单节点1000AV为近似",
+    "stage.enemy_skills：MonsterSkillConfig ParamList[0]按分布推断为倍率，待实战对账",
+    "stage.enemy_ai：技能列表序+冷却为行为树近似",
+    "stage.enemy_toughness_damage：敌人技能削韧字段未解包"
+  ],
+  "level": 95,
+  "target_av": 1000,
+  "waves": [
+    {
+      "note": "波次1：「醉于盛会的此刻」+「同音共律的来日」+「身陷樊笼的往昔」",
+      "enemies": {
+        "present": {
+          "id": "3003050",
+          "name": "「醉于盛会的此刻」",
+          "element": "Wind",
+          "hp": 418989,
+          "atk": 625.5,
+          "defense": 1150,
+          "speed": 158.4,
+          "toughness": 300,
+          "weaknesses": ["Physical", "Fire", "Imaginary"],
+          "resistances": {"Ice": 0.2, "Thunder": 0.2, "Wind": 0.2, "Quantum": 0.2},
+          "skills": [
+            {"name": "为你倾流宝血", "mult": 1.0, "damage_type": "Wind", "ai_cd": 1, "sp_hit": 5,
+             "note": "MonsterSkillConfig 300305001 ParamList[0]=1"},
+            {"name": "为你摆设筵席", "mult": 1.0, "damage_type": "Wind", "ai_cd": 1, "sp_hit": 10,
+             "note": "MonsterSkillConfig 300305002 ParamList[0]=1"},
+            {"name": "使你福杯满溢", "mult": 1.0, "damage_type": "Wind", "ai_cd": 1, "sp_hit": 10,
+             "note": "MonsterSkillConfig 300305004 ParamList[0]=1"},
+            {"name": "为你洗去一切罪", "mult": 1.25, "damage_type": "Wind", "ai_cd": 1, "sp_hit": 15,
+             "note": "MonsterSkillConfig 300305005 ParamList[0]=1.25"}
+          ]
+        },
+        "future": {
+          "id": "3003040",
+          "name": "「同音共律的来日」",
+          "element": "Imaginary",
+          "hp": 418989,
+          "atk": 625.5,
+          "defense": 1150,
+          "speed": 132.0,
+          "toughness": 300,
+          "weaknesses": ["Physical", "Fire", "Thunder"],
+          "resistances": {"Ice": 0.2, "Wind": 0.2, "Quantum": 0.2, "Imaginary": 0.2},
+          "skills": [
+            {"name": "光华射", "mult": 3.0, "damage_type": "Imaginary", "ai_cd": 1, "sp_hit": 5,
+             "note": "MonsterSkillConfig 300304001 ParamList[0]=3"},
+            {"name": "救赎恩典", "mult": 4.2, "damage_type": "Imaginary", "ai_cd": 1, "sp_hit": 15,
+             "note": "MonsterSkillConfig 300304003 ParamList[0]=4.2"}
+          ]
+        },
+        "past": {
+          "id": "3003030",
+          "name": "「身陷樊笼的往昔」",
+          "element": "Physical",
+          "hp": 418989,
+          "atk": 625.5,
+          "defense": 1150,
+          "speed": 132.0,
+          "toughness": 300,
+          "weaknesses": ["Fire", "Thunder", "Imaginary"],
+          "resistances": {"Physical": 0.2, "Ice": 0.2, "Wind": 0.2, "Quantum": 0.2},
+          "skills": [
+            {"name": "鞭伤除净恶", "mult": 3.6, "damage_type": "Physical", "ai_cd": 1, "sp_hit": 10,
+             "note": "MonsterSkillConfig 300303001 ParamList[0]=3.6"},
+            {"name": "责打入人心", "mult": 3.0, "damage_type": "Physical", "ai_cd": 1, "sp_hit": 10,
+             "note": "MonsterSkillConfig 300303002 ParamList[0]=3"},
+            {"name": "笼中传福音", "mult": 15.0, "damage_type": "Physical", "ai_cd": 1, "sp_hit": 15,
+             "note": "MonsterSkillConfig 300303004 ParamList[0]=15"}
+          ]
+        }
+      }
+    },
+    {
+      "note": "波次2：示死祸源：深魇蝗灾（Boss）",
+      "enemies": {
+        "deepnight_swarm": {
+          "id": "3024030",
+          "name": "示死祸源：深魇蝗灾",
+          "element": "Fire",
+          "hp": 2793262,
+          "atk": 625.5,
+          "defense": 1150,
+          "speed": 190.08,
+          "toughness": 600,
+          "weaknesses": ["Physical", "Fire", "Wind"],
+          "resistances": {"Ice": 0.2, "Thunder": 0.2, "Quantum": 0.2, "Imaginary": 0.2},
+          "skills": [
+            {"name": "恶变鞘翅", "mult": 2.4, "damage_type": "Fire", "ai_cd": 1, "sp_hit": 10,
+             "note": "MonsterSkillConfig 302403001 ParamList[0]=2.4"},
+            {"name": "饕虐外肢", "mult": 2.4, "damage_type": "Fire", "ai_cd": 1, "sp_hit": 10,
+             "note": "MonsterSkillConfig 302403002 ParamList[0]=2.4"},
+            {"name": "侵掠，撕碎，进食", "mult": 3.0, "damage_type": "Fire", "ai_cd": 1, "sp_hit": 10,
+             "note": "MonsterSkillConfig 302403003 ParamList[0]=3"},
+            {"name": "分裂，腐化，吞吃", "mult": 0.5, "damage_type": "Fire", "ai_cd": 1, "sp_hit": 10,
+             "note": "MonsterSkillConfig 302403004 ParamList[0]=0.5"},
+            {"name": "荒潮到临，蝗灾示死", "mult": 3.0, "damage_type": "Fire", "ai_cd": 1, "sp_hit": 10,
+             "note": "MonsterSkillConfig 302403005 ParamList[0]=3"},
+            {"name": "原始饥饿", "mult": 20.0, "damage_type": "Fire", "ai_cd": 1, "sp_hit": 10,
+             "note": "MonsterSkillConfig 302403006 ParamList[0]=20"},
+            {"name": "旋覆甲壳", "mult": 0.01, "damage_type": "Fire", "ai_cd": 1, "sp_hit": 10,
+             "note": "MonsterSkillConfig 302403007 ParamList[0]=0.01；字段语义待实测"},
+            {"name": "诸界噩兆，蚀生虫鸣", "mult": 1.0, "damage_type": "Fire", "ai_cd": 1, "sp_hit": 10,
+             "note": "MonsterSkillConfig 302403009 ParamList[0]=1"}
+          ]
+        }
+      }
+    }
+  ]
+}

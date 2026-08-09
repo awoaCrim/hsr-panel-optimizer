@@ -8,7 +8,7 @@ from hsr_sim.engine.effects import DamageEffect
 from hsr_sim.engine.simulate import Simulator
 from hsr_sim.loader import DATA_DIR, load_enemy_waves, load_enemies, load_rotation
 
-STARFORGE = DATA_DIR / "enemy_starforge12b.json"
+STARFORGE = DATA_DIR / "enemy_starforge12c.json"
 
 
 @pytest.fixture()
@@ -17,31 +17,41 @@ def real_team():
 
 
 class TestStarforgeStageData:
-    """星启模式第二关（StageConfig 30124122）数据装配。"""
+    """星启模式第三节点（StageConfig 30124123）数据装配。"""
 
     def test_waves_structure(self):
         waves = load_enemy_waves(STARFORGE)
         assert len(waves) == 2
-        assert set(waves[0]) == {"cywing", "cyash"}
-        assert set(waves[1]) == {"pamking"}
+        assert set(waves[0]) == {"present", "future", "past"}
+        assert set(waves[1]) == {"deepnight_swarm"}
 
     def test_lv95_values(self):
         """Lv95 数值 = 基础值 × HardLevelGroup 3 比例（HP×375.4385/ATK×34.75065/SPD×1.32）。"""
         waves = load_enemy_waves(STARFORGE)
-        cywing = waves[0]["cywing"]
-        assert cywing.hp == pytest.approx(1395 * 375.4385, rel=1e-3)
-        assert cywing.atk == pytest.approx(18 * 34.75065, rel=1e-3)
-        assert cywing.speed == pytest.approx(120 * 1.32, rel=1e-3)
-        assert waves[1]["pamking"].hp == pytest.approx(3487.5 * 375.4385, rel=1e-3)
-        assert waves[1]["pamking"].toughness == pytest.approx(720)
+        present = waves[0]["present"]
+        assert present.hp == pytest.approx(1116 * 375.4385, rel=1e-3)
+        assert present.atk == pytest.approx(18 * 34.75065, rel=1e-3)
+        assert present.speed == pytest.approx(120 * 1.32, rel=1e-3)
+        assert waves[1]["deepnight_swarm"].hp == pytest.approx(7440 * 375.4385, rel=1e-3)
+        assert waves[1]["deepnight_swarm"].toughness == pytest.approx(600)
 
     def test_resistances_and_weakness(self):
-        """真实克制关系：苍翼量子抗 80%（红A 大劣）、灰烬物理抗 80%、帕姆王全抗 20%。"""
+        """星启第三节点克制关系：三剧团各自弱点；深魇蝗灾弱物理/火/风。"""
         waves = load_enemy_waves(STARFORGE)
-        assert waves[0]["cywing"].resistances["Quantum"] == 0.8
-        assert "Quantum" not in waves[0]["cywing"].weaknesses
-        assert waves[0]["cyash"].resistances["Physical"] == 0.8
-        assert waves[1]["pamking"].resistances["Quantum"] == 0.2
+        assert waves[0]["present"].weaknesses == ["Physical", "Fire", "Imaginary"]
+        assert waves[0]["future"].resistances["Quantum"] == 0.2
+        assert waves[1]["deepnight_swarm"].weaknesses == ["Physical", "Fire", "Wind"]
+        assert waves[1]["deepnight_swarm"].resistances["Quantum"] == 0.2
+class TestNodeRegistryData:
+    """5312 常规两节点与 5313 星启第三节点必须使用各自真实 StageID/敌人。"""
+
+    def test_regular_nodes_are_distinct(self):
+        node1 = load_enemy_waves(DATA_DIR / "enemy_floor12_node1.json")
+        node2 = load_enemy_waves(DATA_DIR / "enemy_floor12_node2.json")
+        assert set(node1[0]) == {"rage_shell", "frost_wanderer"}
+        assert set(node1[1]) == {"sam"}
+        assert set(node2[0]) == {"cywing", "cyash"}
+        assert set(node2[1]) == {"pamking"}
 
 
 class TestMultiWave:
@@ -56,8 +66,8 @@ class TestMultiWave:
         wave_events = [a for a in r.actions if a.action.startswith("wave")]
         assert len(wave_events) == 1
         assert "第2波" in wave_events[0].detail
-        # 波次 2 敌人被打过（伤害事件含 pamking）
-        assert any(e.target == "pamking" for e in sim.damage_events)
+        # 波次 2 敌人被打过（伤害事件含 deepnight_swarm）
+        assert any(e.target == "deepnight_swarm" for e in sim.damage_events)
         assert all(v <= 0 for v in r.enemy_hp_left.values())
 
     def test_dead_enemy_removed_from_queue(self, real_team):
@@ -97,20 +107,21 @@ class TestMultiWave:
         rot = load_rotation(DATA_DIR / "rotation.json")
         sim = Simulator(chars, stats, waves[0], rot, 1000, 95, seed=0, waves=waves)
         # 最小化真实结算链：主伤害击杀波次 1 最后一名敌人；随后同时满足红A追击与协奏触发。
-        sim.enemy_hp["cywing"] = 0.0
-        sim.enemy_hp["cyash"] = 1.0
+        sim.enemy_hp["present"] = 0.0
+        sim.enemy_hp["future"] = 0.0
+        sim.enemy_hp["past"] = 1.0
         sim.fate_charge["1015"] = 1.0
         sim.concert_rounds = 2
 
-        sim._apply_effects("8007", [DamageEffect(mult=1.0)], "cyash", "", skill_type="basic")
+        sim._apply_effects("8007", [DamageEffect(mult=1.0)], "past", "", skill_type="basic")
 
         assert sim.enemy_wave == 1
-        assert set(sim.enemy_hp) == {"pamking"}
+        assert set(sim.enemy_hp) == {"deepnight_swarm"}
         # 触发链属于击杀所在波次，不得把追击/附加伤害泄漏到新波敌人；
         # 追击没有合法目标时也不能白白消耗红A充能。
         assert sim.fate_charge["1015"] == 1.0
         assert not any(event.kind in {"followup", "additional"} for event in sim.damage_events)
-        assert not any(event.target == "pamking" for event in sim.damage_events)
+        assert not any(event.target == "deepnight_swarm" for event in sim.damage_events)
 
     def test_wave_boundary_same_act(self, real_team):
         """波次切换同 act 内：击杀瞬间切换，剩余段不打旧目标。"""

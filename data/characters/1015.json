@@ -15,6 +15,16 @@
     "energy_regen": 1.0
   },
   "max_energy": 220.0,
+  "technique": {
+    "id": "101502",
+    "name": "千里眼",
+    "category": "attack",
+    "effects": [
+      {"type": "damage_all", "mult": 2.0, "element": "Quantum"},
+      {"type": "fate_charge", "amount": 1.0, "cap": 4.0}
+    ],
+    "source": "TBGD MazeSkill 101502 → AvatarSkillConfigLD 101507 ParamList[2,1] / 中文描述交叉核对"
+  },
   "skills": {
     "basic": {
       "mult": 1.3,

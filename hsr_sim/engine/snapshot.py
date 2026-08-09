@@ -34,6 +34,9 @@ class BattleSnapshot:
     char_hp: Dict[str, float] = field(default_factory=dict)      # 我方 HP（生存）
     char_hp_max: Dict[str, float] = field(default_factory=dict)
     enemy_cd: Dict[str, Dict[int, int]] = field(default_factory=dict)  # 敌人技能冷却
+    setup_state: Dict[str, object] = field(default_factory=dict)       # 已结算的开战准备投影
+    wave_energy_effects: List[Tuple[str, float, str]] = field(default_factory=list)
+    start_effects_applied: bool = False
     queue_entries: Dict[str, Tuple[float, float]] = field(default_factory=dict)  # unit -> (distance, speed)
     sp_timeline: List[Tuple[float, float]] = field(default_factory=list)
     damage_events: List = field(default_factory=list)

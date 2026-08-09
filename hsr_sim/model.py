@@ -79,6 +79,7 @@ class CharacterData:
     base_stats: Stats
     skills: Dict[str, SkillData] = field(default_factory=dict)  # basic/skill/ult/talent
     talent_extra: Dict = field(default_factory=dict)            # 天赋特殊效果（结构化，见各角色文件）
+    technique: Dict = field(default_factory=dict)               # 秘技/开战准备效果（结构化 Setup）
     equipment_effects: List[Dict] = field(default_factory=list)  # 装备生效效果（exec DSL，见 build.resolve_equipment）
     max_energy: float = 0.0
     note: str = ""

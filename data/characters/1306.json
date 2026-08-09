@@ -15,6 +15,15 @@
     "energy_regen": 1.0
   },
   "max_energy": 110.0,
+  "technique": {
+    "id": "130602",
+    "name": "不可靠叙事者",
+    "category": "support",
+    "effects": [
+      {"type": "sp", "amount": 3.0}
+    ],
+    "source": "TBGD MazeSkill 130602 → AvatarSkillConfig 130607 ParamList[3,20] / 中文描述交叉核对"
+  },
   "skills": {
     "basic": {
       "mult": 1.4,

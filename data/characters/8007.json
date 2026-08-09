@@ -15,6 +15,17 @@
     "energy_regen": 1.0
   },
   "max_energy": 160.0,
+  "technique": {
+    "id": "800702",
+    "name": "忆域迷因",
+    "category": "field",
+    "field_group": "ally_field",
+    "effects": [
+      {"type": "postpone_all", "pct": 0.5},
+      {"type": "damage_all", "mult": 1.0, "element": "Ice"}
+    ],
+    "source": "TBGD MazeSkill 800702 → AvatarSkillConfig 800707 ParamList[10,0.5,1] / 中文描述交叉核对"
+  },
   "skills": {
     "basic": {
       "mult": 1.4,

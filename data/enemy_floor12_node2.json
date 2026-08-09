@@ -1,5 +1,5 @@
 {
-  "note": "兼容旧路径：该文件是忘却之庭·扫除风暴其十二常规第2节点（StageID 30124122），不是星启第3节点。新代码注册表使用 enemy_floor12_node2.json；保留本文件避免旧命令/外部链接失效。",
+  "note": "忘却之庭·扫除风暴其十二 第2节点（StageID 30124122，首领合金机铠·帕姆王）。节点映射：ChallengeMazeConfig ID 5312 / EventIDList2。数据源：TBGD StageConfig/MonsterConfig/MonsterTemplateConfig + HardLevelGroup 3 Lv95（HP×375.4385/ATK×34.75065/DEF×5.47619/SPD×1.32）。技能倍率=MonsterSkillConfig ParamList[0]（分布推断，待实测）；技能削韧字段未解包标注 UNKNOWN。target_av：常规两节点共享轮数规则尚未解包，单节点按1000AV近似（待实测）。",
   "stage_id": 30124122,
   "challenge_node": "regular_2",
   "unverified_inputs": [

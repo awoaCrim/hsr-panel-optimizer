@@ -27,7 +27,9 @@ MECHANICS_RULES = """\
    `sp_delta=-1` 表示消耗 1 点。非攻击只表示不造成伤害，不表示免费。
 2. 大招时机：能量满的角色可放可等——ults=null 放全部满能；ults={} 全 hold；
    ults={"<cid>": true/false} 逐角色指定。大招不占行动条，在行动连锁末尾即时释放。
-自动执行：追击 / 协奏 / 真伤（声援） / 击破 / 忆灵（迷迷）行动 / 敌人 AI / 回能。
+3. 开战准备（秘技、攻击入战者、保留领域）属于 Setup，已在首个决策点前由模拟器结算；
+   `battle_setup` 是实际生效真值。同类领域最多保留1个，禁止声称被 `skipped` 的秘技同时生效。
+4. 自动执行：追击 / 协奏 / 真伤（声援） / 击破 / 忆灵（迷迷）行动 / 敌人 AI / 回能。
 非攻击技能不会造成伤害/削韧，也不会触发协奏附加伤害、队友攻击追击或“队友攻击后”回能；
 不得根据技能说明中的增益/治疗参数虚构攻击倍率或敌方目标。
 
@@ -234,6 +236,9 @@ def build_knowledge_pack(session: RehearsalSession) -> str:
 ## 队伍资源
 - 战技点：当前 {session.sim.sp:g} / 上限 {session.sim.sp_max:g}（基础上限 5；角色天赋/星魂可提高上限）。
   当前值与上限是不同概念，规划时必须使用本局上限，不能自行按常规 5 点推断。
+
+## 开战准备（已结算的模拟器真值）
+{json.dumps(session.sim.setup_state, ensure_ascii=False)}
 
 ## 装备与星魂
 {_gear_summary(session)}

@@ -152,6 +152,7 @@ def load_characters_normalized(normalized_dir: Path = NORMALIZED_DIR):
             element=cd["element"], path=cd["path"],
             base_stats=_stats_from_dict(cd.get("base_stats") or {}),
             skills=skills, talent_extra=talent_extra,
+            technique=cd.get("technique") or {},
             max_energy=cd.get("max_energy", 0.0),
         )
     # 信任度信封：仅本层字段（characters.*/skills.*）

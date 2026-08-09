@@ -33,9 +33,11 @@ from urllib.parse import parse_qs, urlparse
 from .loader import DATA_DIR
 
 DEFAULT_TEAM = DATA_DIR / "team_real.json"
-DEFAULT_ENEMY = DATA_DIR / "enemy_starforge12b.json"
+DEFAULT_ENEMY = DATA_DIR / "enemy_starforge12c.json"
 BUILTIN_STAGES = (
-    ("starforge12b", "忘却之庭·星启模式 第12关 第2节点", DEFAULT_ENEMY),
+    ("floor12a", "忘却之庭·扫除风暴其十二 第1节点 · 30124121", DATA_DIR / "enemy_floor12_node1.json"),
+    ("floor12b", "忘却之庭·扫除风暴其十二 第2节点 · 30124122", DATA_DIR / "enemy_floor12_node2.json"),
+    ("starforge12c", "忘却之庭·星启模式 值日行动其十二 第3节点 · 30124123", DEFAULT_ENEMY),
     ("elite90", "90级双精英靶场", DATA_DIR / "enemy_elite90.json"),
     ("boss90", "90级单Boss靶场", DATA_DIR / "enemy_boss90.json"),
     ("trash90", "90级三小怪靶场", DATA_DIR / "enemy_trash90.json"),
@@ -272,6 +274,7 @@ def build_stage_payload(stage_id: str, label: str, path: Path) -> Dict[str, Any]
             })
         waves.append({"index": index, "note": wave.get("note", ""), "enemies": enemies})
     return {"id": stage_id, "label": label, "file": path.name, "note": d.get("note", ""),
+            "stage_id": d.get("stage_id"), "challenge_node": d.get("challenge_node", ""),
             "level": d.get("level", 90), "target_av": d.get("target_av", 250),
             "wave_count": len(waves), "waves": waves,
             "unverified_inputs": d.get("unverified_inputs", [])}
@@ -335,7 +338,7 @@ class Handler(BaseHTTPRequestHandler):
     llm_client = None
     team_path: Path = DEFAULT_TEAM
     stage_paths: Dict[str, tuple] = {}
-    default_stage: str = "starforge12b"
+    default_stage: str = "starforge12c"
 
     def log_message(self, *a):
         pass

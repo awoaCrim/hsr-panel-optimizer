@@ -73,16 +73,21 @@ class TestWebuiApi:
         assert "main_stats" in red and "substats" in red
         assert isinstance(d["trust"]["unverified"], list)
 
-    def test_stage_payload_defaults_to_starforge(self):
-        """WebUI 默认关卡 = 最新忘却之庭星启第二节点，展示两波全部敌人。"""
+    def test_stage_payload_defaults_to_starforge_third_node(self):
+        """WebUI 默认关卡 = 星启第三节点 30124123；三个节点注册表不可混标。"""
         from hsr_sim.webui import DEFAULT_ENEMY, _stage_registry, build_stages_payload
         stages, default = _stage_registry(DEFAULT_ENEMY)
         d = build_stages_payload(stages, default)
-        assert d["default"] == "starforge12b"
-        stage = next(s for s in d["stages"] if s["id"] == d["default"])
+        assert d["default"] == "starforge12c"
+        ids = {s["id"]: s for s in d["stages"]}
+        assert ids["floor12a"]["stage_id"] == 30124121
+        assert ids["floor12b"]["stage_id"] == 30124122
+        assert ids["starforge12c"]["stage_id"] == 30124123
+        stage = ids[d["default"]]
         assert stage["wave_count"] == 2
-        assert [e["name"] for e in stage["waves"][0]["enemies"]] == ["破晓战队·苍翼", "破晓战队·灰烬"]
-        assert stage["waves"][1]["enemies"][0]["name"] == "合金机铠·帕姆王"
+        assert [e["name"] for e in stage["waves"][0]["enemies"]] == [
+            "「醉于盛会的此刻」", "「同音共律的来日」", "「身陷樊笼的往昔」"]
+        assert stage["waves"][1]["enemies"][0]["name"] == "示死祸源：深魇蝗灾"
         assert stage["unverified_inputs"]
 
     def test_factory_honors_selected_enemy_and_waves(self):
@@ -91,11 +96,12 @@ class TestWebuiApi:
         stages, default = _stage_registry(DEFAULT_ENEMY)
         factory = _make_session_factory(DEFAULT_TEAM, stages, default,
                                         DATA_DIR / "rotation.json", False)
-        session = factory(seed=0, stage_id="starforge12b")
+        session = factory(seed=0, stage_id="starforge12c")
         assert session.sim.stats["1015"].atk == pytest.approx(2629)
         assert session.sim.target_av == pytest.approx(1000)
         assert len(session.sim._waves) == 2
-        assert set(session.sim._waves[1]) == {"pamking"}
+        assert set(session.sim._waves[1]) == {"deepnight_swarm"}
+        assert session.sim.setup_state["field_owner"] == "1309"
 
     def test_runner_publishes_live_act_before_llm_evaluation_returns(self):
         """回归：LLM 请求进行中也要实时发布阶段；act 不得等整局结束才出现在 WebUI。"""
@@ -140,7 +146,7 @@ class TestWebuiApi:
             assert evaluating["trail"][0]["note"] == "实时测试"
             assert evaluating["state"]["progression"]["acts"] == 1
             assert evaluating["state"]["allies"]["8007"]["name"] == "记忆主"
-            assert evaluating["state"]["enemies"]["cywing"]["name"] == "破晓战队·苍翼"
+            assert evaluating["state"]["enemies"]["present"]["name"] == "「醉于盛会的此刻」"
         finally:
             client.release[0].set()
             client.release[1].set()
@@ -158,6 +164,7 @@ class TestWebuiApi:
         assert "action_order?.upcoming" in PAGE
         assert "action_order?.history" in PAGE
         assert "预计 t" in PAGE
+        assert "Stage ${esc(s.stage_id||'—')}" in PAGE
 
     def test_report_copy_ui_is_selection_safe(self):
         """报告可复制，且状态轮询不得反复替换同一文本、打断用户选择。"""

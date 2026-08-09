@@ -19,6 +19,7 @@
 from __future__ import annotations
 
 import argparse
+import copy
 import dataclasses
 import json
 import sys
@@ -134,6 +135,8 @@ class RehearsalSession:
         # 开局状态（标准规则 SP 4/能量 0；关卡配置可覆盖——末日幻影/模拟宇宙等）
         initial_sp = _ed.get("initial_sp", 4.0)
         initial_energy = _ed.get("initial_energy", {})
+        team_doc = json.loads(team.read_text(encoding="utf-8"))
+        battle_setup = team_doc.get("battle_setup", {})
         rotation = load_rotation(rotation_path)
         mem_speed = 130.0
         for c in characters.values():
@@ -143,7 +146,7 @@ class RehearsalSession:
         sim = Simulator(characters, stats, enemies, rotation, target_av, level, mem_speed,
                         unverified_inputs=unverified, seed=seed,
                         initial_sp=initial_sp, initial_energy=initial_energy,
-                        waves=waves)
+                        waves=waves, battle_setup=battle_setup)
         session = cls(sim, name=name, undo_budget=undo_budget, per_step_budget=per_step_budget,
                       history=history)
         session._config_paths = (team, enemy, rotation_path, legacy)
@@ -175,6 +178,8 @@ class RehearsalSession:
             "waves": [[e.name for e in wave.values()] for wave in self.sim._waves],
             "target_av": self.sim.target_av,
             "level": self.sim.attacker_level,
+            "battle_setup_config": copy.deepcopy(self.sim.battle_setup),
+            "battle_setup": copy.deepcopy(self.sim.setup_state),
         }
 
     # ---------- 决策循环 ----------
@@ -332,7 +337,7 @@ class RehearsalSession:
         return self._state()
 
     def restart(self, reason: str = "") -> Dict[str, Any]:
-        """回到初始状态；当前路线归档为放弃路线（配置不变，D5）。"""
+        """回到开战准备已结算的初始边界；当前路线归档（配置不变，D5）。"""
         self._archive_route(self.acts, reason, fork_after=-1)
         self.sim.restore(self.initial)
         self.acts = []
@@ -444,6 +449,8 @@ class RehearsalSession:
             "basic": "普攻", "skill": "战技", "ult": "终结技",
             "enemy_attack": "敌方攻击", "enemy_action": "敌方行动",
             "memosprite_skill": "忆灵技", "memosprite_ult": "忆灵强化技",
+            "technique": "秘技入战", "setup_skip": "秘技未生效",
+            "wave_start_effect": "波次开始效果",
         }.get(action, action)
 
     def _unit_display(self, unit_id: str) -> tuple[str, str, str]:
@@ -472,7 +479,7 @@ class RehearsalSession:
         history = []
         for entry in self.sim.log:
             name, unit_type, side = self._unit_display(entry.unit_id)
-            is_actual = (
+            is_actual = entry.action in {"technique", "setup_skip", "wave_start_effect"} or (
                 unit_type == "character" and entry.action in {"basic", "skill", "ult"}
                 and not entry.detail.startswith("SP不足")
                 and not entry.detail.startswith("能量不足")
@@ -502,6 +509,7 @@ class RehearsalSession:
         result = sim._result()
         return {
             "setup": self._setup_meta(),
+            "battle_setup": copy.deepcopy(sim.setup_state),
             "phase": "terminal" if term else "decision",
             "terminal_reason": term,
             "t": round(sim.t, 4),
@@ -580,6 +588,7 @@ class RehearsalSession:
             "ult_count": dict(sim.ult_count),
             "action_count": dict(sim.action_count),
             "breaks": [[round(t, 3), eid] for t, eid in sim.breaks],
+            "battle_setup": copy.deepcopy(sim.setup_state),
         }
 
     # ---------- 报告（D7） ----------
@@ -613,6 +622,18 @@ class RehearsalSession:
         s = r["setup"]
         lines.append(f"配置：{s['name']}（seed={s['seed']}）队伍 {s['team']} "
                      f"vs {s['enemies']} 目标行动值 {s['target_av']}")
+        bs = s.get("battle_setup") or {}
+        applied = bs.get("applied") or []
+        skipped = bs.get("skipped") or []
+        if applied or skipped:
+            lines.append("开战准备：" + ("、".join(
+                f"{x.get('name', x.get('unit_id'))}·{x.get('technique', '秘技')}" for x in applied) or "无"))
+            for x in skipped:
+                lines.append(f"  未生效：{x.get('name', x.get('unit_id'))}·{x.get('technique', '秘技')}（{x.get('reason', '')}）")
+            if bs.get("field_owner"):
+                lines.append(f"  保留领域：{bs['field_owner']} {self.sim.chars[bs['field_owner']].name}")
+            if bs.get("engage_by"):
+                lines.append(f"  攻击入战：{bs['engage_by']} {self.sim.chars[bs['engage_by']].name}")
         if r["termination"]["reason"]:
             lines.append(f"[终止原因] {r['termination']['reason']}")
         if brief:
@@ -689,15 +710,20 @@ class RehearsalSession:
             "current": _snap_to_dict(self.sim.snapshot()),
             "config": {"team": str(cfg[0]), "enemy": str(cfg[1]),
                        "rotation": str(cfg[2]), "seed": self.sim.seed,
-                       "legacy": cfg[3], "name": self.name},
+                       "legacy": cfg[3], "name": self.name,
+                       "battle_setup": copy.deepcopy(self.sim.battle_setup)},
         }
 
     @classmethod
     def from_state(cls, state: Dict[str, Any], base_dir: Path = DATA_DIR) -> "RehearsalSession":
         cfg = state["config"]
-        paths = [Path(p) if not Path(p).is_absolute() else Path(p) for p in
-                 (cfg["team"], cfg["enemy"], cfg["rotation"])]
-        paths = [p if p.is_absolute() else base_dir / p for p in paths]
+        paths = []
+        for raw in (cfg["team"], cfg["enemy"], cfg["rotation"]):
+            p = Path(raw)
+            if p.is_absolute() or p.exists():
+                paths.append(p)
+            else:
+                paths.append(base_dir / p)
         session = cls.from_files(
             team=paths[0], enemy=paths[1], rotation=paths[2], seed=cfg["seed"],
             legacy=cfg.get("legacy", False), name=cfg["name"],
@@ -778,9 +804,13 @@ def _snap_to_dict(snap: BattleSnapshot) -> Dict[str, Any]:
         "skill_streak": snap.skill_streak,
         "char_hp": snap.char_hp, "char_hp_max": snap.char_hp_max,
         "enemy_cd": {eid: dict(c) for eid, c in snap.enemy_cd.items()},
+        "setup_state": snap.setup_state,
+        "wave_energy_effects": [list(x) for x in snap.wave_energy_effects],
+        "start_effects_applied": snap.start_effects_applied,
         "queue_entries": {uid: [d, s] for uid, (d, s) in snap.queue_entries.items()},
         "sp_timeline": [list(x) for x in snap.sp_timeline],
-        "damage_events": [[e.t, e.source, e.target, e.amount, e.kind]
+        "damage_events": [[e.t, e.source, e.target, e.amount, e.kind,
+                           e.noncrit, e.crit_dmg_mult]
                           for e in snap.damage_events],
         "log": [[l.t, l.unit_id, l.action, l.detail] for l in snap.log],
         "breaks": [list(x) for x in snap.breaks],
@@ -810,11 +840,17 @@ def _snap_from_dict(d: Dict[str, Any]) -> BattleSnapshot:
         skill_streak=dict(d.get("skill_streak", {})),
         char_hp=dict(d.get("char_hp", {})), char_hp_max=dict(d.get("char_hp_max", {})),
         enemy_cd={eid: dict(c) for eid, c in d.get("enemy_cd", {}).items()},
+        setup_state=dict(d.get("setup_state", {})),
+        wave_energy_effects=[(str(x[0]), float(x[1]), str(x[2]))
+                             for x in d.get("wave_energy_effects", [])],
+        start_effects_applied=bool(d.get("start_effects_applied", False)),
         queue_entries={uid: (float(v[0]), float(v[1]))
                        for uid, v in d["queue_entries"].items()},
         sp_timeline=[(float(x[0]), float(x[1])) for x in d["sp_timeline"]],
         damage_events=[DamageEvent(t=float(e[0]), source=e[1], target=e[2],
-                                   amount=float(e[3]), kind=e[4])
+                                   amount=float(e[3]), kind=e[4],
+                                   noncrit=float(e[5]) if len(e) > 5 else 0.0,
+                                   crit_dmg_mult=float(e[6]) if len(e) > 6 else 0.0)
                        for e in d["damage_events"]],
         log=[ActionLog(t=float(l[0]), unit_id=l[1], action=l[2], detail=l[3] if len(l) > 3 else "")
              for l in d["log"]],

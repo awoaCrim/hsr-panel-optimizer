@@ -3,6 +3,7 @@
 场景：单红A（1015）vs 单精英（HP 大、韧性 300、Ice 弱点），target_av=400。
 决策点 = 1015 行动前；大招时机由 act 的 ults 参数控制（D2）。
 """
+import copy
 import pytest
 
 from hsr_sim.engine.simulate import Simulator
@@ -49,13 +50,14 @@ class TestObserve:
         from pathlib import Path
         s = RehearsalSession.from_files(
             team=Path("data/team_real.json"),
-            enemy=Path("data/enemy_starforge12b.json"), seed=0)
+            enemy=Path("data/enemy_floor12_node2.json"), seed=0)
         state = s.observe()
         upcoming = state["action_order"]["upcoming"]
         assert {x["unit_type"] for x in upcoming} == {"character", "enemy", "memosprite"}
         assert {x["unit_id"] for x in upcoming} == {
             "1015", "1306", "1309", "8007", "cywing", "cyash", "MEM",
         }
+        assert state["battle_setup"]["field_owner"] == "1309"
         assert [x["av"] for x in upcoming] == sorted(x["av"] for x in upcoming)
         assert upcoming[0]["unit_id"] == "8007"
         assert all(x["at"] == pytest.approx(state["t"] + x["av"]) for x in upcoming)
@@ -384,6 +386,100 @@ class TestAdvanceTargetRules:
         assert s.sim.queue.snapshot()["1306"] == pytest.approx(av_self, rel=1e-9)
 
 
+class TestBattleSetupTechniques:
+    """秘技属于显式 Setup：首个决策点前结算，领域互斥，undo 不触及配置。"""
+
+    def _real(self, enemy="data/enemy_floor12_node2.json"):
+        from pathlib import Path
+        return RehearsalSession.from_files(
+            team=Path("data/team_real.json"), enemy=Path(enemy), seed=0)
+
+    def test_real_setup_applies_before_first_decision(self):
+        s = self._real()
+        state = s.observe()
+        setup = state["battle_setup"]
+        assert setup["requested"] == ["1015", "1306", "1309"]
+        assert [x["unit_id"] for x in setup["applied"]] == ["1015", "1306", "1309"]
+        assert setup["field_owner"] == "1309"
+        assert setup["engage_by"] == "1015"
+        assert s.sim.battle_setup["engage_by"] == "1015"
+        assert state["sp"] == {"value": 7.0, "max": 9.0,
+                                "timeline_tail": [[0.0, 4.0], [0.0, 7.0]]}
+        assert state["energy"]["1309"]["value"] == pytest.approx(5.0)
+        assert s.sim.fate_charge["1015"] == pytest.approx(1.0)
+        assert state["damage"]["by_kind"]["technique"] > 0.0
+        assert any(x["action"] == "technique" for x in state["action_order"]["history"])
+        report = s.report(stop_reason="用户停止")
+        assert "开战准备：" in report
+        assert "红A·千里眼" in report and "知更鸟·酣醉序曲" in report
+        assert "攻击入战：1015 红A" in report
+
+    def test_field_conflict_requires_explicit_owner(self):
+        from pathlib import Path
+        from hsr_sim.data.loader import load_team_normalized
+        from hsr_sim.loader import load_enemies, load_enemy_waves, load_rotation
+
+        chars, stats, _, unv = load_team_normalized(Path("data/team_real.json"))
+        for cid in ("1309", "8007"):
+            assert chars[cid].technique
+        enemies, level, target_av = load_enemies(Path("data/enemy_floor12_node2.json"))
+        waves = load_enemy_waves(Path("data/enemy_floor12_node2.json"))
+        sim = Simulator(chars, stats, enemies, load_rotation(DATA_DIR / "rotation.json"),
+                        target_av, level, seed=0, waves=waves, unverified_inputs=unv,
+                        battle_setup={"techniques": ["1309", "8007"]})
+        with pytest.raises(ValueError, match="互斥领域"):
+            RehearsalSession(sim)
+
+    def test_memory_field_replaces_robin_and_delays_enemies(self):
+        from pathlib import Path
+        from hsr_sim.data.loader import load_team_normalized
+        from hsr_sim.loader import load_enemies, load_enemy_waves, load_rotation
+
+        chars, stats, _, unv = load_team_normalized(Path("data/team_real.json"))
+        enemy_path = Path("data/enemy_floor12_node2.json")
+        enemies, level, target_av = load_enemies(enemy_path)
+        waves = load_enemy_waves(enemy_path)
+        sim = Simulator(chars, stats, enemies, load_rotation(DATA_DIR / "rotation.json"),
+                        target_av, level, seed=0, waves=waves, unverified_inputs=unv,
+                        battle_setup={"techniques": ["1309", "8007"],
+                                      "field_owner": "8007"})
+        s = RehearsalSession(sim)
+        state = s.observe()
+        assert state["battle_setup"]["field_owner"] == "8007"
+        assert state["energy"]["1309"]["value"] == pytest.approx(0.0)
+        assert state["queue"]["entries"]["cywing"]["av"] == pytest.approx(
+            10000.0 / 158.4 * 1.5, rel=1e-4)
+        assert state["damage"]["by_kind"]["technique"] > 0.0
+        assert state["battle_setup"]["skipped"][0]["unit_id"] == "1309"
+
+    def test_robin_field_restores_energy_each_wave(self):
+        s = self._real()
+        s.observe()
+        before = s.sim.energy["1309"]
+        s.sim._spawn_wave(1)
+        assert s.sim.energy["1309"] == pytest.approx(before + 5.0)
+        assert any(x.action == "wave_start_effect" and "第2波" in x.detail
+                   for x in s.sim.log)
+
+    def test_restart_and_undo_keep_setup_boundary(self):
+        s = self._real()
+        initial_damage = s._total_damage()
+        initial_sp = s.sim.sp
+        initial_setup = copy.deepcopy(s.sim.setup_state)
+        s.observe()
+        d = s.observe()["decision"]
+        option = d["skill_options"]["basic"]
+        target = d["targets"][0] if option["target_type"] == "enemy" else ""
+        s.act(skill="basic", target=target, ults={})
+        s.undo()
+        assert s._total_damage() == pytest.approx(initial_damage)
+        assert s.sim.sp == pytest.approx(initial_sp)
+        assert s.sim.setup_state == initial_setup
+        s.restart()
+        assert s._total_damage() == pytest.approx(initial_damage)
+        assert s.sim.setup_state["field_owner"] == "1309"
+
+
 class TestSerialization:
     def test_state_roundtrip(self):
         """会话持久化往返：状态、决策、放弃路线、预算计数完整恢复。"""
@@ -398,6 +494,10 @@ class TestSerialization:
         s2 = RehearsalSession.from_state(state, base_dir=DATA_DIR)
         assert s2.sim.t == pytest.approx(s.sim.t)
         assert s2._total_damage() == pytest.approx(s._total_damage())
+        assert len(s2.sim.damage_events) == len(s.sim.damage_events)
+        for got, expected in zip(s2.sim.damage_events, s.sim.damage_events):
+            assert got.noncrit == pytest.approx(expected.noncrit)
+            assert got.crit_dmg_mult == pytest.approx(expected.crit_dmg_mult)
         assert len(s2.acts) == len(s.acts)
         assert len(s2.abandoned) == len(s.abandoned)
         assert s2.abandoned[0].reason == "试一下"

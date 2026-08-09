@@ -1,0 +1,86 @@
+{
+  "note": "忘却之庭·扫除风暴其十二 第1节点（StageID 30124121，首领「星核猎手」萨姆）。节点映射：ChallengeMazeConfig ID 5312 / EventIDList1。数据源：TBGD StageConfig/MonsterConfig/MonsterTemplateConfig + HardLevelGroup 3 Lv95（HP×375.4385/ATK×34.75065/DEF×5.47619/SPD×1.32）。技能倍率=MonsterSkillConfig ParamList[0]（分布推断，待实测）；敌人行为树与技能削韧尚未解包。",
+  "stage_id": 30124121,
+  "challenge_node": "regular_1",
+  "unverified_inputs": [
+    "stage.enemy_skills：MonsterSkillConfig ParamList[0]按分布推断为倍率，待实战对账",
+    "stage.enemy_ai：技能列表序+冷却为行为树近似",
+    "stage.enemy_toughness_damage：敌人技能削韧字段未解包"
+  ],
+  "level": 95,
+  "target_av": 1000,
+  "waves": [
+    {
+      "note": "波次1：忆域迷因「狂怒褪去之壳」+ 深寒徘徊者",
+      "enemies": {
+        "rage_shell": {
+          "id": "3013010",
+          "name": "忆域迷因「狂怒褪去之壳」",
+          "element": "Quantum",
+          "hp": 488766,
+          "atk": 625.5,
+          "defense": 1150,
+          "speed": 145.2,
+          "toughness": 360,
+          "weaknesses": ["Thunder", "Quantum", "Imaginary"],
+          "resistances": {"Physical": 0.2, "Fire": 0.2, "Ice": 0.2, "Wind": 0.2},
+          "skills": [
+            {"name": "怀恨礼", "mult": 3.0, "damage_type": "Quantum", "ai_cd": 1, "sp_hit": 10,
+             "note": "MonsterSkillConfig 301301001 ParamList[0]=3"},
+            {"name": "宿怨如浪翻涌", "mult": 1.8, "damage_type": "Quantum", "ai_cd": 1, "sp_hit": 10,
+             "note": "MonsterSkillConfig 301301003 ParamList[0]=1.8"},
+            {"name": "痛恶如刺剔骨", "mult": 2.0, "damage_type": "Quantum", "ai_cd": 1, "sp_hit": 5,
+             "note": "MonsterSkillConfig 301301004 ParamList[0]=2"}
+          ]
+        },
+        "frost_wanderer": {
+          "id": "1023020",
+          "name": "深寒徘徊者",
+          "element": "Ice",
+          "hp": 418989,
+          "atk": 625.5,
+          "defense": 1150,
+          "speed": 132.0,
+          "toughness": 300,
+          "weaknesses": ["Fire", "Thunder", "Quantum"],
+          "resistances": {"Physical": 0.2, "Ice": 0.4, "Wind": 0.2, "Imaginary": 0.2},
+          "skills": [
+            {"name": "冰轮铁拳", "mult": 3.0, "damage_type": "Ice", "ai_cd": 1, "sp_hit": 10,
+             "note": "MonsterSkillConfig 102302001 ParamList[0]=3"},
+            {"name": "冻结风暴", "mult": 0.12, "damage_type": "Ice", "ai_cd": 1, "sp_hit": 5,
+             "note": "MonsterSkillConfig 102302006 ParamList[0]=0.12；字段语义待实测"},
+            {"name": "冰轮碎碾", "mult": 5.0, "damage_type": "Ice", "ai_cd": 1, "sp_hit": 20,
+             "note": "MonsterSkillConfig 102302009 ParamList[0]=5"}
+          ]
+        }
+      }
+    },
+    {
+      "note": "波次2：「星核猎手」萨姆",
+      "enemies": {
+        "sam": {
+          "id": "3024020",
+          "name": "「星核猎手」萨姆",
+          "element": "Fire",
+          "hp": 1745789,
+          "atk": 625.5,
+          "defense": 1150,
+          "speed": 158.4,
+          "toughness": 600,
+          "weaknesses": ["Thunder", "Quantum", "Imaginary"],
+          "resistances": {"Physical": 0.2, "Fire": 0.2, "Ice": 0.2, "Wind": 0.2},
+          "skills": [
+            {"name": "BHF-轰炎推进", "mult": 2.0, "damage_type": "Fire", "ai_cd": 1, "sp_hit": 10,
+             "note": "MonsterSkillConfig 302402001 ParamList[0]=2"},
+            {"name": "BHF-天火", "mult": 2.2, "damage_type": "Fire", "ai_cd": 1, "sp_hit": 10,
+             "note": "MonsterSkillConfig 302402002 ParamList[0]=2.2"},
+            {"name": "BBHF-焦土作战", "mult": 1.8, "damage_type": "Fire", "ai_cd": 1, "sp_hit": 15,
+             "note": "MonsterSkillConfig 302402003 ParamList[0]=1.8"},
+            {"name": "DHGDR-超新星过载", "mult": 2.7, "damage_type": "Fire", "ai_cd": 1, "sp_hit": 20,
+             "note": "MonsterSkillConfig 302402005 ParamList[0]=2.7"}
+          ]
+        }
+      }
+    }
+  ]
+}

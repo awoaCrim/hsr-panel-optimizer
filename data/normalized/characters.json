@@ -21,6 +21,20 @@
       "field": "characters.1015.max_sp",
       "note": "与 v1.5 手填/ADR-0003 wiki 核对一致"
     },
+    "technique": {
+      "id": "101502",
+      "name": "千里眼",
+      "category": "attack",
+      "effects": [
+        {"type": "damage_all", "mult": 2.0, "element": "Quantum"},
+        {"type": "fate_charge", "amount": 1.0, "cap": 4.0}
+      ],
+      "_source": {
+        "source_trust": "A", "validation": "cross_checked", "source": "datamine",
+        "version": "tbgd@648b08f", "field": "MazeSkill[101502]→AvatarSkillConfigLD[101507] ParamList[2,1]",
+        "note": "中文描述交叉核对：敌方全体200%量子伤害并获得1点充能"
+      }
+    },
     "base_stats": {
       "hp": {
         "value": 1164.24,
@@ -123,6 +137,17 @@
       "field": "characters.1306.max_sp",
       "note": "与 v1.5 手填/ADR-0003 wiki 核对一致"
     },
+    "technique": {
+      "id": "130602",
+      "name": "不可靠叙事者",
+      "category": "support",
+      "effects": [{"type": "sp", "amount": 3.0}],
+      "_source": {
+        "source_trust": "A", "validation": "cross_checked", "source": "datamine",
+        "version": "tbgd@648b08f", "field": "MazeSkill[130602]→AvatarSkillConfig[130607] ParamList[3,20]",
+        "note": "中文描述交叉核对：进入战斗时恢复3个战技点"
+      }
+    },
     "base_stats": {
       "hp": {
         "value": 1397.088,
@@ -215,6 +240,18 @@
       "field": "characters.1309.max_sp",
       "note": "与 v1.5 手填/ADR-0003 wiki 核对一致"
     },
+    "technique": {
+      "id": "130902",
+      "name": "酣醉序曲",
+      "category": "field",
+      "field_group": "ally_field",
+      "effects": [{"type": "energy_each_wave", "amount": 5.0}],
+      "_source": {
+        "source_trust": "A", "validation": "cross_checked", "source": "datamine",
+        "version": "tbgd@648b08f", "field": "MazeSkill[130902]→AvatarSkillConfig[130907] ParamList[15,5]",
+        "note": "中文描述交叉核对：领域期间每个波次开始恢复5点能量；我方领域最多存在1个"
+      }
+    },
     "base_stats": {
       "hp": {
         "value": 1280.664,
@@ -306,6 +343,21 @@
       "version": "srr@b95e75c",
       "field": "characters.8007.max_sp",
       "note": "与 v1.5 手填/ADR-0003 wiki 核对一致"
+    },
+    "technique": {
+      "id": "800702",
+      "name": "忆域迷因",
+      "category": "field",
+      "field_group": "ally_field",
+      "effects": [
+        {"type": "postpone_all", "pct": 0.5},
+        {"type": "damage_all", "mult": 1.0, "element": "Ice"}
+      ],
+      "_source": {
+        "source_trust": "A", "validation": "cross_checked", "source": "datamine",
+        "version": "tbgd@648b08f", "field": "MazeSkill[800702]→AvatarSkillConfig[800707] ParamList[10,0.5,1]",
+        "note": "中文描述交叉核对：敌方全体行动延后50%并造成100%冰伤；我方领域最多存在1个"
+      }
     },
     "base_stats": {
       "hp": {
