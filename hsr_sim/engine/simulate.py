@@ -544,6 +544,8 @@ class Simulator:
                 if ex.get("weakness_extra") and self.chars[cid].element in \
                         self.enemies[target].weaknesses:
                     def_ignore += ex["weakness_extra"]
+            elif t == "ult_dmg" and kind == "ult":
+                bonus += ex["value"]     # 红A E4：终结技伤害提高 150%
         # 23003 战技后增伤（下一个行动的队友，buff 存在期间其他角色攻击都吃——近似）
         for b in self.buffs._buffs:
             if b.stat == "equip_next_ally_dmg" and b.source != cid:

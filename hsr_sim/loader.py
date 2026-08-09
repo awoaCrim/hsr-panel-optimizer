@@ -31,12 +31,30 @@ def _skill_from_dict(d: dict) -> SkillData:
         advance_target=d.get("advance_target", ""), extra_action=d.get("extra_action", False),
         advance_self=d.get("advance_self", True),
         sp_bonus=d.get("sp_bonus", 0), note=d.get("note", ""),
+        mult_levels=list(d.get("mult_levels", [])),
     )
+
+
+def _skill_mult_levels_from_normalized(cid: str) -> Dict[str, List[float]]:
+    """从 normalized skills.json 读技能等级表（legacy 层跨读；等级类星魂用）。"""
+    try:
+        from .data.loader import load
+        nd = load()
+    except Exception:
+        return {}
+    out: Dict[str, List[float]] = {}
+    sk = nd.get("skills") or {}
+    for slot, sd in (sk.get(cid) or {}).items():
+        lv = sd.get("mult_levels")
+        if lv:
+            v = lv.get("value") if isinstance(lv, dict) else lv
+            out[slot] = list(v or [])
+    return out
 
 
 def load_character(path: Path) -> CharacterData:
     d = json.loads(path.read_text(encoding="utf-8"))
-    return CharacterData(
+    ch = CharacterData(
         id=d["id"], name=d["name"], element=d["element"], path=d["path"],
         base_stats=_stats_from_dict(d.get("base_stats", {})),
         skills={k: _skill_from_dict(v) for k, v in d.get("skills", {}).items()},
@@ -44,6 +62,30 @@ def load_character(path: Path) -> CharacterData:
         max_energy=d.get("max_energy", 0.0),
         note=d.get("note", ""),
     )
+    # 等级表跨读（legacy 手填文件无等级表；等级类星魂需要）
+    levels = _skill_mult_levels_from_normalized(d["id"])
+    for slot, sk in ch.skills.items():
+        if not sk.mult_levels and slot in levels:
+            sk.mult_levels = levels[slot]
+    # 忆灵技等级表跨读（8007 E5 忆灵技+1 用）
+    _memo_levels_from_normalized(ch)
+    return ch
+
+
+def _memo_levels_from_normalized(ch: CharacterData) -> None:
+    try:
+        from .data.loader import load
+        nd = load()
+        m = (nd.get("characters") or {}).get(ch.id, {}).get("talent_extra", {}).get("memosprite") or {}
+    except Exception:
+        return
+    te_m = ch.talent_extra.get("memosprite")
+    if not te_m:
+        return
+    for k in ("basic_mult_levels", "basic_aoe_mult_levels", "support_true_dmg_levels"):
+        v = m.get(k)
+        if v and k not in te_m:
+            te_m[k] = v if isinstance(v, list) else v.get("value", [])
 
 
 def assemble_team(team_path: Path, characters: Dict[str, CharacterData],
@@ -73,15 +115,55 @@ def assemble_team(team_path: Path, characters: Dict[str, CharacterData],
                 stats[cid] = ch.base_stats
             else:
                 stats[cid] = assemble(ch.base_stats, ch.element, cfg, equipment)
-                # 装备机制效果（光锥被动/套装，供模拟器执行）
+                # 装备机制效果（光锥被动/套装/星魂，供模拟器执行）
                 resolved = resolve_equipment(
                     {"light_cone": build.get("light_cone", ""),
                      "relic_sets": build.get("relic_sets", []),
                      "eidolon": build.get("eidolon", 0), "cid": cid}, equipment)
                 ch.equipment_effects = resolved["effects"]
+                _apply_rank_levels(ch)   # 等级类星魂：技能等级 +N → 倍率取等级表
         else:
             stats[cid] = ch.base_stats
     return stats, d.get("speed_targets", {}), build_errors
+
+
+def _apply_rank_levels(ch: CharacterData) -> None:
+    """等级类星魂（E3/E5）：技能等级 +N → mult 取等级表对应值。
+
+    安全校验：等级表 L10 与当前 mult 一致才应用（防参数位错位——
+    非倍率的 params[0]（如花火战技暴伤）静默跳过）；基础等级 = 10（满级）。
+    """
+    def apply_level(sk, delta: int, cap: int) -> None:
+        if not sk.mult_levels or len(sk.mult_levels) < 10:
+            return
+        if abs(sk.mult_levels[9] - sk.mult) > 1e-9:
+            return    # L10 与当前倍率不一致：参数位不是倍率，不猜测
+        lv = min(10 + delta, cap)
+        idx = lv - 1
+        if 0 <= idx < len(sk.mult_levels):
+            sk.mult = sk.mult_levels[idx]
+
+    for ex in ch.equipment_effects:
+        t = ex["type"]
+        if t == "skill_level":
+            sk = ch.skills.get(ex["skill"])
+            if sk:
+                apply_level(sk, int(ex["delta"]), int(ex["cap"]))
+        elif t == "memo_level":
+            # 忆灵技 +N：迷迷普攻/全体/真伤取等级表（0 命基准 L6）
+            m = ch.talent_extra.get("memosprite")
+            if m and ex.get("skill_delta"):
+                lv = min(6 + int(ex["skill_delta"]), 10)
+                idx = lv - 1
+                bl = m.get("basic_mult_levels") or []
+                al = m.get("basic_aoe_mult_levels") or []
+                tl = m.get("support_true_dmg_levels") or []
+                if 0 <= idx < len(bl):
+                    m["basic_mult"] = bl[idx]
+                if 0 <= idx < len(al):
+                    m["basic_aoe_mult"] = al[idx]
+                if 0 <= idx < len(tl):
+                    m["support_true_dmg"] = tl[idx]
 
 
 def load_team(team_path: Path, char_dir: Path) -> Tuple[Dict[str, CharacterData], Dict[str, Stats], Dict[str, float]]:

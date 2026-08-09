@@ -5970,7 +5970,20 @@
             "name": "难为凡庸的意气",
             "desc": "战技等级+2，最多不超过<unbreak>15</unbreak>级；普攻等级+1，最多不超过<unbreak>10</unbreak>级。",
             "param_list": [],
-            "exec_skip": "等级类星魂（技能等级+2），模拟器技能等级固定，未接入"
+            "exec": [
+              {
+                "type": "skill_level",
+                "skill": "skill",
+                "delta": 2,
+                "cap": 15
+              },
+              {
+                "type": "skill_level",
+                "skill": "basic",
+                "delta": 1,
+                "cap": 10
+              }
+            ]
           },
           "source_trust": "B",
           "validation": "cross_checked",
@@ -5984,6 +5997,12 @@
             "desc": "造成的终结技伤害提高<unbreak>#1[i]%</unbreak>。",
             "param_list": [
               1.5
+            ],
+            "exec": [
+              {
+                "type": "ult_dmg",
+                "value": 1.5
+              }
             ]
           },
           "source_trust": "B",
@@ -5997,7 +6016,20 @@
             "name": "无铭孤影的守望",
             "desc": "终结技等级+2，最多不超过<unbreak>15</unbreak>级；天赋等级+2，最多不超过<unbreak>15</unbreak>级。",
             "param_list": [],
-            "exec_skip": "等级类星魂（技能等级+2），模拟器技能等级固定，未接入"
+            "exec": [
+              {
+                "type": "skill_level",
+                "skill": "ult",
+                "delta": 2,
+                "cap": 15
+              },
+              {
+                "type": "skill_level",
+                "skill": "talent",
+                "delta": 2,
+                "cap": 15
+              }
+            ]
           },
           "source_trust": "B",
           "validation": "cross_checked",
@@ -6255,7 +6287,20 @@
             "name": "未来的咏唱者",
             "desc": "战技等级+2，最多不超过<unbreak>15</unbreak>级；天赋等级+2，最多不超过<unbreak>15</unbreak>级；忆灵天赋等级+1，最多不超过<unbreak>10</unbreak>级。",
             "param_list": [],
-            "exec_skip": "等级类星魂（技能等级+2），模拟器技能等级固定，未接入"
+            "exec": [
+              {
+                "type": "skill_level",
+                "skill": "skill",
+                "delta": 2,
+                "cap": 15
+              },
+              {
+                "type": "skill_level",
+                "skill": "talent",
+                "delta": 2,
+                "cap": 15
+              }
+            ]
           },
           "source_trust": "B",
           "validation": "cross_checked",
@@ -6283,7 +6328,24 @@
             "name": "诗篇的裁缝匠",
             "desc": "终结技等级+2，最多不超过<unbreak>15</unbreak>级；普攻等级+1，最多不超过<unbreak>10</unbreak>级；忆灵技等级+1，最多不超过<unbreak>10</unbreak>级。",
             "param_list": [],
-            "exec_skip": "等级类星魂（技能等级+2），模拟器技能等级固定，未接入"
+            "exec": [
+              {
+                "type": "skill_level",
+                "skill": "ult",
+                "delta": 2,
+                "cap": 15
+              },
+              {
+                "type": "skill_level",
+                "skill": "basic",
+                "delta": 1,
+                "cap": 10
+              },
+              {
+                "type": "memo_level",
+                "skill_delta": 1
+              }
+            ]
           },
           "source_trust": "B",
           "validation": "cross_checked",

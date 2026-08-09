@@ -110,7 +110,7 @@ class TestUltOracle:
         # basic 伤害 + ult 伤害 + ult 削韧 30 触发击破伤害（韧性 30 → 0）
         assert len(sim.damage_events) == 3
         ult = sim.damage_events[-2]
-        assert ult.kind == "normal"
+        assert ult.kind == "ult"     # ult 专属 kind（ult 乘区/报告可识别）
         assert ult.amount == pytest.approx(10.0 * 2800.0 * CRIT * DEF_M_90 * 0.9, rel=1e-9)
         assert sim.damage_events[-1].kind == "break"
         assert sim.ult_count["1015"] == 1

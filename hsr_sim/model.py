@@ -64,6 +64,7 @@ class SkillData:
     advance_self: bool = True
     extra_action: bool = False
     sp_bonus: int = 0
+    mult_levels: List[float] = field(default_factory=list)  # 等级表（L1 起；等级类星魂用）
     note: str = ""
 
 

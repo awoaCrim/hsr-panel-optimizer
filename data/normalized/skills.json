@@ -21,6 +21,25 @@
         "field": "character_skills.101501.params[9][0]",
         "note": "普攻倍率参数位 [0] 为通用约定，P0-2 交叉验证后提升为 cross_checked"
       },
+      "mult_levels": {
+        "value": [
+          0.5,
+          0.6,
+          0.7,
+          0.8,
+          0.9,
+          1,
+          1.1,
+          1.2,
+          1.3
+        ],
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "starrailres",
+        "version": "srr@b95e75c",
+        "field": "character_skills.101501.params[*][0]（等级表）",
+        "note": "等级类星魂用；应用时校验 L10 与 mult 一致"
+      },
       "sp": {
         "value": 1,
         "source_trust": "C",
@@ -58,13 +77,31 @@
         101502
       ],
       "_note": "伪•螺旋剑",
-      "_upstream_params": [
-        3.6,
-        1,
-        2,
-        1,
-        5
-      ],
+      "mult_levels": {
+        "value": [
+          1.8,
+          1.98,
+          2.16,
+          2.34,
+          2.52,
+          2.7,
+          2.925,
+          3.15,
+          3.375,
+          3.6,
+          3.78,
+          3.96,
+          4.14,
+          4.32,
+          4.5
+        ],
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "starrailres",
+        "version": "srr@b95e75c",
+        "field": "character_skills.101502.params[*][0]（等级表）",
+        "note": "等级类星魂用；应用时校验 L10 与 mult 一致"
+      },
       "sp": {
         "value": -1,
         "source_trust": "C",
@@ -128,11 +165,31 @@
         101503
       ],
       "_note": "无限剑制",
-      "_upstream_params": [
-        10,
-        2,
-        4
-      ],
+      "mult_levels": {
+        "value": [
+          6,
+          6.4,
+          6.8,
+          7.2,
+          7.6,
+          8,
+          8.5,
+          9,
+          9.5,
+          10,
+          10.4,
+          10.8,
+          11.2,
+          11.6,
+          12
+        ],
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "starrailres",
+        "version": "srr@b95e75c",
+        "field": "character_skills.101503.params[*][0]（等级表）",
+        "note": "等级类星魂用；应用时校验 L10 与 mult 一致"
+      },
       "energy": {
         "value": 5,
         "source_trust": "C",
@@ -182,9 +239,31 @@
         101504
       ],
       "_note": "心眼（真）",
-      "_upstream_params": [
-        2
-      ],
+      "mult_levels": {
+        "value": [
+          1,
+          1.1,
+          1.2,
+          1.3,
+          1.4,
+          1.5,
+          1.625,
+          1.75,
+          1.875,
+          2,
+          2.1,
+          2.2,
+          2.3,
+          2.4,
+          2.5
+        ],
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "starrailres",
+        "version": "srr@b95e75c",
+        "field": "character_skills.101504.params[*][0]（等级表）",
+        "note": "等级类星魂用；应用时校验 L10 与 mult 一致"
+      },
       "energy": {
         "value": 5,
         "source_trust": "C",
@@ -233,6 +312,26 @@
         "field": "character_skills.130601.params[9][0]",
         "note": "普攻倍率参数位 [0] 为通用约定，P0-2 交叉验证后提升为 cross_checked"
       },
+      "mult_levels": {
+        "value": [
+          0.5,
+          0.6,
+          0.7,
+          0.8,
+          0.9,
+          1,
+          1.1,
+          1.2,
+          1.3,
+          1.4
+        ],
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "starrailres",
+        "version": "srr@b95e75c",
+        "field": "character_skills.130601.params[*][0]（等级表）",
+        "note": "等级类星魂用；应用时校验 L10 与 mult 一致"
+      },
       "toughness": {
         "value": 10.0,
         "source_trust": "A",
@@ -270,12 +369,31 @@
         130602
       ],
       "_note": "梦游鱼",
-      "_upstream_params": [
-        0.24,
-        0.45,
-        1,
-        0.5
-      ],
+      "mult_levels": {
+        "value": [
+          0.12,
+          0.132,
+          0.144,
+          0.156,
+          0.168,
+          0.18,
+          0.195,
+          0.21,
+          0.225,
+          0.24,
+          0.252,
+          0.264,
+          0.276,
+          0.288,
+          0.3
+        ],
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "starrailres",
+        "version": "srr@b95e75c",
+        "field": "character_skills.130602.params[*][0]（等级表）",
+        "note": "等级类星魂用；应用时校验 L10 与 mult 一致"
+      },
       "sp": {
         "value": -1,
         "source_trust": "C",
@@ -346,12 +464,31 @@
         130603
       ],
       "_note": "一人千役",
-      "_upstream_params": [
-        2,
-        4,
-        0.1,
-        2
-      ],
+      "mult_levels": {
+        "value": [
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2
+        ],
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "starrailres",
+        "version": "srr@b95e75c",
+        "field": "character_skills.130603.params[*][0]（等级表）",
+        "note": "等级类星魂用；应用时校验 L10 与 mult 一致"
+      },
       "energy": {
         "value": 5,
         "source_trust": "C",
@@ -397,12 +534,31 @@
         130604
       ],
       "_note": "叙述性诡计",
-      "_upstream_params": [
-        2,
-        0.06,
-        2,
-        3
-      ],
+      "mult_levels": {
+        "value": [
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2
+        ],
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "starrailres",
+        "version": "srr@b95e75c",
+        "field": "character_skills.130604.params[*][0]（等级表）",
+        "note": "等级类星魂用；应用时校验 L10 与 mult 一致"
+      },
       "mult": {
         "value": 0.0,
         "source_trust": "C",
@@ -434,6 +590,26 @@
         "version": "srr@b95e75c",
         "field": "character_skills.130901.params[9][0]",
         "note": "普攻倍率参数位 [0] 为通用约定，P0-2 交叉验证后提升为 cross_checked"
+      },
+      "mult_levels": {
+        "value": [
+          0.5,
+          0.6,
+          0.7,
+          0.8,
+          0.9,
+          1,
+          1.1,
+          1.2,
+          1.3,
+          1.4
+        ],
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "starrailres",
+        "version": "srr@b95e75c",
+        "field": "character_skills.130901.params[*][0]（等级表）",
+        "note": "等级类星魂用；应用时校验 L10 与 mult 一致"
       },
       "toughness": {
         "value": 10.0,
@@ -472,10 +648,31 @@
         130902
       ],
       "_note": "翎之咏叹调",
-      "_upstream_params": [
-        0.5,
-        3
-      ],
+      "mult_levels": {
+        "value": [
+          0.25,
+          0.275,
+          0.3,
+          0.325,
+          0.35,
+          0.375,
+          0.4062,
+          0.4375,
+          0.4688,
+          0.5,
+          0.525,
+          0.55,
+          0.575,
+          0.6,
+          0.625
+        ],
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "starrailres",
+        "version": "srr@b95e75c",
+        "field": "character_skills.130902.params[*][0]（等级表）",
+        "note": "等级类星魂用；应用时校验 L10 与 mult 一致"
+      },
       "sp": {
         "value": -1,
         "source_trust": "C",
@@ -529,14 +726,31 @@
         130903
       ],
       "_note": "千音迭奏，群星赋格",
-      "_upstream_params": [
-        0.228,
-        90,
-        200,
-        1.2,
-        1,
-        1.5
-      ],
+      "mult_levels": {
+        "value": [
+          0.152,
+          0.1596,
+          0.1672,
+          0.1748,
+          0.1824,
+          0.19,
+          0.1995,
+          0.209,
+          0.2185,
+          0.228,
+          0.2356,
+          0.2432,
+          0.2508,
+          0.2584,
+          0.266
+        ],
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "starrailres",
+        "version": "srr@b95e75c",
+        "field": "character_skills.130903.params[*][0]（等级表）",
+        "note": "等级类星魂用；应用时校验 L10 与 mult 一致"
+      },
       "energy": {
         "value": 5,
         "source_trust": "C",
@@ -594,10 +808,31 @@
         130904
       ],
       "_note": "调性合颂",
-      "_upstream_params": [
-        0.2,
-        2
-      ],
+      "mult_levels": {
+        "value": [
+          0.05,
+          0.065,
+          0.08,
+          0.095,
+          0.11,
+          0.125,
+          0.1437,
+          0.1625,
+          0.1812,
+          0.2,
+          0.215,
+          0.23,
+          0.245,
+          0.26,
+          0.275
+        ],
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "starrailres",
+        "version": "srr@b95e75c",
+        "field": "character_skills.130904.params[*][0]（等级表）",
+        "note": "等级类星魂用；应用时校验 L10 与 mult 一致"
+      },
       "mult": {
         "value": 0.0,
         "source_trust": "C",
@@ -629,6 +864,26 @@
         "version": "srr@b95e75c",
         "field": "character_skills.800701.params[9][0]",
         "note": "普攻倍率参数位 [0] 为通用约定，P0-2 交叉验证后提升为 cross_checked"
+      },
+      "mult_levels": {
+        "value": [
+          0.5,
+          0.6,
+          0.7,
+          0.8,
+          0.9,
+          1,
+          1.1,
+          1.2,
+          1.3,
+          1.4
+        ],
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "starrailres",
+        "version": "srr@b95e75c",
+        "field": "character_skills.800701.params[*][0]（等级表）",
+        "note": "等级类星魂用；应用时校验 L10 与 mult 一致"
       },
       "toughness": {
         "value": 10.0,
@@ -667,10 +922,31 @@
         800702
       ],
       "_note": "就决定是你了！",
-      "_upstream_params": [
-        0.6,
-        0.1
-      ],
+      "mult_levels": {
+        "value": [
+          0.3,
+          0.33,
+          0.36,
+          0.39,
+          0.42,
+          0.45,
+          0.4875,
+          0.525,
+          0.5625,
+          0.6,
+          0.63,
+          0.66,
+          0.69,
+          0.72,
+          0.75
+        ],
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "starrailres",
+        "version": "srr@b95e75c",
+        "field": "character_skills.800702.params[*][0]（等级表）",
+        "note": "等级类星魂用；应用时校验 L10 与 mult 一致"
+      },
       "sp": {
         "value": -1,
         "source_trust": "C",
@@ -721,10 +997,31 @@
         800703
       ],
       "_note": "一起上吧，迷迷！",
-      "_upstream_params": [
-        2.4,
-        0.4
-      ],
+      "mult_levels": {
+        "value": [
+          1.2,
+          1.32,
+          1.44,
+          1.56,
+          1.68,
+          1.8,
+          1.95,
+          2.1,
+          2.25,
+          2.4,
+          2.52,
+          2.64,
+          2.76,
+          2.88,
+          3
+        ],
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "starrailres",
+        "version": "srr@b95e75c",
+        "field": "character_skills.800703.params[*][0]（等级表）",
+        "note": "等级类星魂用；应用时校验 L10 与 mult 一致"
+      },
       "toughness": {
         "value": 20.0,
         "source_trust": "A",
@@ -775,12 +1072,31 @@
         800704
       ],
       "_note": "无所不能的伙伴",
-      "_upstream_params": [
-        130,
-        0.8,
-        10,
-        640
-      ],
+      "mult_levels": {
+        "value": [
+          130,
+          130,
+          130,
+          130,
+          130,
+          130,
+          130,
+          130,
+          130,
+          130,
+          130,
+          130,
+          130,
+          130,
+          130
+        ],
+        "source_trust": "B",
+        "validation": "mapped",
+        "source": "starrailres",
+        "version": "srr@b95e75c",
+        "field": "character_skills.800704.params[*][0]（等级表）",
+        "note": "等级类星魂用；应用时校验 L10 与 mult 一致"
+      },
       "mult": {
         "value": 0.0,
         "source_trust": "C",

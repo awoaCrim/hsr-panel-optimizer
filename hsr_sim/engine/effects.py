@@ -127,9 +127,9 @@ def skill_to_effects(action_name: str, skill: SkillData, talent_extra: Dict) -> 
     """
     effs: List[Effect] = []
 
-    # 1. 主伤害（触发 on_ally_attack）
+    # 1. 主伤害（触发 on_ally_attack）；kind 区分技能类型（ult 专属乘区/报告用）
     if skill.mult > 0.0:
-        effs.append(DamageEffect(mult=skill.mult, kind="normal"))
+        effs.append(DamageEffect(mult=skill.mult, kind="ult" if action_name == "ult" else "normal"))
 
     # 2. 天赋钩子（顺序与 v1.5 _apply_skill_effects 一致）
     se = talent_extra.get("skill_effects", {}).get(action_name, {})

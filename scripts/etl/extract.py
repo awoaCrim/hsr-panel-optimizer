@@ -149,6 +149,27 @@ def _char_talent_extra(cid: str, raw: Dict) -> Dict:
                     "community-guide", "C", "miyoushe-2026-01", "cross_checked",
                     note="米游社/游民星空实测帖多源一致；等级基准待实测",
                 ))
+        # 忆灵技等级表（星魂 E5 忆灵技+1 用）：1800701 普攻多段/全体、1800707 真伤
+        srr_skills = raw["StarRailRes/index_min/cn/character_skills.json"]
+        m1800701 = srr_skills.get("1800701") or {}
+        m1800707 = srr_skills.get("1800707") or {}
+        if "memosprite" in te and m1800701.get("params"):
+            ps = m1800701["params"]
+            te["memosprite"]["basic_mult_levels"] = wrapper(
+                [p[0] for p in ps], prov("starrailres", "B", sr_v, "mapped",
+                                          field="character_skills.1800701.params[*][0]（L1-L10）",
+                                          note="星魂 E5 忆灵技+1 用"))
+            if ps and len(ps[0]) > 2:
+                te["memosprite"]["basic_aoe_mult_levels"] = wrapper(
+                    [p[2] for p in ps], prov("starrailres", "B", sr_v, "mapped",
+                                              field="character_skills.1800701.params[*][2]（L1-L10）",
+                                              note="星魂 E5 忆灵技+1 用"))
+        if "memosprite" in te and m1800707.get("params"):
+            te["memosprite"]["support_true_dmg_levels"] = wrapper(
+                [p[0] for p in m1800707["params"]],
+                prov("starrailres", "B", sr_v, "mapped",
+                     field="character_skills.1800707.params[*][0]（L1-L10）",
+                     note="星魂 E5 忆灵技+1 用"))
     return te
 
 
@@ -201,6 +222,14 @@ def build_skills(raw: Dict, characters: Dict) -> Dict:
                     "starrailres", "B", sr_v, "mapped",
                     field=f"character_skills.{sid}.params[9][0]",
                     note="普攻倍率参数位 [0] 为通用约定，P0-2 交叉验证后提升为 cross_checked",
+                ))
+            # 等级表（等级类星魂 E3/E5 用）：params[0] 每级（L1 起）；应用时校验 L10 与
+            # 当前 mult 一致才生效（防参数位错位；等级类星魂对无表技能静默跳过）
+            if params and all(isinstance(p, list) and p for p in params):
+                slots[slot]["mult_levels"] = wrapper([p[0] for p in params], prov(
+                    "starrailres", "B", sr_v, "mapped",
+                    field=f"character_skills.{sid}.params[*][0]（等级表）",
+                    note="等级类星魂用；应用时校验 L10 与 mult 一致",
                 ))
             elif l10:
                 slots[slot]["_upstream_params"] = l10
@@ -352,6 +381,11 @@ RANK_EXEC = {
         "1": [{"type": "skill_count_sp_refund", "count": 3, "amount": 2}],
         "2": [{"type": "ult_quantum_pen", "element": "Quantum", "res_pen": 0.20,
                 "add_weakness": True, "duration": 2}],
+        "3": [{"type": "skill_level", "skill": "skill", "delta": 2, "cap": 15},
+               {"type": "skill_level", "skill": "basic", "delta": 1, "cap": 10}],
+        "4": [{"type": "ult_dmg", "value": 1.50}],
+        "5": [{"type": "skill_level", "skill": "ult", "delta": 2, "cap": 15},
+               {"type": "skill_level", "skill": "talent", "delta": 2, "cap": 15}],
     },
     "1306": {  # 花火
         "4": [{"type": "ult_sp_refund_extra", "amount": 1, "sp_cap_bonus": 1}],
@@ -361,6 +395,11 @@ RANK_EXEC = {
     },
     "8007": {  # 记忆主
         "1": [{"type": "mems_support_crit", "value": 0.10}],
+        "3": [{"type": "skill_level", "skill": "skill", "delta": 2, "cap": 15},
+               {"type": "skill_level", "skill": "talent", "delta": 2, "cap": 15}],
+        "5": [{"type": "skill_level", "skill": "ult", "delta": 2, "cap": 15},
+               {"type": "skill_level", "skill": "basic", "delta": 1, "cap": 10},
+               {"type": "memo_level", "skill_delta": 1}],
     },
 }
 

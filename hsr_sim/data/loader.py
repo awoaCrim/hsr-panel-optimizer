@@ -119,6 +119,7 @@ def load_characters_normalized(normalized_dir: Path = NORMALIZED_DIR):
                 advance_self=sd.get("advance_self", True),
                 extra_action=sd.get("extra_action", False),
                 sp_bonus=sd.get("sp_bonus", 0),
+                mult_levels=list(sd.get("mult_levels", []) or []),
                 note=sd.get("_note", ""),
             )
         talent_extra = {

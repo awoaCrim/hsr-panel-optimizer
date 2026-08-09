@@ -453,7 +453,67 @@
           "version": "miyoushe-2026-01",
           "note": "米游社/游民星空实测帖多源一致；等级基准待实测"
         },
-        "note": "0 命忆灵技 L6 基准（fribbels 同款）；普攻 4 段随机单体×36% + 全体×90%；强化 = 100% 拉条+声援（非伤害）；HP 继承 80%+640；真伤 28%（docs/research/memory-trailblazer-mem.md，待实测确认等级基准）"
+        "note": "0 命忆灵技 L6 基准（fribbels 同款）；普攻 4 段随机单体×36% + 全体×90%；强化 = 100% 拉条+声援（非伤害）；HP 继承 80%+640；真伤 28%（docs/research/memory-trailblazer-mem.md，待实测确认等级基准）",
+        "basic_mult_levels": {
+          "value": [
+            0.18,
+            0.216,
+            0.252,
+            0.288,
+            0.324,
+            0.36,
+            0.396,
+            0.432,
+            0.468,
+            0.504
+          ],
+          "source_trust": "B",
+          "validation": "mapped",
+          "source": "starrailres",
+          "version": "srr@b95e75c",
+          "field": "character_skills.1800701.params[*][0]（L1-L10）",
+          "note": "星魂 E5 忆灵技+1 用"
+        },
+        "basic_aoe_mult_levels": {
+          "value": [
+            0.45,
+            0.54,
+            0.63,
+            0.72,
+            0.81,
+            0.9,
+            0.99,
+            1.08,
+            1.17,
+            1.26
+          ],
+          "source_trust": "B",
+          "validation": "mapped",
+          "source": "starrailres",
+          "version": "srr@b95e75c",
+          "field": "character_skills.1800701.params[*][2]（L1-L10）",
+          "note": "星魂 E5 忆灵技+1 用"
+        },
+        "support_true_dmg_levels": {
+          "value": [
+            0.18,
+            0.2,
+            0.22,
+            0.24,
+            0.26,
+            0.28,
+            0.3,
+            0.32,
+            0.34,
+            0.36
+          ],
+          "source_trust": "B",
+          "validation": "mapped",
+          "source": "starrailres",
+          "version": "srr@b95e75c",
+          "field": "character_skills.1800707.params[*][0]（L1-L10）",
+          "note": "星魂 E5 忆灵技+1 用"
+        }
       }
     }
   }

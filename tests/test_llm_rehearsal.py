@@ -57,7 +57,7 @@ def test_knowledge_pack_advance_and_gear():
     assert "等级类 E3/E5 未接入" in pack        # 星魂诚实标注
     assert "于夜色中" in pack and "花与蝶" in pack   # 红A 光锥 + 精炼效果
     assert "繁星璀璨的天才" in pack    # 红A 量子套
-    assert "星魂 2 命" in pack
+    assert "星魂 5 命" in pack   # 红A E5（含等级类 E3/E5）
     assert "词条" in pack             # builds 词条构成
 
 
