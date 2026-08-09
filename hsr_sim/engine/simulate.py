@@ -136,6 +136,13 @@ class Simulator:
         self.energy: Dict[str, float] = {
             cid: self._initial_energy.get(cid, 0.0) for cid in self.chars}
         self.toughness: Dict[str, float] = {eid: e.toughness for eid, e in self.enemies.items()}
+        # ① 生存：我方 HP（面板 HP，死亡 = 移除行动）与敌人技能冷却
+        self.char_hp: Dict[str, float] = {
+            cid: self.stats[cid].hp for cid in self.chars}
+        self.char_hp_max: Dict[str, float] = {
+            cid: self.stats[cid].hp for cid in self.chars}
+        self.enemy_cd: Dict[str, Dict[int, int]] = {
+            eid: {i: 0 for i in range(len(e.skills))} for eid, e in self.enemies.items()}
         self.enemy_hp: Dict[str, float] = {eid: e.hp for eid, e in self.enemies.items()}
         self.buffs = BuffManager()
         self.damage_events: List[DamageEvent] = []
@@ -815,11 +822,58 @@ class Simulator:
             self.memosprite["charge"] = min(100.0, self.memosprite["charge"] + amount / 10.0)
 
     def _enemy_act(self, eid: str) -> None:
-        # v1：敌人行动仅恢复韧性（破韧后），不结算对角色伤害
+        """敌人行动（①敌人 AI）：破韧恢复 → 技能循环 → 攻击我方 → 受击回能 → 死亡。
+
+        技能选择：按列表序取第一个冷却就绪的技能（官方行为树未解包，近似：
+        AI_CD 冷却 + 列表序；无 skills 的敌人保持 v1 行为——只回韧性不攻击）。
+        目标选择：随机存活角色（官方仇恨机制未模拟，标注）。
+        """
+        enemy = self.enemies[eid]
+        # 破韧恢复（保留 v1）
         if self.toughness[eid] <= 0.0:
-            self.toughness[eid] = self.enemies[eid].toughness
+            self.toughness[eid] = enemy.toughness
+        # 技能冷却递减
+        cd = self.enemy_cd.setdefault(eid, {})
+        for i in cd:
+            if cd[i] > 0:
+                cd[i] -= 1
+        # 技能选择：列表序第一个冷却就绪（伤害技能）
+        skill = None
+        if enemy.skills:
+            for i, sk in enumerate(enemy.skills):
+                if cd.get(i, 0) <= 0:
+                    skill = sk
+                    cd[i] = sk.ai_cd
+                    break
+        if skill is not None:
+            # 只攻击参与生存的角色（面板配置了 HP；未配置 = 生存未启用，v1 兼容）
+            alive = [cid for cid in self.chars
+                     if self.char_hp_max.get(cid, 0.0) > 0.0 and self.char_hp[cid] > 0.0]
+            if alive:
+                target = self.rng.choice(alive)
+                # 伤害 = 敌人攻击 × 倍率 × 我方防御减免（80 级攻方 vs 我方防御）
+                from .damage import defense_multiplier
+                res = 0.0  # 我方元素抗性未模拟（我方无抗性概念，标注）
+                dmg = enemy.atk * skill.mult * defense_multiplier(
+                    self.attacker_level, self.stats[target].defense) * (1.0 - res)
+                self.char_hp[target] = max(0.0, self.char_hp[target] - dmg)
+                # 受击回能（官方 SPHitBase × 充能效率；死亡不回能）
+                if self.char_hp[target] > 0.0:
+                    gained = skill.sp_hit * self._energy_regen(target)
+                    self.energy[target] += gained
+                    self._memosprite_charge_from_energy(gained)
+                self.log.append(ActionLog(
+                    self.t, eid, "enemy_attack",
+                    detail=f"{skill.name}→{target} 伤害{dmg:.0f}"))
+                if self.char_hp[target] <= 0.0:
+                    self.queue.remove(target)
+                    self.log.append(ActionLog(self.t, eid, "enemy_kill",
+                                              detail=f"击杀 {target}"))
+            else:
+                self.log.append(ActionLog(self.t, eid, "enemy_action"))
+        else:
+            self.log.append(ActionLog(self.t, eid, "enemy_action"))
         self.queue.reset_after_action(eid)
-        self.log.append(ActionLog(self.t, eid, "enemy_action"))
 
     # ---------- 快照 / 回退（ADR-0007 3.1，E11/E12） ----------
     def snapshot(self) -> BattleSnapshot:
@@ -835,6 +889,8 @@ class Simulator:
             memosprite=dict(self.memosprite) if self.memosprite else None,
             memosprite_owner=self.memosprite_owner,
             skill_streak=dict(self.skill_streak),
+            char_hp=dict(self.char_hp), char_hp_max=dict(self.char_hp_max),
+            enemy_cd={eid: dict(c) for eid, c in self.enemy_cd.items()},
             queue_entries={uid: (e.distance, e.speed) for uid, e in self.queue._entries.items()},
             sp_timeline=list(self.sp_timeline), damage_events=list(self.damage_events),
             log=list(self.log), breaks=list(self.breaks),
@@ -866,6 +922,9 @@ class Simulator:
         self.memosprite = dict(snap.memosprite) if snap.memosprite else None
         self.memosprite_owner = snap.memosprite_owner
         self.skill_streak = dict(snap.skill_streak)
+        self.char_hp = dict(snap.char_hp)
+        self.char_hp_max = dict(snap.char_hp_max)
+        self.enemy_cd = {eid: dict(c) for eid, c in snap.enemy_cd.items()}
         self.queue = ActionQueue()
         for uid, (distance, speed) in snap.queue_entries.items():
             self.queue.add(uid, speed, distance)

@@ -161,6 +161,10 @@ def assemble(base: Stats, element: str, config: BuildConfig,
             bs = lc["base_stats"]
             if bs.get("atk"):
                 atk_flat = bs["atk"]
+            if bs.get("hp"):
+                out.hp += bs["hp"]          # ① 生存：光锥 HP 白值
+            if bs.get("defense"):
+                out.defense += bs["defense"]  # ① 生存：光锥防御白值（敌方伤害减免）
 
     # 主词条
     body = config.main_stats.get("body")

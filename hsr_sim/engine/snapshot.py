@@ -30,6 +30,9 @@ class BattleSnapshot:
     memosprite: Optional[dict] = None
     memosprite_owner: str = ""
     skill_streak: Dict[str, int] = field(default_factory=dict)  # 连续战技计数（星魂 E1）
+    char_hp: Dict[str, float] = field(default_factory=dict)      # 我方 HP（生存）
+    char_hp_max: Dict[str, float] = field(default_factory=dict)
+    enemy_cd: Dict[str, Dict[int, int]] = field(default_factory=dict)  # 敌人技能冷却
     queue_entries: Dict[str, Tuple[float, float]] = field(default_factory=dict)  # unit -> (distance, speed)
     sp_timeline: List[Tuple[float, float]] = field(default_factory=list)
     damage_events: List = field(default_factory=list)

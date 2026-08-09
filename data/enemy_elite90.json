@@ -10,7 +10,7 @@
       "hp": 600000,
       "atk": 1000,
       "defense": 1000,
-      "speed": 100.0,
+      "speed": 110.0,
       "toughness": 480,
       "weaknesses": [
         "Quantum",
@@ -22,7 +22,26 @@
         "Wind": 0.2,
         "Fire": 0.2,
         "Imaginary": 0.2
-      }
+      },
+      "skills": [
+        {
+          "name": "重击",
+          "mult": 3.0,
+          "damage_type": "Physical",
+          "ai_cd": 1,
+          "sp_hit": 10,
+          "note": "MonsterSkillConfig 100301001（物理 3.0 倍率；ParamList[0]=倍率 依据分布推断，待实测）"
+        },
+        {
+          "name": "普攻",
+          "mult": 2.0,
+          "damage_type": "Ice",
+          "ai_cd": 1,
+          "sp_hit": 10,
+          "note": "MonsterSkillConfig 100201101（冰 2.0 倍率）"
+        }
+      ],
+      "note": "；速度 110（真实精英速度；原 10 为 v1.5 靶子不插队设计）"
     },
     "elite_b": {
       "id": "elite_b",
@@ -43,10 +62,29 @@
         "Wind": 0.2,
         "Fire": 0.2,
         "Imaginary": 0.2
-      }
+      },
+      "skills": [
+        {
+          "name": "重击",
+          "mult": 3.0,
+          "damage_type": "Physical",
+          "ai_cd": 1,
+          "sp_hit": 10,
+          "note": "MonsterSkillConfig 100301001（物理 3.0 倍率；ParamList[0]=倍率 依据分布推断，待实测）"
+        },
+        {
+          "name": "普攻",
+          "mult": 2.0,
+          "damage_type": "Ice",
+          "ai_cd": 1,
+          "sp_hit": 10,
+          "note": "MonsterSkillConfig 100201101（冰 2.0 倍率）"
+        }
+      ],
+      "note": "；速度 110（真实精英速度；原 10 为 v1.5 靶子不插队设计）"
     }
   },
   "initial_sp": 4.0,
   "initial_energy": {},
-  "_note": "开局状态：SP 4 / 能量 0（星铁标准战斗规则；可配置——末日幻影/模拟宇宙等模式有不同开局规则）"
+  "_note": "开局状态：SP 4 / 能量 0（星铁标准战斗规则；可配置——末日幻影/模拟宇宙等模式有不同开局规则）；敌人技能来自 MonsterSkillConfig（① 敌人 AI：技能循环/伤害/受击回能/死亡）"
 }

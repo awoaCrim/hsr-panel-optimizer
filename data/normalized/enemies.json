@@ -3,7 +3,7 @@
     "source_trust": "D",
     "validation": "raw",
     "source": "handfill",
-    "note": "90 级双精英靶场（v1 手填模板）"
+    "note": "90 级双精英靶场（v1 手填模板；①敌人 AI 技能来自 MonsterSkillConfig）"
   },
   "level": 90,
   "target_av": 250,
@@ -21,7 +21,7 @@
       "hp": 600000,
       "atk": 1000,
       "defense": 1000,
-      "speed": 100.0,
+      "speed": 110.0,
       "toughness": 480,
       "weaknesses": [
         "Quantum",
@@ -34,7 +34,25 @@
         "Fire": 0.2,
         "Imaginary": 0.2
       },
-      "break_immune": false
+      "break_immune": false,
+      "skills": [
+        {
+          "name": "重击",
+          "mult": 3.0,
+          "damage_type": "Physical",
+          "ai_cd": 1,
+          "sp_hit": 10,
+          "note": "MonsterSkillConfig 100301001（物理 3.0 倍率；ParamList[0]=倍率 依据分布推断，待实测）"
+        },
+        {
+          "name": "普攻",
+          "mult": 2.0,
+          "damage_type": "Ice",
+          "ai_cd": 1,
+          "sp_hit": 10,
+          "note": "MonsterSkillConfig 100201101（冰 2.0 倍率）"
+        }
+      ]
     },
     "elite_b": {
       "id": "elite_b",
@@ -62,7 +80,25 @@
         "Fire": 0.2,
         "Imaginary": 0.2
       },
-      "break_immune": false
+      "break_immune": false,
+      "skills": [
+        {
+          "name": "重击",
+          "mult": 3.0,
+          "damage_type": "Physical",
+          "ai_cd": 1,
+          "sp_hit": 10,
+          "note": "MonsterSkillConfig 100301001（物理 3.0 倍率；ParamList[0]=倍率 依据分布推断，待实测）"
+        },
+        {
+          "name": "普攻",
+          "mult": 2.0,
+          "damage_type": "Ice",
+          "ai_cd": 1,
+          "sp_hit": 10,
+          "note": "MonsterSkillConfig 100201101（冰 2.0 倍率）"
+        }
+      ]
     }
   }
 }

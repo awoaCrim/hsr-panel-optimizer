@@ -95,7 +95,7 @@ def load(normalized_dir: Path = NORMALIZED_DIR) -> NormalizedData:
 # ---------- 模拟器数据层（P0-3 Step B：normalized 直驱，ADR-0006 5.4） ----------
 
 from hsr_sim.loader import _stats_from_dict, assemble_team  # noqa: E402
-from hsr_sim.model import CharacterData, Enemy, SkillData  # noqa: E402
+from hsr_sim.model import CharacterData, Enemy, EnemySkill, SkillData  # noqa: E402
 
 
 def load_characters_normalized(normalized_dir: Path = NORMALIZED_DIR):
@@ -179,6 +179,9 @@ def load_enemies_normalized(normalized_dir: Path = NORMALIZED_DIR):
             toughness=e["toughness"], weaknesses=e.get("weaknesses", []),
             resistances=e.get("resistances", {}),
             break_immune=e.get("break_immune", False),
+            skills=[EnemySkill(**{k: v for k, v in sk.items() if k in
+                                    ("name", "mult", "damage_type", "ai_cd", "sp_hit")})
+                    for sk in e.get("skills", [])],
         )
         for eid, e in (ed.get("enemies") or {}).items()
     }

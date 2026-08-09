@@ -25,7 +25,8 @@
       "ExcelOutput/EquipmentConfig.json",
       "ExcelOutput/EquipmentSkillConfig.json",
       "ExcelOutput/AvatarRankConfig.json",
-      "ExcelOutput/RelicSetSkillConfig.json"
+      "ExcelOutput/RelicSetSkillConfig.json",
+      "ExcelOutput/MonsterSkillConfig.json"
     ]
   },
   "Nanoka": {

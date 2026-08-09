@@ -84,7 +84,8 @@ class TestTrustEnvelope:
                         unverified_inputs=unv + unv2)
         r = sim.run()
         assert r.trust_level == "unverified"
-        assert len(r.unverified_inputs) == len(unv) + len(unv2) == 30
+        # 8 角色默认值 + 34 敌人字段（22 模板 + 12 敌人技能 D 级手填）
+        assert len(r.unverified_inputs) == len(unv) + len(unv2) == 42
         assert any(p.startswith("enemies.") for p in r.unverified_inputs)
         assert any("break_effect" in p for p in r.unverified_inputs)
 
@@ -102,4 +103,4 @@ class TestTrustEnvelope:
         """audit 未验证数与 loader 信封一致（门禁与信封同源）。"""
         from hsr_sim.data.audit import audit
         _, unverified = audit()
-        assert len(unverified) == 30
+        assert len(unverified) == 42

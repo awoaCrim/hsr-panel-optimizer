@@ -97,6 +97,19 @@ class Enemy:
     weaknesses: List[str]
     resistances: Dict[str, float] = field(default_factory=dict)  # element -> 抗性（0.2 = 20%）
     break_immune: bool = False
+    # 敌人技能（①敌人 AI：MonsterSkillConfig 结构——ParamList[0]=伤害倍率（分布推断，
+    # 待实测验证）；ai_cd = 使用后冷却回合；sp_hit = 我方受击回能基础（官方 SPHitBase））
+    skills: List["EnemySkill"] = field(default_factory=list)
+
+
+@dataclass
+class EnemySkill:
+    """敌人技能（MonsterSkillConfig 映射；无 skills 的敌人保持 v1 行为——只回韧性不攻击）。"""
+    name: str = "普攻"
+    mult: float = 1.0            # 伤害倍率（ParamList[0]，标注推断）
+    damage_type: str = ""        # 伤害属性（对抗性判定；空 = 我方无抗性 0）
+    ai_cd: int = 1               # 使用后冷却回合数（AI_CD）
+    sp_hit: float = 10.0         # 受击回能基础（SPHitBase）
 
 
 @dataclass

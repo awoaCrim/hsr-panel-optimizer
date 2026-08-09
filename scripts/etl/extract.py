@@ -277,7 +277,7 @@ def build_enemies(raw: Dict) -> Dict:
     legacy = json.loads((ROOT / "data" / "enemy_elite90.json").read_text(encoding="utf-8"))
     enemies = {}
     for eid, e in legacy["enemies"].items():
-        enemies[eid] = {
+        entry = {
             "id": e.get("id", eid),
             "name": e["name"],
             "element": e["element"],
@@ -289,8 +289,11 @@ def build_enemies(raw: Dict) -> Dict:
             "resistances": e.get("resistances", {}),
             "break_immune": e.get("break_immune", False),
         }
+        if e.get("skills"):
+            entry["skills"] = e["skills"]   # ① 敌人技能（MonsterSkillConfig 映射）
+        enemies[eid] = entry
     return {"_source": prov("handfill", "D", "", "raw",
-                            note="90 级双精英靶场（v1 手填模板）"),
+                            note="90 级双精英靶场（v1 手填模板；①敌人 AI 技能来自 MonsterSkillConfig）"),
             "level": legacy.get("level", 90),
             "target_av": legacy.get("target_av", 250.0),
             "enemies": enemies}

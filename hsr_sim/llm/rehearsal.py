@@ -27,6 +27,10 @@ MECHANICS_RULES = """\
    ults={"<cid>": true/false} 逐角色指定。大招不占行动条，在行动连锁末尾即时释放。
 自动执行：追击 / 协奏 / 真伤（声援） / 击破 / 忆灵（迷迷）行动 / 敌人 AI / 回能。
 
+## 生存（① 敌人 AI）
+敌人会攻击我方（技能见敌人段），伤害 = 敌攻击×倍率×我方防御减免，受击回能。
+我方 HP 归零 = 死亡（退出行动/决策）；死亡影响胜利条件，规划时考虑生存。
+
 ## 目标（开放式）
 由你自主定义（如：行动值耗尽前最大化总伤害 / 击杀 / 破韧），何时收敛由你判断。
 物理终止：敌人全灭 / 行动值耗尽 / 队列空。
@@ -88,6 +92,11 @@ def _enemy_summary(session: RehearsalSession) -> str:
     for eid, e in session.sim.enemies.items():
         lines.append(f"- {eid} {e.name}：HP{e.hp:,.0f} 防御{e.defense:.0f} 韧性{e.toughness:.0f} "
                      f"弱点{e.weaknesses} 抗性{e.resistances or '无'} 速{e.speed}")
+        for sk in e.skills:
+            lines.append(f"   技能 {sk.name}：倍率{sk.mult}（{sk.damage_type or '任意'}）"
+                         f" 冷却{sk.ai_cd} 受击回能{sk.sp_hit}")
+        if not e.skills:
+            lines.append("   无攻击技能（不攻击我方）")
     return "\n".join(lines)
 
 

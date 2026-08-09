@@ -39,6 +39,8 @@ def _make_enemy(tmp_path, hp_per_enemy):
     d = json.loads((DATA / "enemy_elite90.json").read_text(encoding="utf-8"))
     for e in d["enemies"].values():
         e["hp"] = hp_per_enemy
+        e.pop("skills", None)     # 面板迭代（llm_loop）是纯伤害语义：无敌人技能（无生存维度）
+        e["speed"] = 10.0         # 靶子不插队（v1 语义）
     p = tmp_path / "enemy.json"
     p.write_text(json.dumps(d, ensure_ascii=False), encoding="utf-8")
     return p

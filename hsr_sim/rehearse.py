@@ -317,9 +317,12 @@ class RehearsalSession:
         if nxt is None or nxt[0] not in sim.chars:
             return None
         cid = nxt[0]
+        if sim.char_hp_max.get(cid, 0.0) > 0.0 and sim.char_hp.get(cid, 1.0) <= 0.0:
+            return None    # ① 死亡角色不进入决策点（观察者跳过）
         skills = [k for k in ("basic", "skill") if k in sim.chars[cid].skills]
         ult_ready = [c for c in sim.chars
-                     if sim.energy[c] >= sim.chars[c].skills["ult"].energy_cost]
+                     if not (sim.char_hp_max.get(c, 0.0) > 0.0 and sim.char_hp.get(c, 1.0) <= 0.0)
+                     and sim.energy[c] >= sim.chars[c].skills["ult"].energy_cost]
         has_advance = any(sim.chars[cid].skills[k].advance_pct for k in skills)
         return {
             "unit": cid,
@@ -392,6 +395,8 @@ class RehearsalSession:
             "damage_by_kind": {k: round(v, 1) for k, v in result.damage_by_kind.items()},
             "kills": [eid for eid, hp in sim.enemy_hp.items() if hp <= 0.0],
             "enemy_hp_left": {eid: round(hp, 1) for eid, hp in sim.enemy_hp.items()},
+            "char_hp_left": {cid: round(hp, 1) for cid, hp in sim.char_hp.items()},
+            "char_deaths": [cid for cid, hp in sim.char_hp.items() if hp <= 0.0],
             "sp": round(sim.sp, 3),
             "ult_count": dict(sim.ult_count),
             "action_count": dict(sim.action_count),
@@ -561,6 +566,8 @@ def _snap_to_dict(snap: BattleSnapshot) -> Dict[str, Any]:
         "concert_additional_mult": snap.concert_additional_mult,
         "memosprite": snap.memosprite, "memosprite_owner": snap.memosprite_owner,
         "skill_streak": snap.skill_streak,
+        "char_hp": snap.char_hp, "char_hp_max": snap.char_hp_max,
+        "enemy_cd": {eid: dict(c) for eid, c in snap.enemy_cd.items()},
         "queue_entries": {uid: [d, s] for uid, (d, s) in snap.queue_entries.items()},
         "sp_timeline": [list(x) for x in snap.sp_timeline],
         "damage_events": [[e.t, e.source, e.target, e.amount, e.kind]
@@ -591,6 +598,8 @@ def _snap_from_dict(d: Dict[str, Any]) -> BattleSnapshot:
         memosprite=dict(d["memosprite"]) if d["memosprite"] else None,
         memosprite_owner=d["memosprite_owner"],
         skill_streak=dict(d.get("skill_streak", {})),
+        char_hp=dict(d.get("char_hp", {})), char_hp_max=dict(d.get("char_hp_max", {})),
+        enemy_cd={eid: dict(c) for eid, c in d.get("enemy_cd", {}).items()},
         queue_entries={uid: (float(v[0]), float(v[1]))
                        for uid, v in d["queue_entries"].items()},
         sp_timeline=[(float(x[0]), float(x[1])) for x in d["sp_timeline"]],

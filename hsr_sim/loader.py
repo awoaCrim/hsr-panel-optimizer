@@ -8,7 +8,8 @@ from pathlib import Path
 from typing import Dict, List, Tuple
 
 from .build import BuildConfig, assemble, resolve_equipment, validate_config
-from .model import Action, CharacterData, CharacterPolicy, Enemy, Rotation, SkillData, Stats
+from .model import (Action, CharacterData, CharacterPolicy, Enemy, EnemySkill,
+                    Rotation, SkillData, Stats)
 
 DATA_DIR = Path(__file__).resolve().parent.parent / "data"
 
@@ -193,6 +194,9 @@ def load_enemies(path: Path) -> Tuple[Dict[str, Enemy], int, float]:
             toughness=e["toughness"], weaknesses=e.get("weaknesses", []),
             resistances=e.get("resistances", {}),
             break_immune=e.get("break_immune", False),
+            skills=[EnemySkill(**{k: v for k, v in sk.items() if k in
+                                    ("name", "mult", "damage_type", "ai_cd", "sp_hit")})
+                    for sk in e.get("skills", [])],
         )
         for eid, e in d["enemies"].items()
     }
