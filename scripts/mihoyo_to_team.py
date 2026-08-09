@@ -141,6 +141,7 @@ def main() -> int:
                 "energy_regen": round(regen, 4),
             },
             "light_cone": LC_IDS.get(c["光锥"]["名称"], ""),
+            "light_cone_rank": c["光锥"]["叠影"],
             "relic_sets": set_ids,
             "eidolon": c["星魂解锁数"],
             "skill_levels": skill_levels,

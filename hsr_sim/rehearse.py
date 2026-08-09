@@ -104,19 +104,28 @@ class RehearsalSession:
         team = Path(team)
         enemy = Path(enemy)
         rotation_path = Path(rotation)
+        # 队伍数据可走 normalized；关卡始终以调用方传入的 enemy 文件为准。
+        # 旧实现的 non-legacy 路径会忽略 enemy 参数、固定加载 normalized 默认靶场，
+        # 导致 WebUI/CLI 看似切关，实际仍在打旧敌人。
+        from .loader import load_enemies, load_enemy_waves
+        _ed = json.loads(enemy.read_text(encoding="utf-8"))
+        enemies, level, target_av = load_enemies(enemy)
+        waves = load_enemy_waves(enemy)
         if legacy:
-            from .loader import load_enemies, load_team
+            from .loader import load_team
             char_dir = team.parent / "characters"
             characters, stats, _speed_targets = load_team(team, char_dir)
-            enemies, level, target_av = load_enemies(enemy)
             unverified: List[str] = []
         else:
             from .data.loader import load_enemies_normalized, load_team_normalized
             characters, stats, _speed_targets, unverified = load_team_normalized(team)
-            enemies, level, target_av, unv2 = load_enemies_normalized()
+            # 默认精英靶场保留 normalized 信任度信封；其他关卡使用文件内显式清单。
+            if enemy.resolve() == (DATA_DIR / "enemy_elite90.json").resolve():
+                _, _, _, unv2 = load_enemies_normalized()
+            else:
+                unv2 = list(_ed.get("unverified_inputs", []))
             unverified = unverified + unv2
         # 开局状态（标准规则 SP 4/能量 0；关卡配置可覆盖——末日幻影/模拟宇宙等）
-        _ed = json.loads(enemy.read_text(encoding="utf-8"))
         initial_sp = _ed.get("initial_sp", 4.0)
         initial_energy = _ed.get("initial_energy", {})
         rotation = load_rotation(rotation_path)
@@ -127,7 +136,8 @@ class RehearsalSession:
                 mem_speed = mem.get("speed", mem_speed)
         sim = Simulator(characters, stats, enemies, rotation, target_av, level, mem_speed,
                         unverified_inputs=unverified, seed=seed,
-                        initial_sp=initial_sp, initial_energy=initial_energy)
+                        initial_sp=initial_sp, initial_energy=initial_energy,
+                        waves=waves)
         session = cls(sim, name=name, undo_budget=undo_budget, per_step_budget=per_step_budget,
                       history=history)
         session._config_paths = (team, enemy, rotation_path, legacy)
@@ -155,7 +165,8 @@ class RehearsalSession:
             "name": self.name,
             "seed": self.sim.seed,
             "team": [f"{cid} {self.sim.chars[cid].name}" for cid in self.sim.chars],
-            "enemies": [e.name for e in self.sim.enemies.values()],
+            "enemies": [e.name for wave in self.sim._waves for e in wave.values()],
+            "waves": [[e.name for e in wave.values()] for wave in self.sim._waves],
             "target_av": self.sim.target_av,
             "level": self.sim.attacker_level,
         }
@@ -309,6 +320,8 @@ class RehearsalSession:
             "sp": round(sim.sp, 3),
             "energy": {c: round(sim.energy[c], 3) for c in sim.chars},
             "kills": [eid for eid, hp in sim.enemy_hp.items() if hp <= 0.0],
+            "wave": sim.enemy_wave + 1,
+            "wave_count": len(sim._waves),
         }
 
     def _decision_point(self) -> Optional[Dict[str, Any]]:
@@ -359,6 +372,7 @@ class RehearsalSession:
                        for cid in sim.chars},
             "sp": {"value": round(sim.sp, 3), "max": sim.sp_max,
                    "timeline_tail": [[round(t, 3), sp] for t, sp in sim.sp_timeline[-5:]]},
+            "wave": {"index": sim.enemy_wave + 1, "total": len(sim._waves)},
             "enemies": {eid: {"hp": round(sim.enemy_hp[eid], 1),
                               "hp_pct": round(sim.enemy_hp[eid] / sim.enemies[eid].hp * 100, 1),
                               "toughness": round(sim.toughness[eid], 1),
@@ -397,6 +411,8 @@ class RehearsalSession:
             "enemy_hp_left": {eid: round(hp, 1) for eid, hp in sim.enemy_hp.items()},
             "char_hp_left": {cid: round(hp, 1) for cid, hp in sim.char_hp.items()},
             "char_deaths": [cid for cid, hp in sim.char_hp.items() if hp <= 0.0],
+            "wave": sim.enemy_wave + 1,
+            "wave_count": len(sim._waves),
             "sp": round(sim.sp, 3),
             "ult_count": dict(sim.ult_count),
             "action_count": dict(sim.action_count),
@@ -460,7 +476,8 @@ class RehearsalSession:
                          f"剩余 HP {f['enemy_hp_left']}")
             lines.append(f"  分伤害 {f['damage_by_kind']} / 大招 {f['ult_count']} / "
                          f"行动 {f['action_count']} / 破韧 {f['breaks']}")
-            lines.append(f"  用时 {f['t']} AV / SP {f['sp']}")
+            lines.append(f"  用时 {f['t']} AV / SP {f['sp']} / "
+                         f"波次 {f['wave']}/{f['wave_count']}")
         t = r["trust"]
         if t["level"] == "unverified":
             lines.append(f"⚠ 信任度：unverified（{t['unverified_count']} 处未验证输入，"
@@ -565,6 +582,7 @@ def _snap_to_dict(snap: BattleSnapshot) -> Dict[str, Any]:
         "concert_rounds": snap.concert_rounds,
         "concert_additional_mult": snap.concert_additional_mult,
         "memosprite": snap.memosprite, "memosprite_owner": snap.memosprite_owner,
+        "enemy_wave": snap.enemy_wave,
         "skill_streak": snap.skill_streak,
         "char_hp": snap.char_hp, "char_hp_max": snap.char_hp_max,
         "enemy_cd": {eid: dict(c) for eid, c in snap.enemy_cd.items()},
@@ -596,7 +614,7 @@ def _snap_from_dict(d: Dict[str, Any]) -> BattleSnapshot:
         concert_rounds=d["concert_rounds"],
         concert_additional_mult=d["concert_additional_mult"],
         memosprite=dict(d["memosprite"]) if d["memosprite"] else None,
-        memosprite_owner=d["memosprite_owner"],
+        memosprite_owner=d["memosprite_owner"], enemy_wave=int(d.get("enemy_wave", 0)),
         skill_streak=dict(d.get("skill_streak", {})),
         char_hp=dict(d.get("char_hp", {})), char_hp_max=dict(d.get("char_hp_max", {})),
         enemy_cd={eid: dict(c) for eid, c in d.get("enemy_cd", {}).items()},

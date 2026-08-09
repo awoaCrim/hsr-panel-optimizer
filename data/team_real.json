@@ -13,6 +13,7 @@
         "energy_regen": 1.194
       },
       "light_cone": "23046",
+      "light_cone_rank": 1,
       "relic_sets": [
         {
           "id": "108",
@@ -43,6 +44,7 @@
         "energy_regen": 1.244
       },
       "light_cone": "22006",
+      "light_cone_rank": 5,
       "relic_sets": [
         {
           "id": "127",
@@ -73,6 +75,7 @@
         "energy_regen": 1.244
       },
       "light_cone": "23034",
+      "light_cone_rank": 1,
       "relic_sets": [
         {
           "id": "121",
@@ -103,6 +106,7 @@
         "energy_regen": 1.244
       },
       "light_cone": "23026",
+      "light_cone_rank": 1,
       "relic_sets": [
         {
           "id": "120",

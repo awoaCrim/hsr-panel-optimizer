@@ -57,12 +57,41 @@ class TestWebuiApi:
         d = build_team_payload()
         assert len(d["characters"]) == 4
         red = d["characters"][0]
-        assert red["id"] == "1015" and red["eidolon"] == 5
+        assert red["id"] == "1015" and red["eidolon"] == 2
+        assert d["team_file"] == "team_real.json"
         assert red["light_cone"]["effect"]["exec"]      # 光锥效果已接入标注
+        assert red["light_cone"]["refinement"] == 1
+        assert red["stats"]["hp"] == pytest.approx(3135)
         assert red["relic_sets"][0]["pieces"] == 4
-        assert {int(r["rank"]) for r in red["ranks"]} == {1, 2, 3, 4, 5}
+        assert {int(r["rank"]) for r in red["ranks"]} == {1, 2}
+        memory = next(c for c in d["characters"] if c["id"] == "8007")
+        assert memory["light_cone"]["refinement"] == 5
         assert "main_stats" in red and "substats" in red
         assert isinstance(d["trust"]["unverified"], list)
+
+    def test_stage_payload_defaults_to_starforge(self):
+        """WebUI 默认关卡 = 最新忘却之庭星启第二节点，展示两波全部敌人。"""
+        from hsr_sim.webui import DEFAULT_ENEMY, _stage_registry, build_stages_payload
+        stages, default = _stage_registry(DEFAULT_ENEMY)
+        d = build_stages_payload(stages, default)
+        assert d["default"] == "starforge12b"
+        stage = next(s for s in d["stages"] if s["id"] == d["default"])
+        assert stage["wave_count"] == 2
+        assert [e["name"] for e in stage["waves"][0]["enemies"]] == ["破晓战队·苍翼", "破晓战队·灰烬"]
+        assert stage["waves"][1]["enemies"][0]["name"] == "合金机铠·帕姆王"
+        assert stage["unverified_inputs"]
+
+    def test_factory_honors_selected_enemy_and_waves(self):
+        """回归：non-legacy 会话不能忽略 WebUI 选中的 enemy 文件。"""
+        from hsr_sim.webui import DEFAULT_ENEMY, DEFAULT_TEAM, _make_session_factory, _stage_registry
+        stages, default = _stage_registry(DEFAULT_ENEMY)
+        factory = _make_session_factory(DEFAULT_TEAM, stages, default,
+                                        DATA_DIR / "rotation.json", False)
+        session = factory(seed=0, stage_id="starforge12b")
+        assert session.sim.stats["1015"].atk == pytest.approx(2629)
+        assert session.sim.target_av == pytest.approx(1000)
+        assert len(session.sim._waves) == 2
+        assert set(session.sim._waves[1]) == {"pamking"}
 
     def test_equipment_search(self):
         from hsr_sim.webui import build_equipment_payload

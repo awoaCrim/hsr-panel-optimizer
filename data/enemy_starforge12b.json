@@ -1,5 +1,10 @@
 {
   "note": "最新忘却之庭·星启模式 第12关 第2节点（StageConfig 30124122 合金机铠·帕姆王）。数据源：TBGD StageConfig/MonsterConfig/MonsterTemplateConfig + HardLevelGroup 3 Lv95（HP×375.4385/ATK×34.75065/DEF×5.47619/SPD×1.32）。技能倍率=MonsterSkillConfig ParamList[0]（分布推断，待实测）；技能削韧字段未解包标注 UNKNOWN。target_av：星启3节点共享轮数未知（棱彩星=剩余33轮以上），单节点按1000AV≈10轮近似（待实测）。",
+  "unverified_inputs": [
+    "stage.target_av：星启3节点共享总轮数未解包，单节点1000AV为近似",
+    "stage.enemy_skills：MonsterSkillConfig ParamList[0]按分布推断为倍率，待实战对账",
+    "stage.enemy_ai：技能列表序+冷却为行为树近似"
+  ],
   "level": 95,
   "target_av": 1000,
   "waves": [

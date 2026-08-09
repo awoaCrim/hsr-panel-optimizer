@@ -23,15 +23,16 @@ python -m hsr_sim.webui --port 8000 --llm-config "G:/tmp/hsr_llm.json"
 ```
 
 三个页面：
-- **队伍配置**：4 角色完整配置（面板/光锥+精1效果/套装 2·4 件/星魂/词条/信任度信封）
+- **队伍配置**：默认读取 `data/team_real.json`，展示你的真实 4 角色（完整面板 HP/DEF/双暴/充能、光锥叠影、套装、星魂、行迹配置）
 - **装备库**：169 光锥 / 60 套装 / 星魂 搜索浏览（已接入模拟效果标注）
-- **推演控制台**：demo 或 LLM 指挥模式启动推演，实时决策轨迹/事件流/报告（--llm-config 缺省时 LLM 模式不可用）
+- **推演控制台**：默认关卡为**最新忘却之庭·星启模式第12关第2节点**；页面可切换星启/双精英/Boss/小怪关，展示全部波次、敌人 HP/速度/韧性/弱点/抗性/技能，并以 demo 或 LLM 指挥启动多波次推演
 
-开局状态（SP/能量）在关卡文件配置：`data/enemy_elite90.json` 的 `initial_sp`（默认 4，标准战斗规则）与 `initial_energy`（默认全 0；末日幻影/模拟宇宙等模式可覆盖）。
+默认值：`--team data/team_real.json`、`--enemy data/enemy_starforge12b.json`。传入自定义 `--enemy` 时，该关卡也会进入页面下拉选择。WebUI 不提供 undo 按钮（按用户约束）。
 
 ## 多关卡 + 实战对账（④）
 
-- 多关卡：`data/enemy_boss90.json`（单 boss 高防）/ `enemy_trash90.json`（三小怪波）
+- 多关卡：`data/enemy_starforge12b.json`（最新忘却之庭星启第12关第2节点，两波）/
+  `enemy_boss90.json`（单 boss 高防）/ `enemy_trash90.json`（三小怪）
   `python scripts/search_builds.py --enemy enemy_boss90.json`（装备搜索按关卡评估）
 - 实战录像对账：`python scripts/compare_replay.py replay.json`（replay 格式见脚本 docstring：
   实战面板 + 装备 + 行动序列 + 每 act 伤害/大招声明）——伤害按"端点区间"诚实对账：

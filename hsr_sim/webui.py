@@ -31,6 +31,15 @@ from urllib.parse import parse_qs, urlparse
 
 from .loader import DATA_DIR
 
+DEFAULT_TEAM = DATA_DIR / "team_real.json"
+DEFAULT_ENEMY = DATA_DIR / "enemy_starforge12b.json"
+BUILTIN_STAGES = (
+    ("starforge12b", "忘却之庭·星启模式 第12关 第2节点", DEFAULT_ENEMY),
+    ("elite90", "90级双精英靶场", DATA_DIR / "enemy_elite90.json"),
+    ("boss90", "90级单Boss靶场", DATA_DIR / "enemy_boss90.json"),
+    ("trash90", "90级三小怪靶场", DATA_DIR / "enemy_trash90.json"),
+)
+
 PAGE = """<!DOCTYPE html>
 <html lang="zh">
 <head>
@@ -64,6 +73,12 @@ button.ctl:disabled { opacity: .4; cursor: default; }
 .eq-item { padding: 10px; border: 1px solid #241c3a; border-radius: 8px; margin-bottom: 8px; cursor: pointer; }
 .eq-item .desc { color: #9a90b8; font-size: 12px; margin-top: 4px; }
 .rank-line { font-size: 12px; color: #b8b0d0; margin: 2px 0; }
+.stage-head { display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
+.wave { border-left: 3px solid #7058b5; padding-left: 12px; margin-top: 14px; }
+.enemy-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:10px; }
+.enemy-card { background:#100c19; border:1px solid #2a2140; border-radius:9px; padding:11px; }
+.enemy-card h4 { margin:0 0 7px; color:#d8caff; }
+.warn { color:#f2b56b; }
 </style>
 </head>
 <body>
@@ -89,13 +104,17 @@ button.ctl:disabled { opacity: .4; cursor: default; }
   <div id="panel-sim" class="panel">
     <h2>推演控制台</h2>
     <div class="card">
-      <select id="sim-mode"><option value="demo">演示策略</option><option value="llm">LLM 指挥</option></select>
-      <input id="sim-seed" type="number" value="0" style="width:90px" title="随机 seed">
-      <input id="sim-max" type="number" value="40" style="width:90px" title="act 上限">
-      <button class="ctl" id="sim-start">开始推演</button>
-      <button class="ctl" id="sim-stop" disabled>停止</button>
-      <span class="status-line" id="sim-status"></span>
+      <div class="stage-head">
+        <label>关卡 <select id="sim-stage"></select></label>
+        <label>指挥 <select id="sim-mode"><option value="demo">演示策略</option><option value="llm">LLM 指挥</option></select></label>
+        <label>Seed <input id="sim-seed" type="number" value="0" style="width:90px" title="随机 seed"></label>
+        <label>Act 上限 <input id="sim-max" type="number" value="200" style="width:90px" title="act 上限"></label>
+        <button class="ctl" id="sim-start">开始推演</button>
+        <button class="ctl" id="sim-stop" disabled>停止</button>
+        <span class="status-line" id="sim-status"></span>
+      </div>
     </div>
+    <div class="card"><h3>当前关卡</h3><div id="stage-root" class="status-line">加载中…</div></div>
     <div class="card"><h3>决策轨迹</h3><div id="trace"></div></div>
     <div class="card"><h3>推演报告</h3><pre id="report" style="white-space:pre-wrap;font-size:12px"></pre></div>
   </div>
@@ -115,8 +134,8 @@ async function loadTeam() {
   const root = $('#team-root'); root.innerHTML = '';
   const grid = document.createElement('div'); grid.className = 'grid';
   for (const c of d.characters) {
-    const lc = c.light_cone ? `<div class="rank-line">光锥[${c.light_cone.id}] ${c.light_cone.name}（80级白值 ${JSON.stringify(c.light_cone.base_stats)}）</div>
-      ${c.light_cone.effect ? `<div class="rank-line">精1 ${c.light_cone.effect.name}：${clean(c.light_cone.effect.desc)} 参数${JSON.stringify(c.light_cone.effect.level_1_params)}${c.light_cone.effect.exec ? tag(true,'已接入模拟') : ''}</div>` : ''}` : '<div class="rank-line">光锥：未配置</div>';
+    const lc = c.light_cone ? `<div class="rank-line">光锥[${c.light_cone.id}] ${c.light_cone.name}（叠影${c.light_cone.refinement}；80级白值 ${JSON.stringify(c.light_cone.base_stats)}）</div>
+      ${c.light_cone.effect ? `<div class="rank-line">${c.light_cone.effect.name}：${clean(c.light_cone.effect.desc)}${c.light_cone.effect.exec ? `${tag(true,'已接入模拟')} 执行值${JSON.stringify(c.light_cone.effect.exec)}` : ''}</div>` : ''}` : '<div class="rank-line">光锥：未配置</div>';
     const sets = (c.relic_sets || []).map(s => `<div class="rank-line">套装 ${s.name}（${s.pieces}件）${s.desc2 ? `：${clean(s.desc2)}` : ''}${s.desc4 ? `；${clean(s.desc4)}` : ''}</div>`).join('');
     const ranks = (c.ranks || []).map(r => `<div class="rank-line">E${r.rank} ${r.name}${r.exec ? tag(true,'已接入') : r.exec_skip ? tag(false,'未接入') : ''}：${clean(r.desc)}</div>`).join('');
     const s = c.stats;
@@ -124,11 +143,14 @@ async function loadTeam() {
     card.innerHTML = `<h3>${c.id} ${c.name} <span class="tag dim">${c.element} · ${c.path}</span><span class="tag dim">星魂 ${c.eidolon} 命</span></h3>
       <table>
         <tr><td>攻击</td><td class="mono">${s.atk.toFixed(0)}</td><td>速度</td><td class="mono">${s.speed.toFixed(1)}</td></tr>
+        <tr><td>生命</td><td class="mono">${s.hp.toFixed(0)}</td><td>防御</td><td class="mono">${s.defense.toFixed(0)}</td></tr>
         <tr><td>暴击率</td><td class="mono">${(s.crit_rate*100).toFixed(1)}%</td><td>暴伤</td><td class="mono">${(s.crit_dmg*100).toFixed(1)}%</td></tr>
         <tr><td>充能效率</td><td class="mono">${(s.energy_regen*100).toFixed(1)}%</td><td>击破</td><td class="mono">${(s.break_effect*100).toFixed(1)}%</td></tr>
       </table>
       <h4>装备</h4>${lc}${sets}
       <h4>星魂</h4>${ranks || '<div class="rank-line">0 命</div>'}
+      <h4>行迹等级</h4><div class="rank-line mono">${JSON.stringify(c.skill_levels || {})}</div>
+      ${c.note ? `<div class="rank-line warn">${clean(c.note)}</div>` : ''}
       <h4>词条</h4><div class="rank-line">主词条 ${JSON.stringify(c.main_stats)}</div><div class="rank-line">副词条 ${JSON.stringify(c.substats)}</div>`;
     grid.appendChild(card);
   }
@@ -152,10 +174,39 @@ async function loadEquip() {
 $('#eq-kind').onchange = loadEquip;
 $('#eq-q').oninput = () => { clearTimeout(eqTimer); eqTimer = setTimeout(loadEquip, 300); };
 
+let stageData = null;
+function renderStage() {
+  if (!stageData) return;
+  const s = stageData.stages.find(x => x.id === $('#sim-stage').value) || stageData.stages[0];
+  const waves = s.waves.map(w => `<div class="wave"><h4>波次 ${w.index}${w.note ? ` · ${clean(w.note)}` : ''}</h4>
+    <div class="enemy-grid">${w.enemies.map(e => `<div class="enemy-card">
+      <h4>${e.name} <span class="tag dim">${e.id}</span></h4>
+      <table><tr><td>HP</td><td class="mono">${Number(e.hp).toLocaleString()}</td><td>速度</td><td class="mono">${e.speed}</td></tr>
+      <tr><td>攻击</td><td class="mono">${e.atk}</td><td>防御</td><td class="mono">${e.defense}</td></tr>
+      <tr><td>韧性</td><td class="mono">${e.toughness}</td><td>属性</td><td>${e.element || '-'}</td></tr></table>
+      <div class="rank-line">弱点：${(e.weaknesses || []).join(' / ') || '-'}</div>
+      <div class="rank-line">抗性：${Object.entries(e.resistances || {}).map(([k,v]) => `${k} ${(v*100).toFixed(0)}%`).join(' / ') || '0%'}</div>
+      <div class="rank-line">技能：${(e.skills || []).map(sk => `${sk.name}×${sk.mult}（CD${sk.ai_cd}/受击回能${sk.sp_hit}）`).join('；') || '未配置'}</div>
+    </div>`).join('')}</div></div>`).join('');
+  const trust = (s.unverified_inputs || []).length
+    ? `<div class="rank-line warn"><b>未验证近似：</b><br>${s.unverified_inputs.map(clean).join('<br>')}</div>`
+    : `<div class="rank-line">${tag(true,'关卡输入已验证')}</div>`;
+  $('#stage-root').innerHTML = `<div><b>${s.label}</b> <span class="tag dim">Lv${s.level}</span><span class="tag dim">${s.wave_count}波</span><span class="tag dim">目标 ${s.target_av} AV</span></div>
+    <div class="rank-line">文件：${s.file}</div><div class="rank-line warn">${clean(s.note)}</div>${trust}${waves}`;
+}
+async function loadStages() {
+  const r = await fetch('/api/stages'); stageData = await r.json();
+  $('#sim-stage').innerHTML = stageData.stages.map(s => `<option value="${s.id}">${s.label}</option>`).join('');
+  $('#sim-stage').value = stageData.default;
+  renderStage();
+}
+$('#sim-stage').onchange = renderStage;
+
 let pollTimer = null;
 async function pollSim() {
   const r = await fetch('/api/sim/status'); const d = await r.json();
-  $('#sim-status').textContent = d.running ? `推演中… act ${d.trail.length}/${d.max_acts}（${d.stop_reason || ''}）` : (d.stop_reason ? `已结束：${d.stop_reason}` : '空闲');
+  const wave = d.wave ? ` · 波次 ${d.wave.index}/${d.wave.total}` : '';
+  $('#sim-status').textContent = d.running ? `推演中… act ${d.trail.length}/${d.max_acts}${wave}（${d.stop_reason || ''}）` : (d.stop_reason ? `已结束：${d.stop_reason}${wave}` : '空闲');
   $('#sim-start').disabled = d.running; $('#sim-stop').disabled = !d.running;
   $('#trace').innerHTML = d.trail.map(a =>
     `<div>act#${a.index} t=${a.result.t.toFixed(2)} ${a.unit_id} ${a.skill}→${a.target||'-'} 伤害${a.result.damage_delta.toFixed(0)}${a.result.ult_used.length ? ` 大招[${a.result.ult_used}]` : ''}${a.note ? ` <span class="status-line">${a.note}</span>` : ''}</div>`).join('');
@@ -163,12 +214,13 @@ async function pollSim() {
 }
 $('#sim-start').onclick = async () => {
   const mode = $('#sim-mode').value, seed = $('#sim-seed').value, max = $('#sim-max').value;
-  await fetch(`/api/sim/start?mode=${mode}&seed=${seed}&max_acts=${max}`);
+  const stage = encodeURIComponent($('#sim-stage').value);
+  await fetch(`/api/sim/start?mode=${mode}&seed=${seed}&max_acts=${max}&stage=${stage}`);
   pollTimer = setInterval(pollSim, 800);
 };
 $('#sim-stop').onclick = async () => { await fetch('/api/sim/stop'); };
 
-loadTeam(); loadEquip(); pollSim();
+loadTeam(); loadEquip(); loadStages(); pollSim();
 setInterval(pollSim, 2000);
 </script>
 </body>
@@ -196,8 +248,9 @@ class SimRunner:
         self._report = ""
         self._stop_reason = ""
         self._max_acts = 0
+        self._stage_id = ""
 
-    def start(self, mode: str, seed: int, max_acts: int) -> None:
+    def start(self, mode: str, seed: int, max_acts: int, stage_id: str = "") -> None:
         with self._lock:
             if self._thread and self._thread.is_alive():
                 return
@@ -206,11 +259,13 @@ class SimRunner:
             self._report = ""
             self._stop_reason = ""
             self._max_acts = max_acts
-        self._thread = threading.Thread(target=self._run, args=(mode, seed, max_acts), daemon=True)
+            self._stage_id = stage_id
+        self._thread = threading.Thread(target=self._run,
+                                        args=(mode, seed, max_acts, stage_id), daemon=True)
         self._thread.start()
 
-    def _run(self, mode: str, seed: int, max_acts: int) -> None:
-        session = self._factory(seed=seed)
+    def _run(self, mode: str, seed: int, max_acts: int, stage_id: str) -> None:
+        session = self._factory(seed=seed, stage_id=stage_id)
         self._session = session
         try:
             if mode == "llm":
@@ -244,15 +299,20 @@ class SimRunner:
         return bool(self._thread and self._thread.is_alive())
 
     def status(self) -> Dict[str, Any]:
+        wave = None
+        if self._session is not None:
+            wave = {"index": self._session.sim.enemy_wave + 1,
+                    "total": len(self._session.sim._waves)}
         return {"running": self.running, "trail": self._trail, "report": self._report,
-                "stop_reason": self._stop_reason, "max_acts": self._max_acts}
+                "stop_reason": self._stop_reason, "max_acts": self._max_acts,
+                "stage_id": self._stage_id, "wave": wave}
 
 
-def build_team_payload() -> Dict[str, Any]:
-    from .data.loader import load_enemies_normalized, load_equipment, load_team_normalized
-    characters, stats, speed_targets, unverified = load_team_normalized(DATA_DIR / "team_reda.json")
+def build_team_payload(team_path: Path = DEFAULT_TEAM) -> Dict[str, Any]:
+    from .data.loader import load_equipment, load_team_normalized
+    characters, stats, speed_targets, unverified = load_team_normalized(team_path)
     equipment = load_equipment()
-    team = json.loads((DATA_DIR / "team_reda.json").read_text(encoding="utf-8"))
+    team = json.loads(team_path.read_text(encoding="utf-8"))
     builds = team["builds"]
     out = []
     for cid, ch in characters.items():
@@ -277,16 +337,57 @@ def build_team_payload() -> Dict[str, Any]:
             "eidolon": el,
             "stats": {"atk": st.atk, "speed": st.speed, "crit_rate": st.crit_rate,
                       "crit_dmg": st.crit_dmg, "energy_regen": st.energy_regen,
-                      "break_effect": st.break_effect},
+                      "break_effect": st.break_effect, "hp": st.hp,
+                      "defense": st.defense},
             "light_cone": {"id": lc_id, "name": lc.get("name"), "base_stats": lc.get("base_stats"),
+                           "refinement": int(b.get("light_cone_rank", 1)),
                            "effect": lc.get("effect")} if lc_id else None,
             "relic_sets": sets,
             "ranks": ranks,
+            "skill_levels": b.get("skill_levels", {}), "note": b.get("note", ""),
             "main_stats": b.get("main_stats", {}), "substats": b.get("substats", {}),
         })
-    _, level, target_av, _ = load_enemies_normalized()
-    return {"characters": out, "level": level, "target_av": target_av,
+    return {"characters": out, "team_file": team_path.name,
             "trust": {"unverified": unverified}}
+
+
+def build_stage_payload(stage_id: str, label: str, path: Path) -> Dict[str, Any]:
+    """关卡展示载荷：波次/敌人面板/弱点抗性/技能全部可视化。"""
+    d = json.loads(path.read_text(encoding="utf-8"))
+    raw_waves = d.get("waves") or [{"enemies": d.get("enemies", {})}]
+    waves = []
+    for index, wave in enumerate(raw_waves, 1):
+        enemies = []
+        for eid, e in wave.get("enemies", {}).items():
+            enemies.append({
+                "key": eid, "id": e.get("id", eid), "name": e.get("name", eid),
+                "element": e.get("element"), "hp": e.get("hp", 0), "atk": e.get("atk", 0),
+                "defense": e.get("defense", 0), "speed": e.get("speed", 0),
+                "toughness": e.get("toughness", 0), "weaknesses": e.get("weaknesses", []),
+                "resistances": e.get("resistances", {}), "skills": e.get("skills", []),
+            })
+        waves.append({"index": index, "note": wave.get("note", ""), "enemies": enemies})
+    return {"id": stage_id, "label": label, "file": path.name, "note": d.get("note", ""),
+            "level": d.get("level", 90), "target_av": d.get("target_av", 250),
+            "wave_count": len(waves), "waves": waves,
+            "unverified_inputs": d.get("unverified_inputs", [])}
+
+
+def build_stages_payload(stage_paths: Dict[str, tuple], default_stage: str) -> Dict[str, Any]:
+    return {"default": default_stage,
+            "stages": [build_stage_payload(sid, label, path)
+                       for sid, (label, path) in stage_paths.items()]}
+
+
+def _stage_registry(default_enemy: Path) -> tuple[Dict[str, tuple], str]:
+    stages: Dict[str, tuple] = {sid: (label, path) for sid, label, path in BUILTIN_STAGES}
+    resolved = default_enemy.resolve()
+    default_id = next((sid for sid, (_label, path) in stages.items()
+                       if path.resolve() == resolved), "")
+    if not default_id:
+        default_id = "custom"
+        stages[default_id] = (f"自定义关卡 · {default_enemy.name}", default_enemy)
+    return stages, default_id
 
 
 def build_equipment_payload(kind: str, q: str) -> Dict[str, Any]:
@@ -328,6 +429,9 @@ def build_equipment_payload(kind: str, q: str) -> Dict[str, Any]:
 class Handler(BaseHTTPRequestHandler):
     runner: SimRunner = None  # type: ignore
     llm_client = None
+    team_path: Path = DEFAULT_TEAM
+    stage_paths: Dict[str, tuple] = {}
+    default_stage: str = "starforge12b"
 
     def log_message(self, *a):
         pass
@@ -346,7 +450,10 @@ class Handler(BaseHTTPRequestHandler):
             if p == "/" or p == "/index.html":
                 self._send(200, PAGE.encode("utf-8"), "text/html; charset=utf-8")
             elif p == "/api/team":
-                self._send(200, json.dumps(build_team_payload(), ensure_ascii=False).encode())
+                self._send(200, json.dumps(build_team_payload(self.team_path), ensure_ascii=False).encode())
+            elif p == "/api/stages":
+                payload = build_stages_payload(self.stage_paths, self.default_stage)
+                self._send(200, json.dumps(payload, ensure_ascii=False).encode())
             elif p == "/api/equipment":
                 qs = parse_qs(u.query)
                 payload = build_equipment_payload(qs.get("kind", ["light_cones"])[0],
@@ -356,7 +463,8 @@ class Handler(BaseHTTPRequestHandler):
                 qs = parse_qs(u.query)
                 self.runner.start(qs.get("mode", ["demo"])[0],
                                   int(qs.get("seed", ["0"])[0]),
-                                  int(qs.get("max_acts", ["40"])[0]))
+                                  int(qs.get("max_acts", ["200"])[0]),
+                                  qs.get("stage", [self.default_stage])[0])
                 self._send(200, b'{"ok": true}')
             elif p == "/api/sim/stop":
                 self.runner.stop()
@@ -370,11 +478,15 @@ class Handler(BaseHTTPRequestHandler):
                                        ensure_ascii=False).encode())
 
 
-def _make_session_factory(team, enemy, rotation, legacy):
-    def factory(seed: int = 0):
+def _make_session_factory(team: Path, stages: Dict[str, tuple], default_stage: str,
+                          rotation: Path, legacy: bool):
+    def factory(seed: int = 0, stage_id: str = ""):
         from .rehearse import RehearsalSession
+        selected = stage_id if stage_id in stages else default_stage
+        enemy = stages[selected][1]
         return RehearsalSession.from_files(team=team, enemy=enemy, rotation=rotation,
-                                           seed=seed, legacy=legacy)
+                                           seed=seed, legacy=legacy,
+                                           name=f"webui:{selected}")
     return factory
 
 
@@ -386,14 +498,20 @@ def main(argv=None) -> int:
             pass
     parser = argparse.ArgumentParser(prog="hsr-sim-webui", description="队伍配置 + 推演控制台 WebUI")
     parser.add_argument("--port", type=int, default=8000)
-    parser.add_argument("--team", default=str(DATA_DIR / "team_reda.json"))
-    parser.add_argument("--enemy", default=str(DATA_DIR / "enemy_elite90.json"))
+    parser.add_argument("--team", default=str(DEFAULT_TEAM))
+    parser.add_argument("--enemy", default=str(DEFAULT_ENEMY),
+                        help="默认关卡；页面仍可在内置关卡间切换")
     parser.add_argument("--rotation", default=str(DATA_DIR / "rotation.json"))
     parser.add_argument("--legacy", action="store_true")
     parser.add_argument("--llm-config", default=None, help="LLM 配置 JSON（推演控制台 LLM 模式用）")
     args = parser.parse_args(argv)
 
-    Handler.runner = SimRunner(_make_session_factory(Path(args.team), Path(args.enemy),
+    team_path = Path(args.team)
+    stage_paths, default_stage = _stage_registry(Path(args.enemy))
+    Handler.team_path = team_path
+    Handler.stage_paths = stage_paths
+    Handler.default_stage = default_stage
+    Handler.runner = SimRunner(_make_session_factory(team_path, stage_paths, default_stage,
                                                      Path(args.rotation), args.legacy))
     if args.llm_config:
         from .llm.client import LLMClient
@@ -403,7 +521,8 @@ def main(argv=None) -> int:
         Handler.runner._llm = Handler.llm_client
 
     srv = ThreadingHTTPServer(("127.0.0.1", args.port), Handler)
-    print(f"WebUI: http://127.0.0.1:{args.port}  （Ctrl+C 退出）")
+    print(f"WebUI: http://127.0.0.1:{args.port}  "
+          f"（队伍 {team_path.name} / 默认关卡 {stage_paths[default_stage][0]} / Ctrl+C 退出）")
     try:
         srv.serve_forever()
     except KeyboardInterrupt:
