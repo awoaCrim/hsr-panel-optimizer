@@ -81,7 +81,7 @@ class TestExtraAction:
 
 
     def test_extra_actions_do_not_tick_owner_buffs(self):
-        """红A额外行动链属于同一回合：链中间不掉持续回合，链结束时才 -1。"""
+        """红A额外行动链属于同一回合：整条链只在首个正常行动扣一次持续回合。"""
         chars = _characters()
         stats = _stats()
         sim = Simulator(chars, stats, _enemies(),
