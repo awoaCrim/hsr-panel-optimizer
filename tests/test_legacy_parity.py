@@ -3,6 +3,8 @@
 目的：证明 Effects 重构（ADR-0006 5.4 Step A）未改变 v1.5 行为。
 注意：parity 不证明行为正确（v1.5 本身含已修正的公式错误），正确性由 T2b/T3/T4 保证。
 基线文件：tests/golden/reda_v1.5_2t.json（v1.5 实现冻结输出，勿手改）。
+已确认的官方规则修复允许数值偏离该历史基线；此时仍要求行动/时序等结构对等，
+正确数值由独立 correctness/T2b/T3/T4 测试锁定。
 """
 import json
 from pathlib import Path
@@ -36,8 +38,9 @@ def _snapshot():
 def test_legacy_parity_reda_2t():
     golden = json.loads(GOLDEN.read_text(encoding="utf-8"))
     new = _snapshot()
-    for k in ["t_end", "total_damage", "actions", "damage_events", "sp_timeline",
-              "breaks", "enemy_hp_left", "ult_count", "action_count"]:
+    # 总伤害与逐次伤害事件包含 v1.5 已知错误，不作为已确认机制修复后的硬门禁。
+    # 例如：同一完整回合的额外行动不应消耗 buff 持续回合。
+    for k in ["t_end", "actions", "sp_timeline", "breaks", "ult_count", "action_count"]:
         assert new[k] == golden[k], f"T2a parity 破坏：{k}"
 
 

@@ -3,7 +3,7 @@
 v1 不实现完整 buff 时间轴（覆盖率模型留待后续），仅支持：
 - 乘区加成（增伤/暴伤/攻击/真伤），target 为空 = 全队
 - cap：同类增益叠加上限（红A 回路层数上限）
-- duration 以施加者行动次数递减（0 = 常驻）
+- duration 以施加者完整回合递减（0 = 常驻）；同一回合中的额外行动不递减
 """
 from __future__ import annotations
 
@@ -16,7 +16,7 @@ class Buff:
     stat: str          # dmg_bonus / crit_dmg / atk_pct / true_dmg / concert_atk
     value: float
     source: str        # 施加者 unit_id
-    duration: int      # 剩余次数（施加者行动后 -1；0 = 常驻）
+    duration: int      # 剩余回合（0 = 常驻；额外行动链中不递减）
     target: str = ""   # 生效目标 unit_id（空 = 全队）
     cap: float = 0.0   # 该 stat 同类叠加上限（0 = 无）
 
@@ -35,7 +35,7 @@ class BuffManager:
         self._buffs.append(Buff(stat, value, source, duration, target, cap))
 
     def tick_owner(self, source: str) -> None:
-        """施加者行动一次：计时 buff 剩余次数 -1 并移除过期。"""
+        """施加者进入一个新完整回合：计时 buff -1；额外行动链不调用。"""
         keep: List[Buff] = []
         for b in self._buffs:
             if b.source == source and b.duration > 0:

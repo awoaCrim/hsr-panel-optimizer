@@ -1,7 +1,7 @@
 """数据层切换测试（P0-3 Step B）—— normalized 直驱模拟器 + 信任度信封。
 
 - 结构等价：normalized 构建的 CharacterData 与 legacy 手填等价（ETL 正确性）
-- 运行等价：normalized 路径 2T 结果与 legacy golden 一致（四舍五入精度差 < 0.1%）
+- 运行等价：normalized 路径 2T 结果与 legacy 当前实现一致（历史 golden 仅锁行动与时序）
 - 信任度信封：D/raw 输入 → trust_level=unverified；纯 legacy 无信封 → trusted
 """
 import json
@@ -56,22 +56,21 @@ class TestStructureEquivalence:
 
 
 class TestRunParity:
-    def test_normalized_run_matches_legacy_golden(self):
-        """normalized 路径跑红A队 2T：动作序列一致，总伤害/t_end 在四舍五入精度内。"""
-        golden = json.loads(GOLDEN.read_text(encoding="utf-8"))
-        chars, stats, speed_targets, _ = load_team_normalized(TEAM)
-        enemies, level, target_av, _ = load_enemies_normalized()
-        rot = load_rotation(ROTATION)
-        sim = Simulator(chars, stats, enemies, rot, target_av, level)
-        r = sim.run()
+    def test_normalized_run_matches_legacy_current_rules(self):
+        """normalized 与 legacy 在当前已修正规则下的动作、时序和总伤害一致。"""
+        legacy_chars, legacy_stats, _ = load_team(TEAM, DATA_DIR / "characters")
+        normalized_chars, normalized_stats, _, _ = load_team_normalized(TEAM)
+        enemies, level, target_av = load_enemies(DATA_DIR / "enemy_elite90.json")
+        rot_legacy = load_rotation(ROTATION)
+        rot_normalized = load_rotation(ROTATION)
+        legacy = Simulator(legacy_chars, legacy_stats, enemies, rot_legacy, target_av, level).run()
+        normalized = Simulator(
+            normalized_chars, normalized_stats, enemies, rot_normalized, target_av, level).run()
 
-        # 动作序列完全一致（决策不依赖伤害值）
-        got_actions = [(a.unit_id, a.action) for a in r.actions]
-        golden_actions = [(a[1], a[2]) for a in golden["actions"]]
-        assert got_actions == golden_actions
-        # 总伤害 / 时长：四舍五入精度差内
-        assert abs(r.total_damage - golden["total_damage"]) / golden["total_damage"] < 0.001
-        assert abs(r.t_end - golden["t_end"]) / golden["t_end"] < 0.001
+        assert [(a.unit_id, a.action) for a in normalized.actions] == [
+            (a.unit_id, a.action) for a in legacy.actions]
+        assert normalized.total_damage == pytest.approx(legacy.total_damage, rel=0.001)
+        assert normalized.t_end == pytest.approx(legacy.t_end, rel=0.001)
 
 
 class TestTrustEnvelope:

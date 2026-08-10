@@ -4,7 +4,7 @@ import pytest
 from hsr_sim.engine.buffs import BuffManager
 from hsr_sim.engine.simulate import Simulator
 from hsr_sim.loader import DATA_DIR, load_character
-from hsr_sim.model import Enemy, Rotation, Stats
+from hsr_sim.model import Action, Enemy, Rotation, Stats
 from hsr_sim.rehearse import RehearsalSession
 
 
@@ -78,6 +78,18 @@ def test_buff_expiry_removes_panel_effect():
     after = s.observe()["panels"]["characters"]["1015"]
     assert after["effective"]["crit_dmg"] == pytest.approx(1.0)
     assert after["buffs"] == []
+
+
+def test_extra_action_buff_panel_stays_until_chain_ends():
+    s = _session()
+    sim = s.sim
+    sim.sp = 7.0
+    sim.buffs.add("crit_dmg", 0.4, "1015", 3, target="1015")
+    sim.external_action = Action(unit_id="1015", action="skill", target="elite")
+    sim.run_step()
+    panel = s.observe()["panels"]["characters"]["1015"]
+    assert panel["effective"]["crit_dmg"] == pytest.approx(1.4)
+    assert next(x for x in panel["buffs"] if x["stat"] == "crit_dmg")["remaining"] == 2
 
 
 def test_conditional_next_ally_damage_enters_recipient_panel_only():

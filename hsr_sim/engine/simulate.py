@@ -447,7 +447,11 @@ class Simulator:
         elif action.action == "skill":
             self.skill_used[cid] = self.skill_used.get(cid, 0) + 1
 
-        self.buffs.tick_owner(cid)
+        # 同一完整回合只结算一次持续时间：首个正常行动扣一次，后续额外行动不扣。
+        # 在行动开始时结算可确保本次行动中新获得的 buff 不会被当前回合立即消耗。
+        in_extra_chain = cid in self.burst_chain
+        if not in_extra_chain:
+            self.buffs.tick_owner(cid)
         # 目标解析：只有实际伤害技能才绑定敌人；非攻击技能不得携带幽灵敌方目标。
         dmg_target = self._resolve_target(action.target, skill) if skill.mult > 0.0 else None
         ally_target = action.target if action.target in self.chars else (skill.advance_target or "")

@@ -4,7 +4,7 @@ import pytest
 from hsr_sim.engine.damage import expected_damage
 from hsr_sim.engine.simulate import Simulator
 from hsr_sim.loader import DATA_DIR, load_enemies, load_rotation, load_team
-from hsr_sim.model import Action, Enemy, Rotation, Stats
+from hsr_sim.model import Action, CharacterPolicy, Enemy, Rotation, Stats
 from hsr_sim.report import build_report
 
 
@@ -79,6 +79,35 @@ class TestExtraAction:
         # 时间正常推进（没有卡在 dt=0 死循环）
         assert sim.t > 400.0
 
+
+    def test_extra_actions_do_not_tick_owner_buffs(self):
+        """红A额外行动链属于同一回合：链中间不掉持续回合，链结束时才 -1。"""
+        chars = _characters()
+        stats = _stats()
+        sim = Simulator(chars, stats, _enemies(),
+                        _rot({"1015": [("1015", "skill")] * 2}), target_av=500)
+        sim.sp = 9.0
+        sim.buffs.add("crit_dmg", 0.4, "1015", 3, target="1015")
+
+        sim._character_act("1015")
+        assert "1015" in sim.burst_chain
+        assert sim.buffs.get("crit_dmg", "1015").duration == 2
+
+        sim._character_act("1015")
+        assert "1015" in sim.burst_chain
+        assert sim.buffs.get("crit_dmg", "1015").duration == 2
+
+        # 强制让下一次战技成为额外行动链的最后一次。
+        sim.rotation.actions["1015"] = [Action(unit_id="1015", action="skill")]
+        sim.rotation.policy["1015"] = CharacterPolicy(chain_max=3)
+        sim._character_act("1015")
+        assert "1015" not in sim.burst_chain
+        assert sim.buffs.get("crit_dmg", "1015").duration == 2
+
+        # 下一次正常回合开始后才再次递减。
+        sim.rotation.actions["1015"] = [Action(unit_id="1015", action="basic")]
+        sim._character_act("1015")
+        assert sim.buffs.get("crit_dmg", "1015").duration == 1
 
 class TestAdvance:
     def test_sparkle_advance_archer(self):
