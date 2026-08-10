@@ -46,6 +46,10 @@ class BuffManager:
             keep.append(b)
         self._buffs = keep
 
+    def for_target(self, target: str) -> List[Buff]:
+        """当前对 target 生效的全部效果（全队效果 target="" 也包含）。"""
+        return [b for b in self._buffs if b.target == "" or b.target == target]
+
     def sum_for(self, stat: str, target: str = "") -> float:
         return sum(
             b.value for b in self._buffs

@@ -382,6 +382,7 @@ class RehearsalSession:
             "sp_delta": round(sim.sp - sp_before, 3),
             "sp": round(sim.sp, 3),
             "energy": {c: round(sim.energy[c], 3) for c in sim.chars},
+            "panels": self._battle_panels(),
             "kills": [eid for eid, hp in sim.enemy_hp.items() if hp <= 0.0],
             "wave": sim.enemy_wave + 1,
             "wave_count": len(sim._waves),
@@ -415,6 +416,9 @@ class RehearsalSession:
             mechanics.pop("note", None)
             skill_options[k] = {
                 "is_attack": sk.mult > 0.0,
+                "attack_scaling": "atk" if sk.mult > 0.0 else "none",
+                "multiplier": sk.mult if sk.mult > 0.0 else 0.0,
+                "multiplier_pct": round(sk.mult * 100.0, 4) if sk.mult > 0.0 else 0.0,
                 "target_type": self._skill_target_type(sk),
                 "sp_delta": sk.sp,
                 "sp_cost": sp_cost,
@@ -501,6 +505,11 @@ class RehearsalSession:
             })
         return {"upcoming": upcoming, "history": history}
 
+    def _battle_panels(self) -> Dict[str, Any]:
+        """战斗内动态面板：供 WebUI 与 LLM 共用同一模拟器真值投影。"""
+        from .engine.panels import battle_panels
+        return battle_panels(self.sim)
+
     def _state(self) -> Dict[str, Any]:
         """完整结构化状态（D9：不预设指标，LLM 自己解读）。"""
         sim = self.sim
@@ -553,6 +562,7 @@ class RehearsalSession:
                             "alive": sim.memosprite["alive"],
                             "owner": sim.memosprite_owner}
                            if sim.memosprite else None),
+            "panels": self._battle_panels(),
             "buffs": [{"stat": b.stat, "value": b.value, "source": b.source,
                        "left": b.duration, "target": b.target or "all"}
                       for b in sim.buffs._buffs],

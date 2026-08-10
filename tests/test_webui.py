@@ -71,6 +71,11 @@ class TestWebuiApi:
         assert memory["name"] == "记忆主"       # normalized {NICKNAME} 占位符必须解析
         assert memory["light_cone"]["refinement"] == 5
         assert "main_stats" in red and "substats" in red
+        assert red["skills"]["skill"]["multiplier_pct"] == pytest.approx(360.0)
+        assert red["skills"]["ult"]["multiplier_pct"] == pytest.approx(1000.0)
+        robin = next(c for c in d["characters"] if c["id"] == "1309")
+        assert robin["skills"]["skill"]["is_attack"] is False
+        assert robin["skills"]["skill"]["multiplier"] == 0.0
         assert isinstance(d["trust"]["unverified"], list)
 
     def test_stage_payload_defaults_to_starforge_third_node(self):
@@ -144,6 +149,7 @@ class TestWebuiApi:
             assert evaluating["activity"] == "waiting_llm_evaluation"
             assert len(evaluating["trail"]) == 1
             assert evaluating["trail"][0]["note"] == "实时测试"
+            assert "panels" in evaluating["trail"][0]["result"]
             assert evaluating["state"]["progression"]["acts"] == 1
             assert evaluating["state"]["allies"]["8007"]["name"] == "记忆主"
             assert evaluating["state"]["enemies"]["present"]["name"] == "「醉于盛会的此刻」"
@@ -154,17 +160,21 @@ class TestWebuiApi:
             while runner.status()["running"] and time.time() < deadline:
                 time.sleep(0.01)
 
-    def test_action_order_ui_is_prominent_and_complete(self):
-        """首屏同时提供下一轮排序与包含敌人的完整实际行动记录。"""
+    def test_action_order_ui_is_hidden_but_backend_projection_remains(self):
+        """行动顺序暂时隐藏；后端真值仍保留给报告/调试，不删除状态投影。"""
         from hsr_sim.webui_page import PAGE
+        assert '.action-order-card { display: none;' in PAGE
         assert 'id="turn-order-live"' in PAGE
         assert 'id="action-history-live"' in PAGE
-        assert "下一轮行动顺序" in PAGE
-        assert "完整实际行动顺序" in PAGE
-        assert "action_order?.upcoming" in PAGE
-        assert "action_order?.history" in PAGE
-        assert "预计 t" in PAGE
         assert "Stage ${esc(s.stage_id||'—')}" in PAGE
+
+    def test_live_dynamic_panel_is_rendered(self):
+        from hsr_sim.webui_page import PAGE
+        assert "我方动态面板" in PAGE
+        assert "st.panels?.characters" in PAGE
+        assert "st.panels?.enemies" in PAGE
+        assert "技能倍率：" in PAGE
+        assert "当前无战斗内增减益" in PAGE
 
     def test_report_copy_ui_is_selection_safe(self):
         """报告可复制，且状态轮询不得反复替换同一文本、打断用户选择。"""

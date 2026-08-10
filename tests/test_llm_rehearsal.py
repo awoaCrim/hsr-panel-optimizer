@@ -7,7 +7,7 @@ import pytest
 
 from hsr_sim.engine.simulate import Simulator
 from hsr_sim.llm.rehearsal import (DECISION_CONTRACT, MECHANICS_RULES, _compact_state,
-                                   build_knowledge_pack, run_rehearsal)
+                                   _decision_history, build_knowledge_pack, run_rehearsal)
 from hsr_sim.loader import DATA_DIR, load_character
 from hsr_sim.model import Enemy, Rotation, Stats
 from hsr_sim.rehearse import RehearsalSession
@@ -43,6 +43,7 @@ def test_knowledge_pack_dynamic():
     assert "1015" in pack and "红A" in pack
     assert "精英" in pack and "弱点" in pack
     assert "信任度信封" in pack
+    assert "攻击力倍率360%" in pack
     assert "1.6" not in pack      # 旧版迷迷模型（×1.6 全体伤害）必须不存在
     assert "声援" in pack or "迷迷" in pack
 
@@ -100,6 +101,7 @@ def test_knowledge_pack_non_attack_skills_are_explicit():
     assert state["decision"]["skill_options"]["skill"]["target_type"] == "none"
     assert state["decision"]["skill_options"]["skill"]["sp_delta"] == -1
     assert state["decision"]["skill_options"]["skill"]["sp_cost"] == 1
+    assert state["decision"]["skill_options"]["skill"]["multiplier"] == 0.0
     assert "非攻击不等于免费" in DECISION_CONTRACT
     assert "开战准备（已结算的模拟器真值）" in pack
     assert '"field_owner": "1309"' in pack
@@ -116,6 +118,115 @@ def test_knowledge_pack_non_attack_skills_are_explicit():
         "mem_charge": 0.1, "mem_heal": 0.42,
     }
     assert "mechanics.summon=true" in DECISION_CONTRACT
+
+
+def test_compact_state_contains_live_panels():
+    s = _session()
+    s.sim.buffs.add("atk_pct", 0.25, "1015", 2, target="1015")
+    compact = _compact_state(s.observe())
+    panel = compact["panels"]["characters"]["1015"]
+    assert panel["effective"]["atk"] == pytest.approx(3750.0)
+    assert panel["buffs"][0]["stat"] == "atk_pct"
+
+
+def test_decision_prompt_keeps_previous_choices():
+    class MemoryClient:
+        def __init__(self):
+            self.prompts = []
+            self.messages = []
+
+        def chat_json(self, messages, temperature=0.2):
+            prompt = messages[-1]["content"]
+            self.prompts.append(prompt)
+            self.messages.append(messages)
+            if "## 自评" in prompt:
+                return {"verdict": "continue"}
+            if len([p for p in self.prompts if "## 你的决策" in p]) >= 2:
+                return {"skill": "basic", "target": "elite", "ults": {}, "note": "参考前一步"}
+            return {"skill": "skill", "target": "elite", "ults": {}, "note": "第一步"}
+
+    client = MemoryClient()
+    s = _session()
+    run_rehearsal(client, s, max_acts=2)
+    decision_prompts = [p for p in client.prompts if "## 你的决策" in p]
+    assert len(decision_prompts) == 2
+    assert '"skill": "skill"' in decision_prompts[1]
+    assert '"note": "第一步"' in decision_prompts[1]
+    assert "之前的选择与分支记忆" in decision_prompts[1]
+    assert len(client.messages[-1]) > 2
+    assert _decision_history(s)["current_route"]
+
+
+def test_invalid_retry_keeps_original_decision_in_conversation():
+    class RetryMemoryClient:
+        def __init__(self):
+            self.messages = []
+            self.responses = [
+                {"skill": "nonexistent", "note": "非法尝试"},
+                {"skill": "basic", "target": "elite", "ults": {}, "note": "修正"},
+                {"verdict": "stop", "reason": "结束"},
+            ]
+
+        def chat_json(self, messages, temperature=0.2):
+            self.messages.append(messages)
+            return self.responses.pop(0)
+
+    client = RetryMemoryClient()
+    session = _session()
+    run_rehearsal(client, session, max_acts=2)
+    eval_messages = client.messages[-1]
+    assert any("修正" in m["content"] for m in eval_messages if m["role"] == "assistant")
+    assert session.acts[0].note == "修正"
+    assert _decision_history(session)["current_route"][0]["note"] == "修正"
+
+
+def test_prompt_keeps_abandoned_choice_after_undo():
+    class UndoMemoryClient:
+        def __init__(self):
+            self.prompts = []
+            self.responses = [
+                {"skill": "skill", "target": "elite", "ults": {}, "note": "尝试战技"},
+                {"verdict": "undo", "reason": "换一条路线"},
+                {"skill": "basic", "target": "elite", "ults": {}, "note": "改普攻"},
+                {"verdict": "stop", "reason": "结束"},
+            ]
+
+        def chat_json(self, messages, temperature=0.2):
+            self.prompts.append(messages[-1]["content"])
+            return self.responses.pop(0)
+
+    client = UndoMemoryClient()
+    s = _session()
+    run_rehearsal(client, s, max_acts=3)
+    decisions = [p for p in client.prompts if "## 你的决策" in p]
+    assert len(decisions) == 2
+    assert '"reason": "换一条路线"' in decisions[1]
+    assert '"skill": "skill"' in decisions[1]
+    assert '"abandoned_routes"' in decisions[1]
+
+
+def test_dynamic_panels_update_with_buff_and_undo():
+    from pathlib import Path
+    s = RehearsalSession.from_files(
+        team=Path("data/team_real.json"), enemy=Path("data/enemy_floor12_node2.json"), seed=0)
+    state = s.observe()
+    # 首个决策点是记忆主，推进到花火并把战技暴伤 buff 给红A。
+    while state["decision"]["unit"] != "1306":
+        d = state["decision"]
+        option = d["skill_options"][d["default"]]
+        target = d["targets"][0] if option["target_type"] == "enemy" else ""
+        s.act(skill=d["default"], target=target, ults={})
+        state = s.observe()
+    before = state["panels"]["characters"]["1015"]
+    base_cd = before["effective"]["crit_dmg"]
+    s.act(skill="skill", target="1015", ults={})
+    buffed = s.observe()["panels"]["characters"]["1015"]
+    assert buffed["effective"]["crit_dmg"] > base_cd
+    assert any(x["stat"] == "crit_dmg" and x["source"] == "1306" for x in buffed["buffs"])
+    s.undo(reason="验证面板回退")
+    restored = s.observe()["panels"]["characters"]["1015"]
+    assert restored["effective"]["crit_dmg"] == pytest.approx(base_cd)
+    assert not any(x["stat"] == "crit_dmg" and x["source"] == "1306" for x in restored["buffs"])
 
 
 def test_full_run_to_terminal():

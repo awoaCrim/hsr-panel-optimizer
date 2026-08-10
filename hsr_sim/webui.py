@@ -238,6 +238,19 @@ def build_team_payload(team_path: Path = DEFAULT_TEAM) -> Dict[str, Any]:
         ranks = [{"rank": rk, **{k: rv.get(k) for k in ("name", "desc", "exec", "exec_skip")}}
                  for rk, rv in list((eid.get("ranks") or {}).items())[:el]]
         st = stats[cid]
+        skill_payload = {}
+        for slot, skill in ch.skills.items():
+            skill_payload[slot] = {
+                "is_attack": skill.mult > 0.0,
+                "attack_scaling": "atk" if skill.mult > 0.0 else "none",
+                "multiplier": skill.mult if skill.mult > 0.0 else 0.0,
+                "multiplier_pct": round(skill.mult * 100.0, 4) if skill.mult > 0.0 else 0.0,
+                "sp_delta": skill.sp,
+                "energy": skill.energy,
+                "energy_cost": skill.energy_cost,
+                "toughness": skill.toughness,
+                "note": skill.note,
+            }
         out.append({
             "id": cid, "name": ch.name, "element": ch.element, "path": ch.path,
             "eidolon": el,
@@ -250,6 +263,7 @@ def build_team_payload(team_path: Path = DEFAULT_TEAM) -> Dict[str, Any]:
                            "effect": lc.get("effect")} if lc_id else None,
             "relic_sets": sets,
             "ranks": ranks,
+            "skills": skill_payload,
             "skill_levels": b.get("skill_levels", {}), "note": b.get("note", ""),
             "main_stats": b.get("main_stats", {}), "substats": b.get("substats", {}),
         })

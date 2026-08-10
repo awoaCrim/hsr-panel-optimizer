@@ -61,7 +61,7 @@ def _char_summary(session: RehearsalSession) -> str:
             sk = c.skills.get(k)
             if sk:
                 is_attack = sk.mult > 0.0
-                parts = [f"{k}:倍率{sk.mult}" if is_attack else f"{k}:非攻击"]
+                parts = [f"{k}:攻击力倍率{sk.mult:.0%}" if is_attack else f"{k}:非攻击"]
                 if sk.toughness and is_attack:
                     parts.append(f"削韧{sk.toughness}")
                 if sk.sp:
@@ -263,7 +263,7 @@ def _compact_state(state: Dict[str, Any]) -> Dict[str, Any]:
         "enemies": {eid: {k: e[k] for k in ("hp_pct", "toughness", "broken")}
                     for eid, e in state["enemies"].items()},
         "memosprite": state.get("memosprite"),
-        "buffs": state["buffs"],
+        "panels": state.get("panels", {}),
         "decision": state.get("decision"),
         "damage": state["damage"],
         "progression": {k: state["progression"][k]
@@ -271,14 +271,57 @@ def _compact_state(state: Dict[str, Any]) -> Dict[str, Any]:
     }
 
 
+def _decision_history(session: RehearsalSession) -> Dict[str, Any]:
+    """给下一次 LLM 调用的路线记忆；undo 后当前路线自动缩短，放弃路线仍保留。"""
+    return {
+        "current_route": [
+            {
+                "index": a.index,
+                "unit": a.unit_id,
+                "skill": a.skill,
+                "target": a.target,
+                "ults": a.ults,
+                "note": a.note,
+                "result": {
+                    "t": a.result.get("t"),
+                    "damage_delta": a.result.get("damage_delta"),
+                    "sp_delta": a.result.get("sp_delta"),
+                    "ult_used": a.result.get("ult_used", []),
+                    "wave": a.result.get("wave"),
+                },
+            }
+            for a in session.acts
+        ],
+        "abandoned_routes": [
+            {
+                "index": route.index,
+                "fork_after": route.fork_after,
+                "reason": route.reason,
+                "choices": [
+                    {"unit": a.unit_id, "skill": a.skill, "target": a.target,
+                     "ults": a.ults, "note": a.note}
+                    for a in route.acts
+                ],
+            }
+            for route in session.abandoned
+        ],
+    }
+
+
 DECISION_CONTRACT = """\
+## 之前的选择与分支记忆
+{history}
+
 ## 当前局面
 {state}
 
 ## 你的决策（决策点：{unit}）
 输出 JSON：{{"skill": "<basic|skill>", "target": "<敌人id|队友id|留空>", "ults": <null|{{"cid": bool}}>, "note": "<一句话理由>"}}
+- 结合“之前的选择与分支记忆”保持策略连贯；若改选，说明与既有路线相比改变了什么
 - skill 必须来自局面 decision.skills；不要选择 skill_options 中 available=false 的动作
+- 必须读取 decision.skill_options[skill].multiplier / multiplier_pct；攻击技能按该攻击力倍率结算，辅助技能 multiplier=0
 - 必须读取 decision.skill_options[skill].sp_delta / sp_cost：非攻击不等于免费，sp_delta=-1 仍会消耗 1 点战技点
+- `panels.characters` 是当前战斗内有效面板；buff 获得、到期、debuff 与 undo 后均由模拟器重新投影，禁止继续使用已失效效果
 - 根据所选 skill 的 decision.skill_options[skill].target_type 决定 target：
   enemy → 从 decision.targets 选敌人（可留空让模拟器默认）；
   ally → 从 decision.ally_targets 选队友并遵守不可自拉；
@@ -292,6 +335,9 @@ DECISION_CONTRACT = """\
 """
 
 EVAL_CONTRACT = """\
+## 之前的选择与分支记忆
+{history}
+
 ## 上一步 act 结果
 {result}
 
@@ -324,7 +370,8 @@ def run_rehearsal(client: LLMClient, session: RehearsalSession,
                   should_stop: Optional[Callable[[], bool]] = None) -> RehearsalResult:
     """LLM 自主指挥一整局推演（D10：每步 act + 自评）。
 
-    非法决策自动重试（≤3 次/步，错误反馈给 LLM）；回退预算由会话强制。
+    后续每次模型调用都会带上此前已接受的决策/自评消息，并附当前路线与放弃路线摘要；
+    undo 之后 LLM 仍能看到被放弃选择及其原因。非法重试只保留最终被模拟器接受的选择。
     on_progress 在模型请求/动作执行/自评边界发布实时状态（WebUI 不再等整局结束）。
     """
     def publish(activity: str, **detail: Any) -> None:
@@ -332,8 +379,10 @@ def run_rehearsal(client: LLMClient, session: RehearsalSession,
             on_progress(activity, session, detail)
 
     knowledge = build_knowledge_pack(session)
+    conversation: List[Dict[str, str]] = [{"role": "system", "content": knowledge}]
     result = RehearsalResult()
     state = session.observe()
+    decision_turn = 0
     if verbose:
         print(f"开局：t={state['t']} 队列={state['queue']['entries']}")
 
@@ -342,15 +391,17 @@ def run_rehearsal(client: LLMClient, session: RehearsalSession,
             result.stop_reason = "用户停止"
             break
         decision = state["decision"]
+        decision_turn += 1
         publish("waiting_llm_decision", state=state, unit=decision["unit"],
-                act=result.acts + 1, llm_calls=result.llm_calls)
+                act=decision_turn, llm_calls=result.llm_calls)
         # ---- 决策调用 ----
-        msgs = [
-            {"role": "system", "content": knowledge},
+        msgs = conversation + [
             {"role": "user", "content": DECISION_CONTRACT.format(
+                history=json.dumps(_decision_history(session), ensure_ascii=False),
                 state=json.dumps(_compact_state(state), ensure_ascii=False),
                 unit=decision["unit"])},
         ]
+        decision_user_message = msgs[-1]
         d = client.chat_json(msgs)
         result.llm_calls += 1
         if should_stop is not None and should_stop():
@@ -390,6 +441,7 @@ def run_rehearsal(client: LLMClient, session: RehearsalSession,
                         llm_calls=result.llm_calls)
         if result.stop_reason == "用户停止":
             break
+        accepted_decision = dict(d)
         actual = session.acts[-1]
         result.acts += 1
         if verbose:
@@ -403,14 +455,21 @@ def run_rehearsal(client: LLMClient, session: RehearsalSession,
                           "target": actual.target, "requested_skill": skill,
                           "requested_target": target, "ults": ults, "note": note},
                 act_result=act_result, llm_calls=result.llm_calls)
-        ev_msgs = [
-            {"role": "system", "content": knowledge},
+        ev_msgs = conversation + [
+            decision_user_message,
+            {"role": "assistant", "content": json.dumps(accepted_decision, ensure_ascii=False)},
             {"role": "user", "content": EVAL_CONTRACT.format(
+                history=json.dumps(_decision_history(session), ensure_ascii=False),
                 result=json.dumps(act_result, ensure_ascii=False),
                 state=json.dumps(_compact_state(state), ensure_ascii=False))},
         ]
         ev = client.chat_json(ev_msgs)
         result.llm_calls += 1
+        conversation.extend([
+            decision_user_message,
+            {"role": "assistant", "content": json.dumps(accepted_decision, ensure_ascii=False)},
+            ev_msgs[-1], {"role": "assistant", "content": json.dumps(ev, ensure_ascii=False)},
+        ])
         if should_stop is not None and should_stop():
             result.stop_reason = "用户停止"
             break

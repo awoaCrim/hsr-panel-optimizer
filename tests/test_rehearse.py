@@ -124,7 +124,8 @@ class TestAct:
         assert decision["skills"] == ["basic"]
         assert decision["default"] == "basic"
         assert decision["skill_options"]["basic"] == {
-            "is_attack": True, "target_type": "enemy", "sp_delta": 1,
+            "is_attack": True, "attack_scaling": "atk", "multiplier": 1.3,
+            "multiplier_pct": 130.0, "target_type": "enemy", "sp_delta": 1,
             "sp_cost": 0, "mechanics": {}, "available": True,
             "unavailable_reason": "",
         }

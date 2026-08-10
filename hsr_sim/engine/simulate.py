@@ -198,8 +198,8 @@ class Simulator:
         return self.chars[cid].equipment_effects
 
     def _energy_regen(self, cid: str) -> float:
-        """充能效率：面板 + 装备叠层（如【歌咏】每层 +3%）。"""
-        v = self.stats[cid].energy_regen
+        """充能效率：基础面板 + 战斗内增减益 + 装备叠层。"""
+        v = self.stats[cid].energy_regen + self.buffs.sum_for("energy_regen", cid)
         for ex in self._equip_effects(cid):
             if ex["type"] == "stack_energy_regen":
                 n = self.equip_stacks.get(cid, {}).get(ex["src"], 0)
@@ -316,6 +316,7 @@ class Simulator:
         enemy = self.enemies[target]
         res = enemy.resistances.get(self.chars[cid].element, 0.0)
         m = self._current_multipliers(damager=cid)
+        m.res_pen += self.buffs.sum_for("res_pen", cid)
         noncrit = noncrit_damage(mult, stats.atk, stats, m, enemy.defense, res,
                                  self.attacker_level,
                                  enemy_broken=self.toughness[target] <= 0.0)
@@ -714,7 +715,9 @@ class Simulator:
         res = enemy.resistances.get(self.chars[cid].element, 0.0)
         # 星魂 E2（红A）：终结技降低目标元素抗性
         res -= self.buffs.sum_for(f"enemy_res_pen:{self.chars[cid].element}", target)
+        res_pen = self.buffs.sum_for("res_pen", cid)
         m = self._current_multipliers(damager=cid)
+        m.res_pen += res_pen
         bonus, def_ignore = self._equip_damage(cid, kind, skill_type, target, stats)
         m.dmg_bonus += bonus
         m.def_ignore += def_ignore
@@ -807,11 +810,29 @@ class Simulator:
                     bonus += ex["value"]
         return bonus, def_ignore
 
+    def _dynamic_dmg_bonus(self, cid: str) -> float:
+        """战斗内动态增伤面板（BuffManager + 花火层数 + 常驻队伍效果）。"""
+        value = self.buffs.sum_for("dmg_bonus", cid)
+        value += 0.03 * min(self.sp_spent_count, 3)
+        for owner in self.chars.values():
+            if any(ex["type"] == "mem_team_dmg" for ex in owner.equipment_effects):
+                value += next(ex["value"] for ex in owner.equipment_effects
+                              if ex["type"] == "mem_team_dmg")
+        return value
+
     def _effective_stats(self, cid: str) -> Stats:
         s = replace(self.stats[cid])
         s.crit_dmg += self.buffs.sum_for("crit_dmg", cid)
         s.crit_rate += self.buffs.sum_for("crit_rate", cid)   # 记忆主 E1：声援暴击
         s.atk = s.atk * (1.0 + self.buffs.sum_for("atk_pct", cid)) + self.buffs.sum_for("atk_flat", cid)
+        # 速度/防御效果通过面板与对应系统读取；行动顺序速度以 ActionQueue 为真值。
+        s.speed = max(0.0, self.queue.get_speed(cid) or s.speed)
+        s.defense = max(0.0, s.defense * (1.0 + self.buffs.sum_for("def_pct", cid))
+                        + self.buffs.sum_for("def_flat", cid))
+        s.break_effect += self.buffs.sum_for("break_effect", cid)
+        s.energy_regen += self.buffs.sum_for("energy_regen", cid)
+        s.dmg_bonus += self._dynamic_dmg_bonus(cid)
+        s.heal_bonus += self.buffs.sum_for("heal_bonus", cid)
         # 装备条件面板：sp_cap_ge_atk（23046：SP 上限≥6 才触发——红A E2 上限 5 不触发）
         for ex in self._equip_effects(cid):
             if ex["type"] == "sp_cap_ge_atk" and self.sp_max >= ex["sp_cap_ge"]:
@@ -826,15 +847,10 @@ class Simulator:
 
     def _current_multipliers(self, damager: str = "") -> Multipliers:
         m = Multipliers()
-        m.dmg_bonus = self.buffs.sum_for("dmg_bonus", damager)
-        # 22006 飞向粉色的明天：记忆主装备时全队增伤（常驻，per-attacker）
-        for cid, ch in self.chars.items():
-            for ex in ch.equipment_effects:
-                if ex["type"] == "mem_team_dmg":
-                    m.dmg_bonus += ex["value"]
-                    break
-        # 花火天赋：每耗 1 SP 全队增伤 3%（叠 3 层）
-        m.dmg_bonus += 0.03 * min(self.sp_spent_count, 3)
+        # stats.dmg_bonus 由 _effective_stats 汇总；此处仅保留非面板伤害乘区，避免重复计算。
+        m.dmg_bonus = 0.0
+        # 22006 飞向粉色的明天：常驻全队增伤已由 _effective_stats 汇总。
+        # 花火天赋：每耗 1 SP 全队增伤 3%（叠 3 层）——进入当前面板，由 _effective_stats 统一汇总。
         # 花火 E2：天赋每层额外全队无视防御（谜诡 3 层）
         for cid, ch in self.chars.items():
             for ex in ch.equipment_effects:
@@ -907,11 +923,11 @@ class Simulator:
             return
         enemy = self.enemies[target]
         robin_stats = self._effective_stats(robin.id)
-        m = self._current_multipliers()
+        m = self._current_multipliers(damager=robin.id)
         dmg = flat_damage(
             getattr(self, "_concert_additional_mult", 0.72),
             robin_stats.atk,
-            m.dmg_bonus,
+            robin_stats.dmg_bonus + m.dmg_bonus,
             self._def_m(target),
             self._res_m(target, robin.element),
             enemy_broken=self.toughness[target] <= 0.0,
@@ -948,7 +964,7 @@ class Simulator:
         self.queue.postpone(target, BREAK_POSTPONE_PCT)
         if not self.enemies[target].break_immune:
             stats = self._effective_stats(cid)
-            m = self._current_multipliers()
+            m = self._current_multipliers(damager=cid)
             dmg = break_damage(
                 self.chars[cid].element, stats.break_effect,
                 self.enemies[target].toughness,

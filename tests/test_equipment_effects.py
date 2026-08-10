@@ -157,7 +157,25 @@ class TestStacksAndBuffs:
         assert sim.buffs.sum_for("crit_dmg", "1015") == pytest.approx(0.36)  # 2 层上限
 
 
-class TestStartAdvance:
+    def test_current_multipliers_and_panel_do_not_double_count_damage_bonus(self):
+        """动态增伤进入有效面板后，伤害乘区不得再重复加一次。"""
+        from hsr_sim.engine.damage import noncrit_damage
+        sim = _mk(["1015"], {})
+        sim.buffs.add("dmg_bonus", 0.5, "1015", 2, target="1015")
+        sim.stats["1015"].crit_rate = 0.0
+        stats = sim._effective_stats("1015")
+        multipliers = sim._current_multipliers("1015")
+        assert stats.dmg_bonus == pytest.approx(sim.stats["1015"].dmg_bonus + 0.5)
+        assert multipliers.dmg_bonus == pytest.approx(0.0)
+        expected = noncrit_damage(
+            1.0, stats.atk, stats, multipliers,
+            sim.enemies["elite"].defense,
+            sim.enemies["elite"].resistances.get("Quantum", 0.0),
+            sim.attacker_level,
+        )
+        sim._deal_damage("1015", "elite", 1.0)
+        assert sim.damage_events[-1].amount == pytest.approx(expected)
+
     def test_start_advance_vonwacq(self):
         """翁瓦克 4 件：速度≥120 开局行动提前 40%。"""
         sim = _mk(["1306"], {"1306": {"relic_sets": [{"id": "308", "pieces": 4}]}})

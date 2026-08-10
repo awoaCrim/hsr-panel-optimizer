@@ -120,7 +120,7 @@ input:focus, select:focus { border-color: var(--purple); box-shadow: 0 0 0 3px r
 .queue-chip { padding: 5px 7px; border-radius: 7px; background: var(--surface-3); color: var(--muted); font-size: 10px; }
 .queue-chip:first-child { color: #fff; outline: 1px solid var(--purple); }
 .queue-chip b { color: inherit; font-family: Consolas, monospace; }
-.action-order-card { margin-bottom: 14px; overflow: hidden; }
+.action-order-card { display: none; margin-bottom: 14px; overflow: hidden; }
 .action-order-grid { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(340px, .85fr); }
 .order-pane { min-width: 0; padding: 14px 16px 16px; }
 .order-pane + .order-pane { border-left: 1px solid var(--line-soft); }
@@ -170,6 +170,7 @@ details.card[open] > summary::after { content: "−"; }
 .stat { padding: 8px; background: var(--surface-2); border-radius: 7px; }
 .stat span { display: block; color: var(--muted); font-size: 9px; text-transform: uppercase; }
 .stat b { display: block; margin-top: 4px; font: 12px Consolas, monospace; }
+.stat b.good { color: #9de5b7; }
 .info-line { color: var(--muted); font-size: 11px; line-height: 1.55; margin: 4px 0; }
 .info-line strong { color: #d9deea; }
 .trust { color: var(--amber); }
@@ -269,7 +270,7 @@ details.card[open] > summary::after { content: "−"; }
           <div class="current-label">当前环节</div><div class="current-title">等待开始</div><div class="current-copy">这里会显示 DeepSeek 正在规划、执行或复盘哪一步。</div>
         </section>
         <section class="unit-section card"><h3>敌方状态</h3><div id="enemy-live" class="section-kicker">等待战斗状态</div></section>
-        <section class="unit-section card"><h3>我方状态</h3><div id="ally-live" class="section-kicker">等待战斗状态</div></section>
+        <section class="unit-section card"><h3>我方动态面板</h3><div id="ally-live" class="section-kicker">等待战斗状态</div></section>
         <section class="unit-section card"><h3>最近伤害</h3><div id="damage-live" class="section-kicker">等待伤害事件</div></section>
       </aside>
     </div>
@@ -326,6 +327,7 @@ async function loadTeam() {
       <div class="stat-grid">${stats.map(([k,v])=>`<div class="stat"><span>${k}</span><b>${v}</b></div>`).join('')}</div>
       <div class="info-line"><strong>光锥：</strong>${lc?`${esc(lc.name)} · 叠影${lc.refinement}`:'未配置'}</div>
       <div class="info-line"><strong>套装：</strong>${sets}</div><div class="info-line"><strong>行迹：</strong><span class="mono">${esc(JSON.stringify(c.skill_levels||{}))}</span></div>
+      <div class="info-line"><strong>技能倍率：</strong>${Object.entries(c.skills||{}).map(([k,x])=>`${skillName(k)} ${x.is_attack?`${Number(x.multiplier_pct).toFixed(1)}% 攻击力`:'非攻击'}`).join(' · ')}</div>
       <details><summary class="info-line"><strong>星魂与机制明细</strong></summary><div class="info-line">${ranks}</div>${lc?.effect?`<div class="info-line"><strong>${esc(lc.effect.name)}：</strong>${esc(clean(lc.effect.desc))} ${lc.effect.exec?'<span class="badge good">已接入</span>':''}</div>`:''}</details>
       ${c.note?`<div class="info-line trust">${esc(clean(c.note))}</div>`:''}</article>`;
   }).join('');
@@ -390,11 +392,17 @@ function renderActionOrder(st){
   if(wasNearBottom||history.length>lastActionCount)root.scrollTop=root.scrollHeight;
   lastActionCount=history.length;
 }
+function formatEffect(x){
+  const percentStats=['crit_rate','crit_dmg','dmg_bonus','atk_pct','speed_pct','def_pct','break_effect','energy_regen','heal_bonus','true_dmg','concert_atk','mems_support','res_pen'];
+  const value=percentStats.includes(x.stat)?`${x.value>=0?'+':''}${(Number(x.value)*100).toFixed(1)}%`:`${x.value>=0?'+':''}${Number(x.value).toFixed(1)}`;
+  return `<span class="badge ${x.kind==='debuff'?'warn':'good'}">${esc(x.label||x.stat)} ${esc(value)} · ${esc(x.source_name||x.source)} · ${x.permanent?'常驻':`剩余${x.remaining}`}</span>`;
+}
 function renderBattleState(st){
-  if(!st){$('#enemy-live').innerHTML=$('#ally-live').innerHTML='<span class="section-kicker">等待战斗状态</span>';renderActionOrder(null);return;}
-  $('#enemy-live').innerHTML=Object.entries(st.enemies||{}).map(([id,e])=>`<div class="unit-card"><div class="unit-line"><span class="unit-name">${esc(e.name||unitNames[id]||id)} ${e.broken?'<span class="badge warn">击破</span>':''}</span><span class="unit-numbers">${num(e.hp)} / ${num(e.hp_max)}</span></div>${bar(e.hp_pct)}<div class="unit-line" style="margin-top:6px"><span class="section-kicker">韧性</span><span class="unit-numbers">${num(e.toughness)} / ${num(e.toughness_max)}</span></div>${bar(e.toughness_max?e.toughness/e.toughness_max*100:0,'toughness')}</div>`).join('')||'<span class="section-kicker">敌人已全灭</span>';
-  $('#ally-live').innerHTML=Object.entries(st.allies||{}).map(([id,a])=>`<div class="unit-card"><div class="unit-line"><span class="unit-name">${esc(a.name||unitNames[id]||id)} ${!a.alive?'<span class="badge warn">倒下</span>':''}</span><span class="unit-numbers">HP ${num(a.hp)} / ${num(a.hp_max)}</span></div>${bar(a.hp_pct)}<div class="unit-line" style="margin-top:6px"><span class="section-kicker">能量</span><span class="unit-numbers">${num(a.energy)} / ${num(a.energy_cost)}</span></div>${bar(a.energy_cost?a.energy/a.energy_cost*100:0,'energy')}</div>`).join('');
-  renderActionOrder(st);
+  if(!st){$('#enemy-live').innerHTML=$('#ally-live').innerHTML='<span class="section-kicker">等待战斗状态</span>';return;}
+  const enemyPanels=st.panels?.enemies||{};
+  $('#enemy-live').innerHTML=Object.entries(st.enemies||{}).map(([id,e])=>{const effects=enemyPanels[id]||{};const tags=[...(effects.buffs||[]),...(effects.debuffs||[])].map(formatEffect).join('');return `<div class="unit-card"><div class="unit-line"><span class="unit-name">${esc(e.name||unitNames[id]||id)} ${e.broken?'<span class="badge warn">击破</span>':''}</span><span class="unit-numbers">${num(e.hp)} / ${num(e.hp_max)}</span></div>${bar(e.hp_pct)}<div class="unit-line" style="margin-top:6px"><span class="section-kicker">韧性</span><span class="unit-numbers">${num(e.toughness)} / ${num(e.toughness_max)}</span></div>${bar(e.toughness_max?e.toughness/e.toughness_max*100:0,'toughness')}${tags?`<div style="margin-top:8px">${tags}</div>`:''}</div>`}).join('')||'<span class="section-kicker">敌人已全灭</span>';
+  const panels=st.panels?.characters||{};
+  $('#ally-live').innerHTML=Object.entries(st.allies||{}).map(([id,a])=>{const p=panels[id]||{},base=p.base||{},eff=p.effective||base;const changed=(k)=>Math.abs(Number(eff[k]||0)-Number(base[k]||0))>1e-9?' good':'';const tags=[...(p.buffs||[]),...(p.debuffs||[])].map(formatEffect).join('');return `<div class="unit-card"><div class="unit-line"><span class="unit-name">${esc(a.name||unitNames[id]||id)} ${!a.alive?'<span class="badge warn">倒下</span>':''}</span><span class="unit-numbers">HP ${num(a.hp)} / ${num(a.hp_max)} · 能量 ${num(a.energy)} / ${num(a.energy_cost)}</span></div>${bar(a.hp_pct)}<div class="stat-grid" style="margin:9px 0 0"><div class="stat"><span>攻击</span><b class="${changed('atk')}">${num(eff.atk)}</b></div><div class="stat"><span>速度</span><b class="${Math.abs(Number(p.speed||0)-Number(base.speed||0))>1e-9?'good':''}">${Number(p.speed??eff.speed??0).toFixed(1)}</b></div><div class="stat"><span>暴击</span><b class="${changed('crit_rate')}">${(Number(eff.crit_rate||0)*100).toFixed(1)}%</b></div><div class="stat"><span>暴伤</span><b class="${changed('crit_dmg')}">${(Number(eff.crit_dmg||0)*100).toFixed(1)}%</b></div><div class="stat"><span>增伤</span><b class="${changed('dmg_bonus')}">${(Number(eff.dmg_bonus||0)*100).toFixed(1)}%</b></div><div class="stat"><span>击破</span><b class="${changed('break_effect')}">${(Number(eff.break_effect||0)*100).toFixed(1)}%</b></div><div class="stat"><span>充能</span><b class="${changed('energy_regen')}">${(Number(eff.energy_regen||0)*100).toFixed(1)}%</b></div><div class="stat"><span>防御</span><b class="${changed('defense')}">${num(eff.defense)}</b></div></div>${tags?`<div style="margin-top:8px">${tags}</div>`:'<div class="section-kicker" style="margin-top:7px">当前无战斗内增减益</div>'}</div>`}).join('');
   const recent=st.damage?.recent||[]; $('#damage-live').innerHTML=recent.slice().reverse().slice(0,5).map(x=>`<div class="unit-line" style="padding:4px 0"><span>${esc(unitNames[x[1]]||x[1])} → ${esc(unitNames[x[2]]||x[2])}</span><span class="unit-numbers">${num(x[3])} · ${esc(x[4])}</span></div>`).join('')||'<span class="section-kicker">等待伤害事件</span>';
 }
 function renderTimeline(trail){
